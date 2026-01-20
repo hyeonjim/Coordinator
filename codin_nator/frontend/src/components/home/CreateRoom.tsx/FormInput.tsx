@@ -7,7 +7,7 @@ interface FormInputProps {
   required?: boolean;
   note?: string;
 }
-
+//지라
 export default function FormInput({
   label,
   placeholder,
