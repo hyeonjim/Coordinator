@@ -28,3 +28,16 @@ public class FileController {
     public ResponseEntity<List<FileResponseDto>> getFileList(@PathVariable Long roomId) {
         return ResponseEntity.ok(fileService.getFileTree(roomId));
     }
+
+    // 2. 파일 상세 내용 조회 API (파일 클릭했을 때 호출)
+    // GET /api/v1/files/{fileId}
+    @GetMapping("/files/{fileId}")
+    public ResponseEntity<String> getFileContent(@PathVariable Long fileId) throws IOException {
+        try {
+            return ResponseEntity.ok(fileService.getFileContent(fileId));
+        } catch (IOException e) {
+            System.out.println(fileService.getFileContent(fileId));
+            return ResponseEntity.status(500).body("파일 읽기 실패");
+        }
+    }
+}
