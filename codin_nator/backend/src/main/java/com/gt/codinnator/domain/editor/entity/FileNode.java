@@ -3,16 +3,14 @@ package com.gt.codinnator.domain.editor.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 @Table(name="file")
-public class File {
+public class FileNode {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private Long fileId;
@@ -28,16 +26,16 @@ public class File {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
-    private File parentId;
+    private FileNode parentId;
 
     @OneToMany(mappedBy = "parentId", cascade = CascadeType.ALL)
-    private List<File> childList = new ArrayList<>();
+    private List<FileNode> childList = new ArrayList<>();
 
-    @Column
+    @Column(nullable = false)
     private Long roomId;
 
     @Builder
-    public File(String fileName, String filePath, String type, File parentId, Long roomId){
+    public FileNode(String fileName, String filePath, String type, FileNode parentId, Long roomId){
         this.fileName = fileName;
         this.filePath = filePath;
         this.type = type;
