@@ -4,10 +4,14 @@ import Header from "../../components/home/Header";
 
 export default function HomeLayout() {
   return (
-    <div>
+    <div className="h-screen flex flex-col">
       <Header />
-      <SideBar />
-      <Outlet />
+      <div className="flex flex-1">
+        <SideBar />
+        <main className="flex-1">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }
