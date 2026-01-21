@@ -16,11 +16,15 @@ import java.util.List;
 @RequestMapping("/api/v1/room")
 @RequiredArgsConstructor
 public class FileController {
-}
     private final FileService fileService;
 
     @PostMapping("/{roomId}/uploads")
     public ResponseEntity<Void> uploadProject(@RequestParam("file") MultipartFile file, @PathVariable Long roomId) throws IOException {
         fileService.uploadProject(file, roomId);
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping("/{roomId}/files")
+    public ResponseEntity<List<FileResponseDto>> getFileList(@PathVariable Long roomId) {
+        return ResponseEntity.ok(fileService.getFileTree(roomId));
     }
