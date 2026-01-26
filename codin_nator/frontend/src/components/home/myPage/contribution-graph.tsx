@@ -196,16 +196,16 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
                   key={di}
                   title={day.date ? `${day.date} · ${day.count} errors` : ""}
                   className={`w-3 h-3 rounded-sm ${getContribClass(
-                    day.count
-                  )} hover:outline hover:outline-2 hover:black transition`}
+                    day.count,
+                  )} hover:shadow-md hover:scale-110 transition`}
                   onClick={() => {
                     if (!day.date) return;
                     setSelectedDate(day.date);
                     // setSelectedLogs(contributionData[day.date].logs);
                     setSelectedLogs(
                       [...contributionData[day.date].logs].sort((a, b) =>
-                        b.time.localeCompare(a.time)
-                      )
+                        b.time.localeCompare(a.time),
+                      ),
                     );
                     setIsLogOpen(false);
                   }}
@@ -266,7 +266,7 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
           )}
         </div>
       )}
-      
+
       {/* ===== 상세 모달 ===== */}
       {activeLog && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
