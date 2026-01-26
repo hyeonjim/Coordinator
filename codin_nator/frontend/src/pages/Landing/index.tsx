@@ -12,7 +12,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useRef } from "react";
-import logo from "./logo.png";
+import logo from "../../assets/images/logo.png";
 
 export default function LandingPage() {
   const previewRef = useRef<HTMLDivElement | null>(null);
