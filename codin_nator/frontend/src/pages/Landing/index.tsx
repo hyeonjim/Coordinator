@@ -12,7 +12,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useRef } from "react";
-import logo from "../../assets/images/logo_nobg.png";
+import logo from "../../assets/images/logo_wh.png";
 
 export default function LandingPage() {
   const previewRef = useRef<HTMLDivElement | null>(null);
@@ -21,7 +21,11 @@ export default function LandingPage() {
       {/* ================= HEADER ================= */}
       <header className="flex items-center justify-between px-10 py-6">
         <Link to="/">
-          <img src={logo} alt="CODIN'NATOR" className="w-56" />
+          <img
+            src={logo}
+            alt="CODIN'NATOR"
+            className="w-54 h-32 overflow-hidden rounded-xl"
+          />
         </Link>
         <button className="px-5 py-2 rounded-lg border border-neutral-700 hover:border-white transition">
           Login
