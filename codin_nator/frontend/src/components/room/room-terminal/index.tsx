@@ -108,7 +108,7 @@ export default function FakeTerminal({
 
   return (
     // 전체 컨테이너: flex-col로 상단(터미널)과 하단(상태바) 분리
-    <div className="flex h-full w-full flex-col bg-[#1e1e1e] overflow-hidden">
+    <div className="flex h-full w-full flex-col bg-[#1e1e1e] overflow-hidden rounded-md border border-[#333]">
       {/* 터미널 영역 (남은 공간 모두 차지) */}
       <div className="flex-1 min-h-0 bg-[#1e1e1e] p-2">
         <div ref={containerRef} className="h-full w-full" />
@@ -127,8 +127,12 @@ export default function FakeTerminal({
           </div>
         </div>
 
-        {/* 오른쪽: 커서 위치 */}
+        {/* 오른쪽: 접속자, 커서 위치 */}
         <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1 hover:bg-white/20 px-1 rounded cursor-pointer transition-colors">
+            <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
+            <span>{status.connectedUsers}명 접속</span>
+          </div>
           <div className="hover:bg-white/20 px-1 rounded cursor-pointer transition-colors">
             {status.cursorInfo}
           </div>
