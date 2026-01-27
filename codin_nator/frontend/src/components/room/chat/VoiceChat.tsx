@@ -110,9 +110,9 @@ function ParticipantRow({
   onToggle,
 }: ParticipantRowProps) {
   return (
-    <div className="flex items-center justify-between rounded-lg px-2 py-2 hover:bg-slate-50 transition-colors group bg-sky-100">
+    <div className="flex items-center justify-between rounded-lg px-1 py-1 hover:bg-slate-50 transition-colors group bg-sky-100">
       {/* 왼쪽: 아바타 + 이름 */}
-      <div className="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
+      <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
         {/* 말하는 중이면 아바타 테두리 강조 */}
         <div
           className={[
@@ -136,7 +136,7 @@ function ParticipantRow({
             {/* 내 표시 */}
             {isMe && (
               <span className="shrink-0 rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-500 border border-slate-200">
-                (host)
+                host
               </span>
             )}
           </div>

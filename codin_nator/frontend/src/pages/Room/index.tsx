@@ -167,6 +167,9 @@ export default function RoomPage() {
     navigate("/home", { replace: true });
   };
 
+  // 채팅 접었다 펴기
+  const [collapsed, setCollapsed] = useState(false);
+  
   // 채팅 전송 핸들러
   const handleSendChat = (text: string) => {
     const timestamp = Date.now();
@@ -250,12 +253,12 @@ export default function RoomPage() {
         <aside className="w-64 flex flex-col">
           <div className="flex-1 overflow-auto">
             {/* 파일 익스플로러 */}
-            <FileViewer />
+            <FileViewer roomId={Number(safeRoomId)} />
           </div>
 
           {/* 음성 채팅 섹션 */}
           <div className="h-1/3 flex flex-col">
-            <div className="p-3 flex-1 overflow-hidden">
+            <div className="p-2 flex-1 overflow-hidden">
               <VoiceChat
                 participants={participants}
                 myUserId={userId}
@@ -337,48 +340,85 @@ Tests:       1 passed, 1 total`}
         </main>
 
         {/* 오른쪽 사이드바 (AI / 채팅 탭) */}
-        <aside className="w-80 border-l border-slate-200 bg-white flex flex-col">
-          {/* 탭 헤더 */}
-          <div className="h-10 flex border-b border-slate-200">
-            <button
-              onClick={() => setActiveTab("ai")}
-              className={`flex-1 text-sm font-medium transition-colors ${activeTab === "ai" ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50/20" : "text-slate-500 hover:bg-slate-50"}`}
-            >
-              AI 기능
-            </button>
-            <button
-              onClick={() => setActiveTab("chat")}
-              className={`flex-1 text-sm font-medium transition-colors ${activeTab === "chat" ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50/20" : "text-slate-500 hover:bg-slate-50"}`}
-            >
-              채팅방
-            </button>
-          </div>
+        {/* 탭 접었다 펴기 전체 수정 */}
+        <div className="relative h-full flex">
+          <div
+            className={`
 
-          {/* 탭 컨텐츠 */}
-          <div className="flex-1 overflow-hidden flex flex-col relative">
-            {activeTab === "ai" ? (
-              <div className="absolute inset-0 p-4 bg-slate-50 flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4">
-                  <span className="text-3xl">✨</span>
-                </div>
-                <h3 className="text-slate-900 font-bold mb-1">AI Assistant</h3>
-                <p className="text-slate-500 text-sm">
-                  안녕하세요! 코드에 대해 질문하거나,
-                  <br />
-                  테스트 코드 생성을 요청해주세요.
-                </p>
+              h-full
+              transition-all
+              duration-300
+              ease-in-out
+              overflow-hidden
+              ${collapsed ? "w-0" : "w-80"}
+
+            `}
+          >
+            <aside className="h-full w-80 border-l border-slate-200 bg-white flex flex-col">
+              {/* 탭 헤더 */}
+              <div className="h-10 flex border-b border-slate-200">
+                <button
+                  onClick={() => setActiveTab("ai")}
+                  className={`flex-1 text-sm font-medium transition-colors ${activeTab === "ai" ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50/20" : "text-slate-500 hover:bg-slate-50"}`}
+                >
+                  AI 기능
+                </button>
+                <button
+                  onClick={() => setActiveTab("chat")}
+                  className={`flex-1 text-sm font-medium transition-colors ${activeTab === "chat" ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50/20" : "text-slate-500 hover:bg-slate-50"}`}
+                >
+                  채팅방
+                </button>
               </div>
-            ) : (
-              <div className="absolute inset-0 flex flex-col">
-                <TextChat
-                  messages={chatMessages}
-                  onSendMessage={handleSendChat}
-                  disabled={!isJoined}
-                />
+
+              {/* 탭 컨텐츠 */}
+              <div className="flex-1 overflow-hidden flex flex-col relative">
+                {activeTab === "ai" ? (
+                  <div className="absolute inset-0 p-4 bg-slate-50 flex flex-col items-center justify-center text-center">
+                    <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4">
+                      <span className="text-3xl">✨</span>
+                    </div>
+                    <h3 className="text-slate-900 font-bold mb-1">
+                      AI Assistant
+                    </h3>
+                    <p className="text-slate-500 text-sm">
+                      안녕하세요! 코드에 대해 질문하거나,
+                      <br />
+                      테스트 코드 생성을 요청해주세요.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="absolute inset-0 flex flex-col">
+                    <TextChat
+                      messages={chatMessages}
+                      onSendMessage={handleSendChat}
+                      disabled={!isJoined}
+                    />
+                  </div>
+                )}
               </div>
-            )}
+            </aside>
           </div>
-        </aside>
+          <button
+            onClick={() => setCollapsed((v) => !v)}
+            className="
+                absolute
+                -left-6
+                top-1/2
+                -translate-y-1/2
+                bg-neutral-700
+                hover:bg-neutral-600
+                px-1
+                py-2
+                rounded
+                text-sm
+                transition
+                z-20
+              "
+          >
+            {collapsed ? "◀" : "▶"}
+          </button>
+        </div>
       </div>
     </div>
   );
