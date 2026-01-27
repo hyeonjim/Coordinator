@@ -1,4 +1,4 @@
-import type { Participant } from "../../types/room/types";
+import type { Participant } from "../../../types/room/types";
 
 interface ParticipantListProps {
   /** 참여자 목록 */
@@ -205,7 +205,7 @@ function ParticipantRow({
  *   myUserId={userId}
  * />
  */
-export function ParticipantList({
+export function VoiceChat({
   participants,
   myUserId,
   onToggleMic,
