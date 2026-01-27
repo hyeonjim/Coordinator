@@ -1,3 +1,4 @@
+import CodeEditor from "../../components/room/code-editor";
 import FileViewer from "../../components/room/file-viewer";
 import RoomTerminal from "../../components/room/room-terminal";
 export default function RoomPage() {
@@ -13,7 +14,10 @@ export default function RoomPage() {
       </aside>
       {/* 메인 영역 */}
       <main className="border">
-        <div>{/* 에디터 */}</div>
+        <div>
+          {/* 에디터 */}
+          <CodeEditor />
+        </div>
         <div>
           {/* 터미널 */}
           {/* 높이 지정(h-[500px]? 또는 h-screen)
