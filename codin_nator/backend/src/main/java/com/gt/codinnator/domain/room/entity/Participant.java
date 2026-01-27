@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "Participant")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ParticipantEntity {
+public class Participant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,7 @@ public class ParticipantEntity {
     private Long userId;
 
     @Builder
-    public ParticipantEntity(Long roomId, Long userId) {
+    public Participant(Long roomId, Long userId) {
         this.roomId = roomId;
         this.userId = userId;
     }

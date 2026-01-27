@@ -1,7 +1,8 @@
 package com.gt.codinnator.domain.room.service;
 
 import com.gt.codinnator.domain.room.dto.RoomReqDto;
-import com.gt.codinnator.domain.room.entity.ParticipantEntity;
+import com.gt.codinnator.domain.room.entity.Participant;
+import com.gt.codinnator.domain.room.entity.Room;
 import com.gt.codinnator.domain.room.entity.RoomEntity;
 import com.gt.codinnator.domain.room.repository.ParticipantRepository;
 import com.gt.codinnator.domain.room.repository.RoomRepository;
@@ -22,11 +23,11 @@ public class RoomService {
     private final ParticipantRepository participantRepository;
 
     @Transactional
-    public Long createRoom(RoomReqDto request) {
+    public Long createRoom(RoomReqDto request, Long loginUserId) {
         // 1. Room 엔티티 생성 및 저장
         RoomEntity room = RoomEntity.builder()
                 .title(request.getName())
-                .userId(request.getUserId()) // 방장 ID 저장
+                .userId(loginUserId) // 방장 ID 저장
                 .fileId(request.getFileId())
                 .gitToken(request.getGitToken())
                 .roomUrl(UUID.randomUUID().toString()) // 고유한 방 주소 생성
@@ -34,10 +35,10 @@ public class RoomService {
                 .isDeleted("F")
                 .build();
 
-        RoomEntity savedRoom = roomRepository.save(room);
+        Room savedRoom = roomRepository.save(room);
 
         // 2. 방장을 Participant(참여자) 테이블에 등록
-        ParticipantEntity participant = ParticipantEntity.builder()
+        Participant participant = Participant.builder()
                 .roomId(savedRoom.getRoomId())
                 .userId(request.getUserId())
                 .build();
