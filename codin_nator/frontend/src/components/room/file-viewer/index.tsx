@@ -239,7 +239,7 @@ const FileViewer = () => {
       </div>
 
       {/* 하단 상태바 (파란색 줄) */}
-      <div className="h-[22px] bg-[#007acc] text-white text-[11px] flex items-center px-3 gap-3">
+      <div className="bg-[#007acc] text-white text-[11px] flex items-center px-3 gap-3">
         <span>master*</span>
         <span>Run Code</span>
       </div>

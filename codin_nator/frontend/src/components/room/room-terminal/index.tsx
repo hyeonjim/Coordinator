@@ -108,7 +108,7 @@ export default function FakeTerminal({
 
   return (
     // 전체 컨테이너: flex-col로 상단(터미널)과 하단(상태바) 분리
-    <div className="flex h-full w-full flex-col bg-[#1e1e1e] overflow-hidden rounded-md border border-[#333]">
+    <div className="flex h-full w-full flex-col bg-[#1e1e1e] overflow-hidden">
       {/* 터미널 영역 (남은 공간 모두 차지) */}
       <div className="flex-1 min-h-0 bg-[#1e1e1e] p-2">
         <div ref={containerRef} className="h-full w-full" />

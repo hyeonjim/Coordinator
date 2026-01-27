@@ -110,32 +110,40 @@ function ParticipantRow({
   onToggle,
 }: ParticipantRowProps) {
   return (
-    <div className="flex items-center justify-between rounded-xl px-3 py-3 bg-white border border-slate-100">
+    <div className="flex items-center justify-between rounded-lg px-2 py-2 hover:bg-slate-50 transition-colors group bg-sky-100">
       {/* 왼쪽: 아바타 + 이름 */}
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
         {/* 말하는 중이면 아바타 테두리 강조 */}
         <div
           className={[
-            "rounded-full p-[2px] transition-all duration-200",
-            isSpeaking
-              ? "bg-emerald-500 scale-110 shadow-lg shadow-emerald-100"
-              : "bg-transparent scale-100",
+            "relative rounded-full p-[2px] transition-all duration-200 shrink-0",
+            isSpeaking ? "bg-emerald-500 shadow-sm" : "bg-transparent",
           ].join(" ")}
         >
           <Avatar name={name} />
+          {/* 말하는 중 아이콘 애니메이션 (옵션) */}
+          {isSpeaking && (
+            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center">
+              <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+            </div>
+          )}
         </div>
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="truncate text-[15px] font-semibold text-slate-900">
+        <div className="flex flex-col min-w-0">
+          <div className="flex items-center gap-1.5">
+            <span className="truncate text-[14px] font-semibold text-slate-800 leading-tight">
               {name}
             </span>
             {/* 내 표시 */}
             {isMe && (
-              <span className="rounded-full bg-indigo-100 px-2 py-[2px] text-[11px] font-semibold text-indigo-600">
-                나
+              <span className="shrink-0 rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-500 border border-slate-200">
+                (host)
               </span>
             )}
           </div>
+          <span className="text-[11px] text-slate-400 truncate">
+            {/* 상태 메시지 예시 (추후 연동 가능) */}
+            {isSpeaking ? "말하는 중..." : "대기 중"}
+          </span>
         </div>
       </div>
 
@@ -213,12 +221,12 @@ export function VoiceChat({
   isPeerMuted,
 }: ParticipantListProps) {
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-sm">
-      <h2 className="text-[15px] font-bold text-slate-800 mb-3">
-        참여자 {participants.length}명
+    <div className="rounded-xl flex flex-col h-full">
+      <h2 className="text-[11px] font-bold text-slate-500 mb-1 px-1 uppercase tracking-wider">
+        참여자
       </h2>
 
-      <div className="space-y-2">
+      <div className="space-y-2 overflow-y-auto flex-1 pr-1 custom-scrollbar">
         {/* map으로 리스트 렌더링, key는 고유한 userId 사용 */}
         {participants.map((p) => (
           <ParticipantRow
@@ -236,7 +244,7 @@ export function VoiceChat({
         ))}
         {/* 참여자가 없을 때 */}
         {participants.length === 0 && (
-          <p className="text-center text-slate-400 py-4">
+          <p className="text-center text-slate-400 py-4 text-sm">
             아직 참여자가 없습니다
           </p>
         )}
