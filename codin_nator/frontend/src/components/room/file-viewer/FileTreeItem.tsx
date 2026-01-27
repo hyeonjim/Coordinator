@@ -6,7 +6,7 @@ import {
   VscFolder,
   VscFolderOpened,
 } from "react-icons/vsc";
-import type { FileNode } from "./types";
+import type { FileNode } from "../../../types/file/types";
 import { getFileIcon } from "./utils";
 
 interface FileTreeItemProps {

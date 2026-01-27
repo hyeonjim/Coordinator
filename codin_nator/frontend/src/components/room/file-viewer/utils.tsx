@@ -9,7 +9,11 @@ import {
   SiTypescript,
 } from "react-icons/si";
 import { VscFile } from "react-icons/vsc";
-import type { FileNode, LocalFileSystemFileEntry, RawNode } from "./types";
+import type {
+  FileNode,
+  LocalFileSystemFileEntry,
+  RawNode,
+} from "../../../types/file/types";
 
 /**
  * 파일 확장자에 따른 아이콘 반환

@@ -2,7 +2,11 @@ import axios from "axios";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { DragEvent } from "react";
 import { getFileTree } from "../../../lib/utils";
-import type { FileNode, LocalFileSystemFileEntry, RawNode } from "./types";
+import type {
+  FileNode,
+  LocalFileSystemFileEntry,
+  RawNode,
+} from "../../../types/file/types";
 import { normalizeFileTree, sanitizeTree } from "./utils";
 
 interface UseFileViewerProps {

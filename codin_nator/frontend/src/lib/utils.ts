@@ -5,7 +5,7 @@ import type {
   LocalFileSystemFileEntry,
   LocalFileSystemDirectoryEntry,
   LocalFileSystemDirectoryReader,
-} from "../components/room/file-viewer/types";
+} from "../types/file/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

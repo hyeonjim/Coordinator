@@ -11,7 +11,7 @@ import { VoiceChat } from "../../components/room/chat/VoiceChat";
 import { TextChat } from "../../components/room/chat/TextChat";
 import Header from "../../components/room/Header";
 
-import type { ChatMessage, Participant } from "../../types/room/types";
+import type { ChatMessage, Participant } from "../../types/chat/types";
 
 /**
  * 랜덤 ID 생성 유틸
@@ -169,7 +169,7 @@ export default function RoomPage() {
 
   // 채팅 접었다 펴기
   const [collapsed, setCollapsed] = useState(false);
-  
+
   // 채팅 전송 핸들러
   const handleSendChat = (text: string) => {
     const timestamp = Date.now();

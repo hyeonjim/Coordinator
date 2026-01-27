@@ -1,3 +1,5 @@
+// 규성코드인데 전면수정했음 나중에 리팩토링 예정 
+
 import { VscChevronDown, VscFolderOpened, VscLoading } from "react-icons/vsc";
 import { FileTreeItem } from "./FileTreeItem";
 import { useFileViewer } from "./useFileViewer";
