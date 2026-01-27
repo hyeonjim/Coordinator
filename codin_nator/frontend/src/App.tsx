@@ -20,7 +20,7 @@ export default function App() {
           <Route path="settings" element={<SettingPage />} />
         </Route>
 
-        <Route path="/room" element={<RoomPage />} />
+        <Route path="/room/:roomId" element={<RoomPage />} />
       </Routes>
     </BrowserRouter>
   );

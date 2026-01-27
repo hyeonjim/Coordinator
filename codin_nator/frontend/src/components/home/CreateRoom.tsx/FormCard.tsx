@@ -5,7 +5,6 @@ interface FormCardProps {
   children: React.ReactNode;
   className?: string;
 }
-// 지라커밋
 
 export default function FormCard({
   icon,
@@ -13,7 +12,7 @@ export default function FormCard({
   description,
   children,
   className,
-}: any) {
+}: FormCardProps) {
   return (
     <div
       className={`bg-white rounded-xl border border-gray-100 overflow-hidden ${className}`}
