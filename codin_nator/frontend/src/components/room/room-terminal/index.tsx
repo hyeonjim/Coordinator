@@ -127,12 +127,8 @@ export default function FakeTerminal({
           </div>
         </div>
 
-        {/* 오른쪽: 접속자, 커서 위치 */}
+        {/* 오른쪽: 커서 위치 */}
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1 hover:bg-white/20 px-1 rounded cursor-pointer transition-colors">
-            <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
-            <span>{status.connectedUsers}명 접속</span>
-          </div>
           <div className="hover:bg-white/20 px-1 rounded cursor-pointer transition-colors">
             {status.cursorInfo}
           </div>

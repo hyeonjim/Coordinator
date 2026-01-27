@@ -146,7 +146,7 @@ export function TextChat({ messages, onSendMessage, disabled }: TextChatProps) {
           <button
             type="submit"
             disabled={disabled || !inputText.trim()}
-            className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="rounded-xl bg-indigo-400 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 disabled:opacity-70 transition-colors whitespace-nowrap"
           >
             전송
           </button>

@@ -222,9 +222,15 @@ export function VoiceChat({
 }: ParticipantListProps) {
   return (
     <div className="rounded-xl flex flex-col h-full">
-      <h2 className="text-[11px] font-bold text-slate-500 mb-1 px-1 uppercase tracking-wider">
-        참여자
-      </h2>
+      <div className="flex items-center justify-between mb-1 px-1">
+        <h2 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+          참여자
+        </h2>
+        <div className="flex items-center gap-1 hover:bg-slate-100 px-1 rounded cursor-pointer transition-colors text-[10px] text-slate-500 font-medium">
+          <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></span>
+          <span>{participants.length}명 접속</span>
+        </div>
+      </div>
 
       <div className="space-y-2 overflow-y-auto flex-1 pr-1 custom-scrollbar">
         {/* map으로 리스트 렌더링, key는 고유한 userId 사용 */}
