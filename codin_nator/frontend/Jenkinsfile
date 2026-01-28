@@ -1,0 +1,77 @@
+pipeline {
+  agent any
+
+  tools {
+    nodejs 'NodeJS'
+  }
+
+  environment {
+    BUILD_DIR = 'codin_nator/frontend/dist'                // frontend 디렉토리 안에서의 빌드 결과
+    NGINX_CONTAINER = 'nginx'
+    NGINX_HTML_PATH = '/usr/share/nginx/html'
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        git branch: 'dev',
+            url: 'https://lab.ssafy.com/s14-webmobile1-sub1/S14P11E205.git',
+            credentialsId: 'jenkins-ci'
+      }
+    }
+
+    stage('Install Dependencies') {
+      steps {
+        dir('codin_nator/frontend') {
+          sh 'npm install'
+        }
+      }
+    }
+
+    stage('Build') {
+      steps {
+        dir('codin_nator/frontend') {
+          sh 'npm run build'
+        }
+      }
+    }
+
+stage('Deploy (Zero Downtime)') {
+  steps {
+    dir('codin_nator/frontend') {
+      sshagent(credentials: ['nginx-ssh-key']) {
+        sh '''
+          set -e
+
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          RELEASE_DIR=/usr/share/nginx/html/releases/$TIMESTAMP
+
+          ssh ubuntu@i14e205.p.ssafy.io "
+            mkdir -p $RELEASE_DIR
+          "
+
+          scp -r dist/* ubuntu@i14e205.p.ssafy.io:$RELEASE_DIR/
+
+          ssh ubuntu@i14e205.p.ssafy.io "
+            ln -sfn $RELEASE_DIR /usr/share/nginx/html/current
+          "
+        '''
+      }
+    }
+  }
+}
+
+
+
+
+  }
+
+  post {
+    success {
+      echo '✅ Frontend deployment succeeded'
+    }
+    failure {
+      echo '❌ Frontend deployment failed'
+    }
+  }
+}
