@@ -10,25 +10,25 @@ export default function CreateRoomTab() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-0">
           {/* 2. 페이지 내부헤더 */}
           <div className="lg:col-span-2 flex flex-col justify-center pl-3">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            <h1 className="text-xl font-bold text-gray-900 mb-2">
               새 프로젝트 방 만들기
             </h1>
-            <p className="text-gray-500">
+            {/* <p className="text-gray-500">
               Git 레파지토리를 연결하여 협업 코딩 환경을 구성합니다.
-            </p>
+            </p> */}
           </div>
-          <div className="lg:col-span-1 flex flex-col justify-center">
+          {/* <div className="lg:col-span-1 flex flex-col justify-center">
             <button className="w-full h-[56px] bg-white text-lg font-medium text-gray-900 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all shadow-sm">
               방 생성하기
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
 
       {/* 2. 레이아웃 나누기 (왼쪽:오른쪽 = 2:1) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-24">
         {/* [왼쪽] 입력 폼 영역 */}
-        <div className="lg:col-span-2 space-y-6 ">
+        <div className="lg:col-span-2 space-y-6">
           <FormCard
             title="프로젝트 정보"
             description="협업 방의 기본 정보를 입력해주세요."
@@ -39,7 +39,7 @@ export default function CreateRoomTab() {
           >
             <FormInput
               label="방 제목"
-              placeholder="프로젝트 이름을 입력하세요"
+              placeholder="프로젝트 이름을 입력하세요."
               required
             />
 
@@ -50,11 +50,11 @@ export default function CreateRoomTab() {
               required
             />
             <FormInput
-              label="레파지토리 명"
-              placeholder="username/repository"
+              label="브랜치명"
+              placeholder="Push할 브랜치명을 입력하세요."
               required
             />
-            <div className="grid grid-cols-2 gap-4">
+            {/* <div className="grid grid-cols-2 gap-4">
               <FormInput label="브렌치 명" placeholder="main" required />
 
               <FormInput
@@ -62,12 +62,12 @@ export default function CreateRoomTab() {
                 placeholder="feature/new-branch"
                 note="선택 사항"
               />
-            </div>
+            </div> */}
           </FormCard>{" "}
           {/* 끝 */}
         </div>
         {/* 여기서 부터 오른쪽임 */}
-        <div className="space-y-6 lg:col-span-1 h-full flex flex-col gap-6">
+        <div className="lg:col-span-1 h-full flex flex-col gap-6">
           <FormCard
             title="Git 토큰 발급 방법"
             icon={<img src="/icons/key.png" alt="열쇠" className="w-5 h-5" />}
@@ -76,8 +76,11 @@ export default function CreateRoomTab() {
               <ol className="list-decimal list-inside space-y-2">
                 <li>GitHub 설정 페이지로 이동</li>
                 <li>Developer settings 선택</li>
-                <li>Personal access tokens 클릭</li>
-                <li>Generate new token 선택</li>
+                <li>Personal access tokens 선택</li>
+                <li>Generate new token 클릭</li>
+                <li>+ Add permissions 클릭</li>
+                <li>Contents 체크</li>
+                <li>Read and write 선택</li>
               </ol>
               {/* 링크 */}
               <a
@@ -91,7 +94,10 @@ export default function CreateRoomTab() {
               </a>
             </div>
           </FormCard>
-          <FormCard
+          <button className="w-full h-[56px] bg-white text-lg font-medium text-gray-900 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all shadow-sm">
+            방 생성하기
+          </button>
+          {/* <FormCard
             title="레파지토리 형식"
             icon={
               <img src="/icons/git-branch.png" alt="git" className="w-5 h-5" />
@@ -107,7 +113,7 @@ export default function CreateRoomTab() {
               </div>
               <p className="text-xs text-gray-500">예: octocat/hello-word</p>
             </div>
-          </FormCard>
+          </FormCard> */}
           {/* 끝 */}
         </div>
       </div>
