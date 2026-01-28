@@ -5,7 +5,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import type { ChatMessage } from "../../../types/room/types";
+import type { ChatMessage } from "../../../types/chat/types";
 
 interface TextChatProps {
   /** 채팅 메시지 목록 */
@@ -112,11 +112,8 @@ export function TextChat({ messages, onSendMessage, disabled }: TextChatProps) {
   };
 
   return (
-    <div className="rounded-2xl bg-white shadow-sm flex flex-col h-80">
-      {/* 헤더 */}
-      <div className="p-4 border-b border-slate-100">
-        <h2 className="text-[15px] font-bold text-slate-800">채팅</h2>
-      </div>
+    <div className="flex flex-col h-full bg-white">
+      {/* 헤더 제거됨 (상위 탭으로 대체) */}
 
       {/* 메시지 목록 */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -149,7 +146,7 @@ export function TextChat({ messages, onSendMessage, disabled }: TextChatProps) {
           <button
             type="submit"
             disabled={disabled || !inputText.trim()}
-            className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="rounded-xl bg-indigo-400 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 disabled:opacity-70 transition-colors whitespace-nowrap"
           >
             전송
           </button>
