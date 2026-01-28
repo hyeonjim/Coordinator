@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import FileViewer from "../../components/room/file-viewer";
 import RoomTerminal from "../../components/room/room-terminal";
+import CodeEditor from "../../components/room/code-editor";
 
 import { useWebSocket } from "./hooks/useWebSocket";
 import { useWebRTC } from "./hooks/useWebRTC";
@@ -312,9 +313,8 @@ export default function RoomPage() {
           <div className="flex-1 relative">
             {/* 에디터 플레이스홀더 */}
             <div className="absolute inset-0 flex items-center justify-center text-slate-500">
-              <span className="text-white opacity-20 text-4xl font-light">
-                Editor Area
-              </span>
+              {/* 에디터 */}
+              <CodeEditor />
             </div>
           </div>
           <div className="h-64 border-t border-slate-700 bg-[#1e1e1e]">
