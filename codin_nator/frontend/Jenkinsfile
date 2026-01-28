@@ -12,16 +12,6 @@ pipeline {
   }
 
   stages {
-<<<<<<< HEAD
-=======
-    stage('Checkout') {
-      steps {
-        git branch: 'dev',
-            url: 'https://lab.ssafy.com/s14-webmobile1-sub1/S14P11E205.git',
-            credentialsId: 'jenkins-ci'
-      }
-    }
->>>>>>> 9705a634cbd943622ed680f96c208bd485ce3a7c
 
     stage('Install Dependencies') {
       steps {
