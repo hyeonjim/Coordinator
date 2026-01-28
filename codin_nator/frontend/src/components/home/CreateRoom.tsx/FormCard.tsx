@@ -13,7 +13,7 @@ export default function FormCard({
   description,
   children,
   className,
-}: any) {
+}: FormCardProps) {
   return (
     <div
       className={`bg-white rounded-xl border border-gray-100 overflow-hidden ${className}`}
