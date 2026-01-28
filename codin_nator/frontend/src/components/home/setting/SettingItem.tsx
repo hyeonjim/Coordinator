@@ -1,4 +1,4 @@
-import type ItemProps from "../../../types/setting/item";
+import type ItemProps from "../../../types/home/setting/item";
 
 export default function SettingItem({
   title,
