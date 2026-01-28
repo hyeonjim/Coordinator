@@ -1,5 +1,5 @@
 interface TabProps {
-  to: string;
+  to: "/home/mypage" | "/home/create" | "/home/settings";
   icon: React.ReactNode;
 }
 
