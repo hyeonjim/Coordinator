@@ -10,7 +10,7 @@ export default function CodeEditor() {
 
   const provider = useMemo(
     () =>
-      new WebsocketProvider("ws://192.168.30.133:8080/ws/code/1/10", "", ydoc, {
+      new WebsocketProvider("localhost", "", ydoc, {
         params: { userId: "tester" },
       }),
     [ydoc],
