@@ -24,7 +24,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
-        // 1. GitHub에서 가져온 정보
+        // 1. Github에서 가져온 정보
         String registrationId = userRequest.getClientRegistration().getRegistrationId(); // "github"
         String accessToken = userRequest.getAccessToken().getTokenValue(); // git_token에 저장할 값
 

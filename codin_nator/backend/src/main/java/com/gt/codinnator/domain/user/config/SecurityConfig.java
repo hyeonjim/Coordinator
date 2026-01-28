@@ -30,9 +30,6 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용 안함
                 .headers(headers -> headers.frameOptions(frame -> frame.disable())) // H2 콘솔 등을 쓸 경우 대비
                 .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/", "/css/**", "/images/**", "/js/**").permitAll() // 누구나 접근 가능
-//                        .anyRequest().authenticated() // 그 외 모든 요청은 로그인 필요
-//                                .anyRequest().permitAll()
                                 .requestMatchers("/", "/login/**", "/oauth2/**").permitAll()
                                 .anyRequest().authenticated()
                 )

@@ -27,7 +27,7 @@ public class UserPrincipal implements UserDetails {
         return Collections.emptyList(); // 필요 시 권한(ROLE_USER 등) 추가
     }
 
-    // 나머지 UserDetails 오버라이드 메서드들 (true 반환)
+    // 나머지 UserDetails 오버라이드 메서드 (true 반환)
     @Override public boolean isAccountNonExpired() { return true; }
     @Override public boolean isAccountNonLocked() { return true; }
     @Override public boolean isCredentialsNonExpired() { return true; }
