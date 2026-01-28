@@ -35,16 +35,17 @@ public class RoomService {
                 .isDeleted("F")
                 .build();
 
-        Room savedRoom = roomRepository.save(room);
+//        Room savedRoom = roomRepository.save(room);
 
         // 2. 방장을 Participant(참여자) 테이블에 등록
         Participant participant = Participant.builder()
-                .roomId(savedRoom.getRoomId())
+//                .roomId(savedRoom.getRoomId())
                 .userId(request.getUserId())
                 .build();
 
         participantRepository.save(participant);
 
-        return savedRoom.getRoomId();
+//        return savedRoom.getRoomId();
+        return null;
     }
 }

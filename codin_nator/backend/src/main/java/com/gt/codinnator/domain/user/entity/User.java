@@ -19,7 +19,7 @@ public class User {
 
     private String name;
 
-    private String gitId; // GitHub의 고유 ID (예: 1234567)
+    private String gitId; // GitHub의 고유 ID
 
     @Column(columnDefinition = "TEXT")
     private String gitToken;

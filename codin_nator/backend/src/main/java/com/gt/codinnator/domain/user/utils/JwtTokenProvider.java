@@ -48,7 +48,7 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String token) {
         String gitId = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
 
-        // 단순 권한 부여 (실제 DB 조회 후 UserDetails를 넣는 것이 더 정석적입니다)
+        // 단순 권한 부여
         return new UsernamePasswordAuthenticationToken(gitId, "",
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
     }
