@@ -1,4 +1,3 @@
-import { ActivityList } from "../../../components/home/myPage/activity-list";
 import {
   Avatar,
   AvatarFallback,
@@ -38,11 +37,6 @@ export default function MyPage() {
       {/* Contribution Graph */}
       <div className="bg-card rounded-xl border p-6">
         <ContributionGraph />
-      </div>
-
-      {/* Activity List */}
-      <div className="bg-card rounded-xl border p-6">
-        <ActivityList />
       </div>
     </div>
   );
