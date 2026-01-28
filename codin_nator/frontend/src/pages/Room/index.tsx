@@ -1,24 +1,18 @@
-/**
- * [병합 포인트 1] import 통합
- * - 기본 코드의 컴포넌트 + 내 코드의 훅/타입/컴포넌트
- */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-// 기본 코드의 컴포넌트
 import FileViewer from "../../components/room/file-viewer";
 import RoomTerminal from "../../components/room/room-terminal";
+import CodeEditor from "../../components/room/code-editor";
 
-// 내 코드의 커스텀 훅
 import { useWebSocket } from "./hooks/useWebSocket";
 import { useWebRTC } from "./hooks/useWebRTC";
 
-// 내 코드의 UI 컴포넌트
 import { VoiceChat } from "../../components/room/chat/VoiceChat";
 import { TextChat } from "../../components/room/chat/TextChat";
+import Header from "../../components/room/Header";
 
-// 타입
-import type { ChatMessage, Participant } from "../../types/room/types";
+import type { ChatMessage, Participant } from "../../types/chat/types";
 
 /**
  * 랜덤 ID 생성 유틸
@@ -31,10 +25,6 @@ export default function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
 
-  /**
-   * [병합 포인트 2] 내 코드의 모든 상태/로직 가져오기
-   */
-
   // 사용자 정보
   const userId = useMemo(() => generateId("user"), []);
   const userName = useMemo(() => `사용자_${userId.slice(-4)}`, [userId]);
@@ -44,10 +34,10 @@ export default function RoomPage() {
   );
   const safeRoomId = roomId ?? "";
 
-  // 상태 관리
   const [isJoined, setIsJoined] = useState(false);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [activeTab, setActiveTab] = useState<"ai" | "chat">("chat");
 
   // 커스텀 훅 연결
   const ws = useWebSocket(wsUrl);
@@ -178,6 +168,9 @@ export default function RoomPage() {
     navigate("/home", { replace: true });
   };
 
+  // 채팅 접었다 펴기
+  const [collapsed, setCollapsed] = useState(false);
+
   // 채팅 전송 핸들러
   const handleSendChat = (text: string) => {
     const timestamp = Date.now();
@@ -246,123 +239,187 @@ export default function RoomPage() {
     ]);
   };
 
-  /**
-   * [병합 포인트 3] JSX - 기본 코드 레이아웃에 내 코드 컴포넌트 삽입
-   */
   return (
-    <div className="h-screen flex">
-      {/* 왼쪽 사이드바 */}
-      <aside className="w-64 border-r flex flex-col">
-        <div className="flex-1 overflow-auto">
-          {/* 파일 익스플로러 */}
-          <FileViewer />
-        </div>
-        <div className="border-t">
-          {/* ✅ 음성채팅 - 내 코드에서 가져옴 */}
-          <div className="p-2">
-            {/* 연결 상태 & 참여/나가기 버튼 */}
-            <div className="flex items-center justify-between mb-2">
-              <span
-                className={`rounded-full px-2 py-1 text-xs font-medium ${
-                  ws.isConnected
-                    ? "bg-emerald-100 text-emerald-700"
-                    : "bg-slate-100 text-slate-500"
-                }`}
-              >
-                {ws.isConnected ? "연결됨" : "연결 안됨"}
-              </span>
-              {isJoined ? (
-                <button
-                  onClick={handleLeave}
-                  className="px-3 py-1.5 rounded-lg bg-rose-50 text-rose-600 text-xs font-bold border border-rose-100 hover:bg-rose-100"
-                >
-                  나가기
-                </button>
-              ) : (
-                <button
-                  onClick={handleJoinAction}
-                  className="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-600 text-xs font-bold border border-emerald-100 hover:bg-emerald-100"
-                >
-                  참여하기
-                </button>
-              )}
-            </div>
-            {/* 참여자 목록 */}
-            <VoiceChat
-              participants={participants}
-              myUserId={userId}
-              onToggleMic={rtc.toggleMic}
-              onTogglePeerMute={rtc.togglePeerMute}
-              isPeerMuted={rtc.isPeerMuted}
-            />
+    <div className="h-screen flex flex-col">
+      {/* 1. 상단 헤더 */}
+      <Header
+        isJoined={isJoined}
+        onJoin={handleJoinAction}
+        onLeave={handleLeave}
+      />
+
+      {/* 2. 메인 컨텐츠 (3단 레이아웃) */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* 왼쪽 사이드바 (파일 + 음성 채팅) */}
+        <aside className="w-64 flex flex-col">
+          <div className="flex-1 overflow-auto">
+            {/* 파일 익스플로러 */}
+            <FileViewer roomId={Number(safeRoomId)} />
           </div>
 
-          {/* ✅ 테스트 도구 - 개발 중에만 사용 */}
-          {import.meta.env.DEV && (
-            <div className="p-2 bg-slate-100 border-t">
-              <p className="text-xs font-bold text-slate-600 mb-1">🛠️ 테스트</p>
-              <div className="flex flex-wrap gap-1">
-                <button
-                  onClick={simulateTestUserJoin}
-                  className="px-2 py-1 bg-emerald-600 text-white text-xs rounded"
-                >
-                  유저 입장
-                </button>
-                <button
-                  onClick={simulateTestUserMessage}
-                  className="px-2 py-1 bg-blue-600 text-white text-xs rounded"
-                >
-                  메시지
-                </button>
-                <button
-                  onClick={() => rtc.simulateIncomingAudio(TEST_USER_ID)}
-                  className="px-2 py-1 bg-rose-600 text-white text-xs rounded"
-                >
-                  음성
-                </button>
-              </div>
+          {/* 음성 채팅 섹션 */}
+          <div className="h-1/3 flex flex-col">
+            <div className="p-2 flex-1 overflow-hidden">
+              <VoiceChat
+                participants={participants}
+                myUserId={userId}
+                onToggleMic={rtc.toggleMic}
+                onTogglePeerMute={rtc.togglePeerMute}
+                isPeerMuted={rtc.isPeerMuted}
+              />
             </div>
-          )}
-        </div>
-      </aside>
 
-      {/* 메인 영역 */}
-      <main className="flex-1 flex flex-col border-r">
-        <div className="flex-1">{/* 에디터 */}</div>
-        <div className="h-64 border-t">
-          {/* 터미널 */}
-          <RoomTerminal
-            projectName="codin_nator"
-            branchName="main"
-            userName={userName}
-            command="npm test"
-            output={`PASS  src/App.test.jsx
+            {/* 테스트 도구 - 개발 중에만 사용 */}
+            {import.meta.env.DEV && (
+              <div className="p-2 bg-slate-100 border-t border-slate-200">
+                <p className="text-[10px] font-bold text-slate-500 mb-1">
+                  🛠️ DEBUG
+                </p>
+                <div className="flex flex-wrap gap-1">
+                  <button
+                    onClick={simulateTestUserJoin}
+                    className="px-1.5 py-0.5 bg-slate-600 text-white text-[10px] rounded hover:bg-slate-700"
+                  >
+                    유저+
+                  </button>
+                  <button
+                    onClick={simulateTestUserMessage}
+                    className="px-1.5 py-0.5 bg-blue-600 text-white text-[10px] rounded hover:bg-blue-700"
+                  >
+                    채팅+
+                  </button>
+                  <button
+                    onClick={() => rtc.simulateIncomingAudio(TEST_USER_ID)}
+                    className="px-1.5 py-0.5 bg-rose-600 text-white text-[10px] rounded hover:bg-rose-700"
+                  >
+                    상대방 음성확인
+                  </button>
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  <span
+                    className={`w-2 h-2 rounded-full ${ws.isConnected ? "bg-green-500" : "bg-red-500"}`}
+                  />
+                  <span className="text-[10px] text-slate-500">
+                    {ws.isConnected ? "WS Connected" : "WS Disconnected"}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        </aside>
+
+        {/* 중앙 메인 (에디터 + 터미널) */}
+        <main className="flex-1 flex flex-col min-w-0 bg-[#1e1e1e]">
+          <div className="flex-1 relative">
+            {/* 에디터 플레이스홀더 */}
+            <div className="absolute inset-0 flex items-center justify-center text-slate-500">
+              {/* 에디터 */}
+              <CodeEditor />
+            </div>
+          </div>
+          <div className="h-64 border-t border-slate-700 bg-[#1e1e1e]">
+            {/* 터미널 */}
+            <RoomTerminal
+              projectName="codin_nator"
+              branchName="main"
+              userName={userName}
+              command="npm test"
+              output={`PASS  src/App.test.jsx
 ✓ 화면에 Hello React가 보인다 (32 ms)
 
 Test Suites: 1 passed, 1 total
 Tests:       1 passed, 1 total`}
-            status={{
-              language: "Java",
-              encoding: "UTF-8",
-              connectedUsers: participants.length,
-              cursorInfo: "Ln 1, Col 1",
-            }}
-          />
-        </div>
-      </main>
+              status={{
+                language: "Java",
+                encoding: "UTF-8",
+                connectedUsers: participants.length,
+                cursorInfo: "Ln 1, Col 1",
+              }}
+            />
+          </div>
+        </main>
 
-      {/* 오른쪽 사이드바 */}
-      <aside className="w-80 border flex flex-col">
-        <div className="flex-1">{/* AI */}</div>
-        <div className="h-1/2 border-t">
-          {/* ✅ 텍스트 채팅 - 내 코드에서 가져옴 */}
-          <TextChat
-            messages={chatMessages}
-            onSendMessage={handleSendChat}
-            disabled={!isJoined}
-          />
+        {/* 오른쪽 사이드바 (AI / 채팅 탭) */}
+        {/* 탭 접었다 펴기 전체 수정 */}
+        <div className="relative h-full flex">
+          <div
+            className={`
+
+              h-full
+              transition-all
+              duration-300
+              ease-in-out
+              overflow-hidden
+              ${collapsed ? "w-0" : "w-80"}
+
+            `}
+          >
+            <aside className="h-full w-80 border-l border-slate-200 bg-white flex flex-col">
+              {/* 탭 헤더 */}
+              <div className="h-10 flex border-b border-slate-200">
+                <button
+                  onClick={() => setActiveTab("ai")}
+                  className={`flex-1 text-sm font-medium transition-colors ${activeTab === "ai" ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50/20" : "text-slate-500 hover:bg-slate-50"}`}
+                >
+                  AI 기능
+                </button>
+                <button
+                  onClick={() => setActiveTab("chat")}
+                  className={`flex-1 text-sm font-medium transition-colors ${activeTab === "chat" ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50/20" : "text-slate-500 hover:bg-slate-50"}`}
+                >
+                  채팅방
+                </button>
+              </div>
+
+              {/* 탭 컨텐츠 */}
+              <div className="flex-1 overflow-hidden flex flex-col relative">
+                {activeTab === "ai" ? (
+                  <div className="absolute inset-0 p-4 bg-slate-50 flex flex-col items-center justify-center text-center">
+                    <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4">
+                      <span className="text-3xl">✨</span>
+                    </div>
+                    <h3 className="text-slate-900 font-bold mb-1">
+                      AI Assistant
+                    </h3>
+                    <p className="text-slate-500 text-sm">
+                      안녕하세요! 코드에 대해 질문하거나,
+                      <br />
+                      테스트 코드 생성을 요청해주세요.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="absolute inset-0 flex flex-col">
+                    <TextChat
+                      messages={chatMessages}
+                      onSendMessage={handleSendChat}
+                      disabled={!isJoined}
+                    />
+                  </div>
+                )}
+              </div>
+            </aside>
+          </div>
+          <button
+            onClick={() => setCollapsed((v) => !v)}
+            className="
+                absolute
+                -left-6
+                top-1/2
+                -translate-y-1/2
+                bg-neutral-700
+                hover:bg-neutral-600
+                px-1
+                py-2
+                rounded
+                text-sm
+                transition
+                z-20
+              "
+          >
+            {collapsed ? "◀" : "▶"}
+          </button>
         </div>
-      </aside>
+      </div>
     </div>
   );
 }
