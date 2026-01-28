@@ -84,7 +84,7 @@ export default function CreateRoomTab() {
               </ol>
               {/* 링크 */}
               <a
-                href="https://github.com/settings/tokens"
+                href="https://github.com/settings/personal-access-tokens"
                 target="_blank"
                 rel="noreferrer"
                 className="text-blue-600 hover:underline inline-flex items-center gap-1 font-medium"
