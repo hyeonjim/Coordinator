@@ -1,10 +1,22 @@
 import { NavLink } from "react-router-dom";
+import { useSidebarStore } from "../../stores/sidebarStore";
 
-interface TabProps {
-  to: string;
-  label: string;
-}
+export default function Tab({ to, icon }: TabProps) {
+  const { activePath } = useSidebarStore();
 
-export default function Tab({ to, label }: TabProps) {
-  return <NavLink to={to}>{label}</NavLink>;
+  const fullPath = `/home${to}`;
+  const isActive = activePath === fullPath;
+
+  return (
+    <NavLink to={fullPath}>
+      <span
+        className={`
+          flex items-center justify-center
+          ${isActive ? "text-primary" : "text-muted-foreground"}
+        `}
+      >
+        {icon}
+      </span>
+    </NavLink>
+  );
 }
