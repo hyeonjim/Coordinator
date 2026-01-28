@@ -2,7 +2,6 @@ package com.gt.codinnator.domain.room.repository;
 
 
 import com.gt.codinnator.domain.room.entity.Room;
-import com.gt.codinnator.domain.room.entity.RoomEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
