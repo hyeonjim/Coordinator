@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+  backend:
+    build: .
+    container_name: my-backend-server
+    ports:
+      - "8080:8080"
