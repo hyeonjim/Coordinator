@@ -1,7 +1,13 @@
+import { useNavigate } from "react-router-dom";
 import FormCard from "../../../components/home/CreateRoom.tsx/FormCard";
 import FormInput from "../../../components/home/CreateRoom.tsx/FormInput";
 
 export default function CreateRoomTab() {
+  const navigate = useNavigate();
+
+  const handleRoomClick = () => {
+    navigate("/room/1");
+  };
   return (
     <main className="flex-1 h-full flex flex-col bg-[#EEF4FA] p-6 overflow-y-auto relative">
       {/* 1. 전체 컨테이너 */}
@@ -18,7 +24,12 @@ export default function CreateRoomTab() {
             </p>
           </div>
           <div className="lg:col-span-1 flex flex-col justify-center">
-            <button className="w-full h-[56px] bg-white text-lg font-medium text-gray-900 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all shadow-sm">
+            <button
+              className="w-full h-[56px] bg-white text-lg font-medium text-gray-900 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all shadow-sm"
+              onClick={() => {
+                handleRoomClick();
+              }}
+            >
               방 생성하기
             </button>
           </div>

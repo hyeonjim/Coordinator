@@ -9,13 +9,19 @@
 //   );
 // }
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useRef } from "react";
 import logo from "../../assets/images/logo_wh.png";
 
 export default function LandingPage() {
   const previewRef = useRef<HTMLDivElement | null>(null);
+
+  const navigate = useNavigate();
+
+  const handleLoginClick = () => {
+    navigate("/home");
+  };
   return (
     <div className="min-h-screen bg-gradient-to-b from-neutral-950 to-neutral-900 text-white overflow-hidden">
       {/* ================= HEADER ================= */}
@@ -27,7 +33,12 @@ export default function LandingPage() {
             className="w-54 h-32 overflow-hidden rounded-xl"
           />
         </Link>
-        <button className="px-5 py-2 rounded-lg border border-neutral-700 hover:border-white transition">
+        <button
+          className="px-5 py-2 rounded-lg border border-neutral-700 hover:border-white transition"
+          onClick={() => {
+            handleLoginClick();
+          }}
+        >
           Login
         </button>
       </header>
