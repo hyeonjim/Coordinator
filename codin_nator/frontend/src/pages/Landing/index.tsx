@@ -13,12 +13,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useRef } from "react";
 import logo from "../../assets/images/logo_wh.png";
+import { useAuthStore } from "../../stores/authStore";
 
 export default function LandingPage() {
   const previewRef = useRef<HTMLDivElement | null>(null);
 
   const navigate = useNavigate();
-
+  const login = useAuthStore((state) => state.login);
   const handleLoginClick = () => {
     navigate("/home");
   };
@@ -37,6 +38,7 @@ export default function LandingPage() {
           className="px-5 py-2 rounded-lg border border-neutral-700 hover:border-white transition"
           onClick={() => {
             handleLoginClick();
+            login();
           }}
         >
           Login
