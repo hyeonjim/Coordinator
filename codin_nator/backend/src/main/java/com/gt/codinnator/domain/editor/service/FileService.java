@@ -42,10 +42,14 @@ public class FileService {
     }
 
     // 파일 상세 조회
-    public String getFileContent(Long fileId) throws IOException {
+    public String getFileContent(Long roomId, Long fileId) throws IOException {
+
         FileNode node = fileRepository.findById(fileId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 파일입니다."));
 
+        if(!node.getRoomId().equals(roomId)) {
+            throw new IllegalArgumentException("존재하지 않는 방");
+        }
         Path path = Paths.get(node.getFilePath());
 
         try {
@@ -79,8 +83,6 @@ public class FileService {
         }
     }
 
-
-
     private void saveDirectory(File currentFile, FileNode parentNode, Long roomId) {
         // [추가된 필터링 로직]
         // 1. 숨김 파일(.git 등) 무시
@@ -104,8 +106,9 @@ public class FileService {
                 .roomId(roomId)
                 .parentId(parentNode)
                 .build();
+         // delete(roomId)
+        fileRepository.save(myNode); //insert
 
-        fileRepository.save(myNode);
 
         if (currentFile.isDirectory()) {
             File[] children = currentFile.listFiles();
@@ -120,10 +123,16 @@ public class FileService {
     // [유틸] 압축 해제 로직
     private void unzipFile(MultipartFile zipFile, File destDir) throws IOException {
         byte[] buffer = new byte[1024];
-        try (ZipInputStream zis = new ZipInputStream(zipFile.getInputStream())) {
+
+        try (ZipInputStream zis = new ZipInputStream(zipFile.getInputStream(), Charset.forName("MS949"))) {
             ZipEntry zipEntry = zis.getNextEntry();
             while (zipEntry != null) {
                 File newFile = new File(destDir, zipEntry.getName());
+
+                // [보안 추가] 압축 파일 내 '..' 경로를 이용한 해킹 방지 (Zip Slip 취약점 해결)
+//                if (!newFile.getCanonicalPath().startsWith(destDir.getCanonicalPath() + File.separator)) {
+//                    throw new IOException("Zip Entry is outside of the target dir: " + zipEntry.getName());
+//                }
                 if (zipEntry.isDirectory()) {
                     newFile.mkdirs();
                 } else {
