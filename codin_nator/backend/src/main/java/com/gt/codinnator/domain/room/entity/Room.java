@@ -4,13 +4,14 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "room")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@DynamicInsert // 필드 값이 null일 경우 테이블의 default 값이 적용되도록 설정
+@DynamicInsert // null인 필드는 SQL 인서트문에서 제외하여 DB Default값 적용
 public class Room {
 
     @Id
@@ -24,14 +25,17 @@ public class Room {
     @Column(name = "room_url", length = 1000)
     private String roomUrl;
 
-    @Column(name = "created_at", insertable = false, updatable = false)
+    @CreationTimestamp // 생성 시 자동 시간 입력 (SQL의 CURRENT_TIMESTAMP 대응)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Lob // SQL의 TEXT 타입 대응
     @Column(name = "git_token", nullable = false, columnDefinition = "TEXT")
     private String gitToken;
 
     @Column(name = "is_deleted", length = 1)
-    private String isDeleted; // @DynamicInsert에 의해 DB의 'F' 기본값 적용
+    @ColumnDefault("'F'") // DB 스키마와 일치감을 위해 추가
+    private String isDeleted;
 
     @Column(name = "git_url", length = 1000)
     private String gitUrl;
@@ -46,7 +50,7 @@ public class Room {
     private Long fileId;
 
     @Builder
-    public Room(String title, String roomUrl, String gitToken, String gitUrl, String branch, Long userId, Long fileId) {
+    public Room(String title, String roomUrl, String gitToken, String gitUrl, String branch, Long userId, Long fileId, String isDeleted) {
         this.title = title;
         this.roomUrl = roomUrl;
         this.gitToken = gitToken;
@@ -54,5 +58,6 @@ public class Room {
         this.branch = branch;
         this.userId = userId;
         this.fileId = fileId;
+        this.isDeleted = isDeleted; // 필요 시 빌더를 통해 상태 변경 가능
     }
 }
