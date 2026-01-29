@@ -19,13 +19,6 @@ public class RoomController {
 
     private final RoomService roomService;
 
-    // 방 생성 API
-//    @PostMapping
-//    public ResponseEntity<Long> createRoom(@RequestBody RoomReqDto request) {
-//        Long roomId = roomService.createRoom(request);
-//        return ResponseEntity.ok(roomId);
-//    }
-
     @PostMapping
     public ResponseEntity<Long> createRoom(
             @RequestBody RoomReqDto dto,
