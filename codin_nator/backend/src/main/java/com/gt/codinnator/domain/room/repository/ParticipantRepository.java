@@ -7,6 +7,6 @@ import java.util.List;
 
 @Repository
 public interface ParticipantRepository extends JpaRepository<Participant, Long> {
-    // 특정 방에 참여 중인 유저 목록을 찾기 위한 메서드 (나중에 쓰임)
+    // 특정 방에 참여 중인 유저 목록을 찾기 위한 메서드
     List<Participant> findByRoomId(Long roomId);
 }
