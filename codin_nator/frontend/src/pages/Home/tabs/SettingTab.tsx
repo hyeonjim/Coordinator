@@ -76,7 +76,6 @@ export default function SettingPage() {
                 <input
                   className="w-full h-9 rounded-md px-3 text-sm border border-gray-200 focus:border-blue-500 focus:outline focus:outline-2 focus:outline-blue-400 transition"
                   id="nickname"
-                  value="김내현"
                 />
               </div>
               <input
