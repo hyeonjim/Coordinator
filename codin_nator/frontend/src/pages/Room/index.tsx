@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import FileViewer from "../../components/room/file-viewer";
@@ -168,6 +168,39 @@ export default function RoomPage() {
     navigate("/home", { replace: true });
   };
 
+  // 터미널 조정
+  const MIN_TERMINAL = 0;
+  const MAX_TERMINAL = 500;
+
+  const [terminalHeight, setTerminalHeight] = useState(205);
+  const isDragging = useRef(false);
+  const startY = useRef(0);
+  const startHeight = useRef(0);
+
+  const onMouseMove = (e: MouseEvent) => {
+    if (!isDragging.current) return;
+
+    const diff = startY.current - e.clientY;
+    const next = startHeight.current + diff;
+
+    setTerminalHeight(Math.max(MIN_TERMINAL, Math.min(MAX_TERMINAL, next)));
+  };
+
+  const onMouseUp = () => {
+    isDragging.current = false;
+    window.removeEventListener("mousemove", onMouseMove);
+    window.removeEventListener("mouseup", onMouseUp);
+  };
+
+  const startDrag = (e: React.MouseEvent) => {
+    isDragging.current = true;
+    startY.current = e.clientY;
+    startHeight.current = terminalHeight;
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+  };
+
   // 채팅 접었다 펴기
   const [collapsed, setCollapsed] = useState(false);
 
@@ -308,34 +341,71 @@ export default function RoomPage() {
           </div>
         </aside>
 
-        {/* 중앙 메인 (에디터 + 터미널) */}
-        <main className="flex-1 flex flex-col min-w-0 bg-[#1e1e1e]">
-          <div className="flex-1 relative">
-            {/* 에디터 플레이스홀더 */}
-            <div className="absolute inset-0 flex items-center justify-center text-slate-500">
-              {/* 에디터 */}
-              <CodeEditor />
+        <main className="flex-1 flex flex-col min-w-0 bg-[#1e1e1e] overflow-hidden">
+          {/* 코드 에디터 */}
+          <div className="flex-1 min-h-0 overflow-hidden">
+            <CodeEditor />
+          </div>
+
+          {/* 드래그 핸들 */}
+          <div
+            onMouseDown={startDrag}
+            className="
+    relative
+    h-2
+    bg-neutral-500
+    hover:bg-blue-500
+    cursor-row-resize
+    flex
+    items-center
+    justify-center
+    group
+  "
+          >
+            <div
+              className="
+      opacity-0
+      group-hover:opacity-100
+      transition
+      text-blue-300
+      text-xs
+      select-none
+      pointer-events-none
+    "
+            >
+              ≡
             </div>
           </div>
-          <div className="h-64 border-t border-slate-700 bg-[#1e1e1e]">
-            {/* 터미널 */}
-            <RoomTerminal
-              projectName="codin_nator"
-              branchName="main"
-              userName={userName}
-              command="npm test"
-              output={`PASS  src/App.test.jsx
+          {/* 터미널 */}
+          <div
+            style={{ height: terminalHeight }}
+            className="border-t border-slate-700 bg-[#1e1e1e] flex flex-col overflow-hidden"
+          >
+            {/* 출력 영역 */}
+            <div className="flex-1 min-h-0 overflow-auto">
+              <RoomTerminal
+                projectName="codin_nator"
+                branchName="main"
+                userName={userName}
+                command="npm test"
+                output={`PASS  src/App.test.jsx
 ✓ 화면에 Hello React가 보인다 (32 ms)
 
 Test Suites: 1 passed, 1 total
 Tests:       1 passed, 1 total`}
-              status={{
-                language: "Java",
-                encoding: "UTF-8",
-                connectedUsers: participants.length,
-                cursorInfo: "Ln 1, Col 1",
-              }}
-            />
+                status={{
+                  language: "Java",
+                  encoding: "UTF-8",
+                  connectedUsers: participants.length,
+                  cursorInfo: "Ln 1, Col 1",
+                }}
+              />
+            </div>
+
+            {/* 상태바 (분리 버전) */}
+            {/* <div className="h-6 bg-blue-600 shrink-0 flex items-center px-3 text-xs text-white">
+              Java | UTF-8 | Ln 1, Col 1
+            </div> */}
           </div>
         </main>
 
