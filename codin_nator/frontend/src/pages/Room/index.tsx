@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import FileViewer from "../../components/room/file-viewer";
@@ -13,9 +13,12 @@ import { TextChat } from "../../components/room/chat/TextChat";
 import Header from "../../components/room/Header";
 
 import type { ChatMessage, Participant } from "../../types/chat/types";
+import type { TabType } from "../../types/room/types";
 
 /**
- * 랜덤 ID 생성 유틸
+ * 랜덤 ID 생성 유틸리티 함수
+ * @param prefix - ID 접두사 (기본값: "id")
+ * @returns 생성된 랜덤 ID
  */
 function generateId(prefix = "id") {
   return `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
@@ -25,56 +28,84 @@ export default function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
 
-  // 사용자 정보
+  // ============================================================================
+  // 사용자 정보 및 WebSocket/WebRTC 초기화
+  // ============================================================================
   const userId = useMemo(() => generateId("user"), []);
   const userName = useMemo(() => `사용자_${userId.slice(-4)}`, [userId]);
-  const wsUrl = useMemo(
+  const webSocketUrl = useMemo(
     () => (import.meta.env.VITE_SIGNALING_URL as string) || "",
     [],
   );
-  const safeRoomId = roomId ?? "";
+  const currentRoomId = roomId ?? "";
 
+  // ============================================================================
+  // 방 상태 관리
+  // ============================================================================
   const [isJoined, setIsJoined] = useState(false);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [activeTab, setActiveTab] = useState<"ai" | "chat">("chat");
 
-  // 커스텀 훅 연결
-  const ws = useWebSocket(wsUrl);
-  const rtc = useWebRTC();
+  // ============================================================================
+  // UI 상태 관리
+  // ============================================================================
+  const [activeTab, setActiveTab] = useState<TabType>("chat");
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
+  // ============================================================================
+  // WebSocket 및 WebRTC 연결
+  // ============================================================================
+  const webSocket = useWebSocket(webSocketUrl);
+  const webRTC = useWebRTC();
+
+  // ============================================================================
   // 참여자 관리 함수
+  // ============================================================================
+
+  /**
+   * 새로운 참여자를 목록에 추가합니다.
+   * 이미 존재하는 참여자는 추가하지 않습니다.
+   */
   const addParticipant = useCallback((id: string, name: string) => {
-    setParticipants((prev) => {
-      if (prev.some((p) => p.userId === id)) return prev;
+    setParticipants((previousParticipants) => {
+      if (previousParticipants.some((participant) => participant.userId === id))
+        return previousParticipants;
       return [
-        ...prev,
+        ...previousParticipants,
         { userId: id, userName: name, isSpeaking: false, micOn: true },
       ];
     });
   }, []);
 
+  /**
+   * 참여자를 목록에서 제거합니다.
+   */
   const removeParticipant = useCallback((id: string) => {
-    setParticipants((prev) => prev.filter((p) => p.userId !== id));
+    setParticipants((previousParticipants) =>
+      previousParticipants.filter((participant) => participant.userId !== id),
+    );
   }, []);
 
+  // ============================================================================
   // WebSocket 메시지 수신 처리
+  // ============================================================================
   useEffect(() => {
-    const msg = ws.lastMessage;
-    if (!msg) return;
+    const message = webSocket.lastMessage;
+    if (!message) return;
 
     const handleMessage = async () => {
-      switch (msg.type) {
+      switch (message.type) {
         case "joined":
+          // 방 입장 성공: 기존 참여자들과 WebRTC 연결 시작
           setIsJoined(true);
-          for (const peer of msg.peers) {
+          for (const peer of message.peers) {
             if (peer.userId !== userId) {
               addParticipant(peer.userId, peer.userName);
-              const offer = await rtc.createOffer(peer.userId);
+              const offer = await webRTC.createOffer(peer.userId);
               if (offer)
-                ws.send({
+                webSocket.send({
                   type: "offer",
-                  roomId: safeRoomId,
+                  roomId: currentRoomId,
                   from: userId,
                   to: peer.userId,
                   sdp: offer,
@@ -82,66 +113,96 @@ export default function RoomPage() {
             }
           }
           break;
+
         case "peer-joined":
-          if (msg.userId !== userId) addParticipant(msg.userId, msg.userName);
+          // 새로운 참여자 입장 알림
+          if (message.userId !== userId)
+            addParticipant(message.userId, message.userName);
           break;
+
         case "offer":
-          if (msg.to === userId) {
-            const answer = await rtc.handleOffer(msg.from, msg.sdp);
+          // WebRTC Offer 수신: Answer 생성 및 전송
+          if (message.to === userId) {
+            const answer = await webRTC.handleOffer(message.from, message.sdp);
             if (answer)
-              ws.send({
+              webSocket.send({
                 type: "answer",
-                roomId: safeRoomId,
+                roomId: currentRoomId,
                 from: userId,
-                to: msg.from,
+                to: message.from,
                 sdp: answer,
               });
           }
           break;
+
         case "answer":
-          if (msg.to === userId) await rtc.handleAnswer(msg.from, msg.sdp);
+          // WebRTC Answer 수신: 연결 완료
+          if (message.to === userId)
+            await webRTC.handleAnswer(message.from, message.sdp);
           break;
+
         case "ice":
-          if (msg.to === userId) await rtc.handleIce(msg.from, msg.candidate);
+          // ICE Candidate 수신: NAT 통과를 위한 네트워크 경로 정보
+          if (message.to === userId)
+            await webRTC.handleIce(message.from, message.candidate);
           break;
+
         case "peer-left":
-          removeParticipant(msg.userId);
-          rtc.removePeer(msg.userId);
+          // 참여자 퇴장 알림
+          removeParticipant(message.userId);
+          webRTC.removePeer(message.userId);
           break;
+
         case "chat":
-          setChatMessages((prev) => [
-            ...prev,
+          // 텍스트 채팅 메시지 수신
+          setChatMessages((previousMessages) => [
+            ...previousMessages,
             {
               id: generateId("msg"),
-              userId: msg.userId,
-              userName: msg.userName,
-              message: msg.message,
-              timestamp: msg.timestamp,
-              isMe: msg.userId === userId,
+              userId: message.userId,
+              userName: message.userName,
+              message: message.message,
+              timestamp: message.timestamp,
+              isMe: message.userId === userId,
             },
           ]);
           break;
       }
     };
+
     handleMessage();
   }, [
-    ws.lastMessage,
+    webSocket.lastMessage,
     userId,
-    safeRoomId,
+    currentRoomId,
     addParticipant,
     removeParticipant,
-    rtc,
-    ws,
+    webRTC,
+    webSocket,
   ]);
 
-  // 방 참여 핸들러
+  // ============================================================================
+  // 방 입장/퇴장 핸들러
+  // ============================================================================
+
+  /**
+   * 방에 입장합니다.
+   * 1. 마이크 권한 요청 및 오디오 스트림 시작
+   * 2. WebSocket 연결
+   * 3. 입장 메시지 전송
+   */
   const handleJoin = useCallback(async () => {
-    if (!safeRoomId) return;
+    if (!currentRoomId) return;
     try {
-      await rtc.startAudio();
-      ws.connect();
+      await webRTC.startAudio();
+      webSocket.connect();
       setTimeout(() => {
-        ws.send({ type: "join", roomId: safeRoomId, userId, userName });
+        webSocket.send({
+          type: "join",
+          roomId: currentRoomId,
+          userId,
+          userName,
+        });
         addParticipant(userId, userName);
       }, 300);
     } catch (error) {
@@ -150,73 +211,51 @@ export default function RoomPage() {
         "마이크 권한을 허용해주셔야 음성 채팅 서비스를 이용하실 수 있습니다.",
       );
     }
-  }, [safeRoomId, userId, userName, rtc, ws, addParticipant]);
+  }, [currentRoomId, userId, userName, webRTC, webSocket, addParticipant]);
 
   const handleJoinAction = useCallback(async () => {
     await handleJoin();
     setIsJoined(true);
   }, [handleJoin]);
 
-  // 방 퇴장 핸들러
+  /**
+   * 방에서 퇴장합니다.
+   * 1. 퇴장 메시지 전송
+   * 2. 오디오 스트림 정지
+   * 3. WebSocket 연결 종료
+   * 4. 홈 화면으로 이동
+   */
   const handleLeave = () => {
-    ws.send({ type: "leave", roomId: safeRoomId, userId });
-    rtc.stopAudio();
-    ws.disconnect();
+    webSocket.send({ type: "leave", roomId: currentRoomId, userId });
+    webRTC.stopAudio();
+    webSocket.disconnect();
     setIsJoined(false);
     setParticipants([]);
     setChatMessages([]);
     navigate("/home", { replace: true });
   };
 
-  // 터미널 조정
-  const MIN_TERMINAL = 0;
-  const MAX_TERMINAL = 500;
-
-  const [terminalHeight, setTerminalHeight] = useState(205);
-  const isDragging = useRef(false);
-  const startY = useRef(0);
-  const startHeight = useRef(0);
-
-  const onMouseMove = (e: MouseEvent) => {
-    if (!isDragging.current) return;
-
-    const diff = startY.current - e.clientY;
-    const next = startHeight.current + diff;
-
-    setTerminalHeight(Math.max(MIN_TERMINAL, Math.min(MAX_TERMINAL, next)));
-  };
-
-  const onMouseUp = () => {
-    isDragging.current = false;
-    window.removeEventListener("mousemove", onMouseMove);
-    window.removeEventListener("mouseup", onMouseUp);
-  };
-
-  const startDrag = (e: React.MouseEvent) => {
-    isDragging.current = true;
-    startY.current = e.clientY;
-    startHeight.current = terminalHeight;
-
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-  };
-
-  // 채팅 접었다 펴기
-  const [collapsed, setCollapsed] = useState(false);
-
+  // ============================================================================
   // 채팅 전송 핸들러
+  // ============================================================================
+
+  /**
+   * 텍스트 채팅 메시지를 전송합니다.
+   * 1. WebSocket을 통해 서버로 전송
+   * 2. 로컬 채팅 목록에 추가 (즉시 UI 업데이트)
+   */
   const handleSendChat = (text: string) => {
     const timestamp = Date.now();
-    ws.send({
+    webSocket.send({
       type: "chat",
-      roomId: safeRoomId,
+      roomId: currentRoomId,
       userId,
       userName,
       message: text,
       timestamp,
     });
-    setChatMessages((prev) => [
-      ...prev,
+    setChatMessages((previousMessages) => [
+      ...previousMessages,
       {
         id: generateId("msg"),
         userId,
@@ -228,22 +267,39 @@ export default function RoomPage() {
     ]);
   };
 
-  // 참여자 상태 동기화 (0.1초마다)
+  // ============================================================================
+  // 참여자 상태 동기화 (음성 감지, 마이크 상태)
+  // ============================================================================
+
+  /**
+   * 100ms마다 참여자들의 음성 감지 및 마이크 상태를 업데이트합니다.
+   */
   useEffect(() => {
     const interval = setInterval(() => {
-      setParticipants((prev) =>
-        prev.map((p) => {
-          if (p.userId === userId) {
-            return { ...p, isSpeaking: rtc.isSpeaking, micOn: rtc.isMicOn };
+      setParticipants((previousParticipants) =>
+        previousParticipants.map((participant) => {
+          if (participant.userId === userId) {
+            // 내 상태 업데이트
+            return {
+              ...participant,
+              isSpeaking: webRTC.isSpeaking,
+              micOn: webRTC.isMicOn,
+            };
           }
-          return { ...p, isSpeaking: rtc.getPeerSpeaking(p.userId) };
+          // 다른 참여자 상태 업데이트
+          return {
+            ...participant,
+            isSpeaking: webRTC.getPeerSpeaking(participant.userId),
+          };
         }),
       );
     }, 100);
     return () => clearInterval(interval);
-  }, [isJoined, userId, rtc]);
+  }, [isJoined, userId, webRTC]);
 
-  // 테스트용 코드
+  // ============================================================================
+  // 테스트용 코드 (개발 환경에서만 표시)
+  // ============================================================================
   const TEST_USER_ID = "test_user_001";
   const TEST_USER_NAME = "테스트 유저";
 
@@ -258,36 +314,49 @@ export default function RoomPage() {
       "리액트 공부 화이팅!",
       "테스트 메시지입니다.",
     ];
-    const message = messages[Math.floor(Math.random() * messages.length)];
-    setChatMessages((prev) => [
-      ...prev,
+    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+    setChatMessages((previousMessages) => [
+      ...previousMessages,
       {
         id: generateId("msg"),
         userId: TEST_USER_ID,
         userName: TEST_USER_NAME,
-        message,
+        message: randomMessage,
         timestamp: Date.now(),
         isMe: false,
       },
     ]);
   };
 
+  // ============================================================================
+  // 렌더링
+  // ============================================================================
   return (
     <div className="h-screen flex flex-col">
-      {/* 1. 상단 헤더 */}
+      {/* ========================================================================
+          상단 헤더
+          - 방 입장/퇴장 버튼
+          ======================================================================== */}
       <Header
         isJoined={isJoined}
         onJoin={handleJoinAction}
         onLeave={handleLeave}
       />
 
-      {/* 2. 메인 컨텐츠 (3단 레이아웃) */}
+      {/* ========================================================================
+          메인 컨텐츠 영역 (3단 레이아웃)
+          - 왼쪽: 파일 탐색기 + 음성 채팅
+          - 중앙: 코드 에디터 + 터미널
+          - 오른쪽: AI/채팅 탭
+          ======================================================================== */}
       <div className="flex-1 flex overflow-hidden">
-        {/* 왼쪽 사이드바 (파일 + 음성 채팅) */}
+        {/* ====================================================================
+            왼쪽 사이드바: 파일 탐색기 + 음성 채팅
+            ==================================================================== */}
         <aside className="w-64 flex flex-col">
+          {/* 파일 탐색기 */}
           <div className="flex-1 overflow-auto">
-            {/* 파일 익스플로러 */}
-            <FileViewer roomId={Number(safeRoomId)} />
+            <FileViewer roomId={Number(currentRoomId)} />
           </div>
 
           {/* 음성 채팅 섹션 */}
@@ -296,9 +365,9 @@ export default function RoomPage() {
               <VoiceChat
                 participants={participants}
                 myUserId={userId}
-                onToggleMic={rtc.toggleMic}
-                onTogglePeerMute={rtc.togglePeerMute}
-                isPeerMuted={rtc.isPeerMuted}
+                onToggleMic={webRTC.toggleMic}
+                onTogglePeerMute={webRTC.togglePeerMute}
+                isPeerMuted={webRTC.isPeerMuted}
               />
             </div>
 
@@ -322,7 +391,7 @@ export default function RoomPage() {
                     채팅+
                   </button>
                   <button
-                    onClick={() => rtc.simulateIncomingAudio(TEST_USER_ID)}
+                    onClick={() => webRTC.simulateIncomingAudio(TEST_USER_ID)}
                     className="px-1.5 py-0.5 bg-rose-600 text-white text-[10px] rounded hover:bg-rose-700"
                   >
                     상대방 음성확인
@@ -330,10 +399,10 @@ export default function RoomPage() {
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                   <span
-                    className={`w-2 h-2 rounded-full ${ws.isConnected ? "bg-green-500" : "bg-red-500"}`}
+                    className={`w-2 h-2 rounded-full ${webSocket.isConnected ? "bg-green-500" : "bg-red-500"}`}
                   />
                   <span className="text-[10px] text-slate-500">
-                    {ws.isConnected ? "WS Connected" : "WS Disconnected"}
+                    {webSocket.isConnected ? "WS Connected" : "WS Disconnected"}
                   </span>
                 </div>
               </div>
@@ -341,87 +410,32 @@ export default function RoomPage() {
           </div>
         </aside>
 
-        <main className="flex-1 flex flex-col min-w-0 bg-[#1e1e1e] overflow-hidden">
+        {/* ====================================================================
+            중앙 메인 영역: 코드 에디터 + 터미널
+            ==================================================================== */}
+        <main className="flex-1 flex flex-col min-w-0 bg-[#1e1e1e] overflow-hidden relative">
           {/* 코드 에디터 */}
           <div className="flex-1 min-h-0 overflow-hidden">
             <CodeEditor />
           </div>
 
-          {/* 드래그 핸들 */}
-          <div
-            onMouseDown={startDrag}
-            className="
-    relative
-    h-2
-    bg-neutral-500
-    hover:bg-blue-500
-    cursor-row-resize
-    flex
-    items-center
-    justify-center
-    group
-  "
-          >
-            <div
-              className="
-      opacity-0
-      group-hover:opacity-100
-      transition
-      text-blue-300
-      text-xs
-      select-none
-      pointer-events-none
-    "
-            >
-              ≡
-            </div>
-          </div>
-          {/* 터미널 */}
-          <div
-            style={{ height: terminalHeight }}
-            className="border-t border-slate-700 bg-[#1e1e1e] flex flex-col overflow-hidden"
-          >
-            {/* 출력 영역 */}
-            <div className="flex-1 min-h-0 overflow-auto">
-              <RoomTerminal
-                projectName="codin_nator"
-                branchName="main"
-                userName={userName}
-                command="npm test"
-                output={`PASS  src/App.test.jsx
-✓ 화면에 Hello React가 보인다 (32 ms)
-
-Test Suites: 1 passed, 1 total
-Tests:       1 passed, 1 total`}
-                status={{
-                  language: "Java",
-                  encoding: "UTF-8",
-                  connectedUsers: participants.length,
-                  cursorInfo: "Ln 1, Col 1",
-                }}
-              />
-            </div>
-
-            {/* 상태바 (분리 버전) */}
-            {/* <div className="h-6 bg-blue-600 shrink-0 flex items-center px-3 text-xs text-white">
-              Java | UTF-8 | Ln 1, Col 1
-            </div> */}
-          </div>
+          {/* 터미널 (모든 기능과 데이터를 내부에서 관리) */}
+          <RoomTerminal />
         </main>
 
-        {/* 오른쪽 사이드바 (AI / 채팅 탭) */}
-        {/* 탭 접었다 펴기 전체 수정 */}
+        {/* ====================================================================
+            오른쪽 사이드바: AI / 채팅 탭
+            ==================================================================== */}
         <div className="relative h-full flex">
+          {/* 사이드바 컨텐츠 */}
           <div
             className={`
-
               h-full
               transition-all
               duration-300
               ease-in-out
               overflow-hidden
-              ${collapsed ? "w-0" : "w-80"}
-
+              ${isSidebarCollapsed ? "w-0" : "w-80"}
             `}
           >
             <aside className="h-full w-80 border-l border-slate-200 bg-white flex flex-col">
@@ -429,13 +443,21 @@ Tests:       1 passed, 1 total`}
               <div className="h-10 flex border-b border-slate-200">
                 <button
                   onClick={() => setActiveTab("ai")}
-                  className={`flex-1 text-sm font-medium transition-colors ${activeTab === "ai" ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50/20" : "text-slate-500 hover:bg-slate-50"}`}
+                  className={`flex-1 text-sm font-medium transition-colors ${
+                    activeTab === "ai"
+                      ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50/20"
+                      : "text-slate-500 hover:bg-slate-50"
+                  }`}
                 >
                   AI 기능
                 </button>
                 <button
                   onClick={() => setActiveTab("chat")}
-                  className={`flex-1 text-sm font-medium transition-colors ${activeTab === "chat" ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50/20" : "text-slate-500 hover:bg-slate-50"}`}
+                  className={`flex-1 text-sm font-medium transition-colors ${
+                    activeTab === "chat"
+                      ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50/20"
+                      : "text-slate-500 hover:bg-slate-50"
+                  }`}
                 >
                   채팅방
                 </button>
@@ -444,6 +466,7 @@ Tests:       1 passed, 1 total`}
               {/* 탭 컨텐츠 */}
               <div className="flex-1 overflow-hidden flex flex-col relative">
                 {activeTab === "ai" ? (
+                  /* AI 어시스턴트 탭 */
                   <div className="absolute inset-0 p-4 bg-slate-50 flex flex-col items-center justify-center text-center">
                     <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4">
                       <span className="text-3xl">✨</span>
@@ -458,6 +481,7 @@ Tests:       1 passed, 1 total`}
                     </p>
                   </div>
                 ) : (
+                  /* 텍스트 채팅 탭 */
                   <div className="absolute inset-0 flex flex-col">
                     <TextChat
                       messages={chatMessages}
@@ -469,24 +493,26 @@ Tests:       1 passed, 1 total`}
               </div>
             </aside>
           </div>
+
+          {/* 사이드바 토글 버튼 */}
           <button
-            onClick={() => setCollapsed((v) => !v)}
+            onClick={() => setIsSidebarCollapsed((previous) => !previous)}
             className="
-                absolute
-                -left-6
-                top-1/2
-                -translate-y-1/2
-                bg-neutral-700
-                hover:bg-neutral-600
-                px-1
-                py-2
-                rounded
-                text-sm
-                transition
-                z-20
-              "
+              absolute
+              -left-6
+              top-1/2
+              -translate-y-1/2
+              bg-neutral-700
+              hover:bg-neutral-600
+              px-1
+              py-2
+              rounded
+              text-sm
+              transition
+              z-20
+            "
           >
-            {collapsed ? "◀" : "▶"}
+            {isSidebarCollapsed ? "◀" : "▶"}
           </button>
         </div>
       </div>
