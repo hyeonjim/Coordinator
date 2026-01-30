@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:8080", // ← 백엔드 포트로 바꾸기
+        target: "http://i14e205.p.ssafy.io:8081", // ← 백엔드 포트로 바꾸기
         changeOrigin: true,
       },
     },
