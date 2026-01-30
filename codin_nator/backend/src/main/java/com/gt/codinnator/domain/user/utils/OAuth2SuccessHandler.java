@@ -38,17 +38,15 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 oauthToken.getAuthorizedClientRegistrationId(),
                 oauthToken.getName()
         );
-        String githubAccessToken = client.getAccessToken().getTokenValue();
 
         // JWT 토큰 생성
         String token = tokenProvider.createToken(gitId);
 
         // 프론트엔드 주소로 토큰을 쿼리 파라미터에 담아 보냄
-        // 예: http://localhost:3000/login/success?token=...
+        // ex) http://localhost:3000/login/success?token={토큰}
         String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl)
                 .path("/home")
                 .queryParam("token", token)
-                .queryParam("gitToken", githubAccessToken) // GitHub Access Token
                 .build().toUriString();
 
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
