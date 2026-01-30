@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicInsert // null인 필드는 SQL 인서트문에서 제외하여 DB Default값 적용
+@ToString
 public class Room {
 
     @Id

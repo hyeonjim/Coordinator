@@ -127,27 +127,27 @@ export default function FakeTerminal({
       </div>
 
       {/* 하단 상태바 */}
-      <div className="flex h-6 w-full items-center justify-between bg-[#3b82f6] px-3 text-[11px] text-white select-none">
-        {/* 왼쪽: 언어 및 인코딩 정보 */}
-        <div className="flex items-center gap-4">
-          {/* 언어 표시 */}
-          <div className="flex items-center gap-1 hover:bg-white/20 px-1 rounded cursor-pointer transition-colors">
+      {/* <div className="flex h-6 w-full items-center justify-between bg-[#3b82f6] px-3 text-[11px] text-white select-none"> */}
+      {/* 왼쪽: 언어 및 인코딩 정보 */}
+      {/* <div className="flex items-center gap-4"> */}
+      {/* 언어 표시 */}
+      {/* <div className="flex items-center gap-1 hover:bg-white/20 px-1 rounded cursor-pointer transition-colors">
             <span>{status.language}</span>
-          </div>
+          </div> */}
 
-          {/* 인코딩 표시 */}
-          <div className="hover:bg-white/20 px-1 rounded cursor-pointer transition-colors">
+      {/* 인코딩 표시 */}
+      {/* <div className="hover:bg-white/20 px-1 rounded cursor-pointer transition-colors">
             {status.encoding}
           </div>
-        </div>
+        </div> */}
 
-        {/* 오른쪽: 커서 위치 정보 */}
-        <div className="flex items-center gap-4">
+      {/* 오른쪽: 커서 위치 정보 */}
+      {/* <div className="flex items-center gap-4">
           <div className="hover:bg-white/20 px-1 rounded cursor-pointer transition-colors">
             {status.cursorInfo}
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
