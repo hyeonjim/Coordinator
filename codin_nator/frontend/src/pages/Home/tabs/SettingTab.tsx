@@ -1,6 +1,6 @@
-import Card from "../../../components/home/setting/Card";
-import SettingItem from "../../../components/home/setting/SettingItem";
-import profileImg from "../../../assets/images/profile-image.jpg";
+import Card from "@/components/home/setting/Card";
+import SettingItem from "@/components/home/setting/SettingItem";
+import profileImg from "@/assets/images/profile-image.jpg";
 
 export default function SettingPage() {
   return (

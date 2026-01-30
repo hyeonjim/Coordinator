@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import FormCard from "../../../components/home/CreateRoom.tsx/FormCard";
-import FormInput from "../../../components/home/CreateRoom.tsx/FormInput";
+import FormCard from "@/components/home/CreateRoom.tsx/FormCard";
+import FormInput from "@/components/home/CreateRoom.tsx/FormInput";
 
 export default function CreateRoomTab() {
   const navigate = useNavigate();

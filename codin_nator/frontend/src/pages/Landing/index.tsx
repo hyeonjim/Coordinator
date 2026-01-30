@@ -12,7 +12,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useRef } from "react";
-import logo from "../../assets/images/logo_wh.png";
+import logo from "@/assets/images/logo_wh.png";
 
 // GitHub OAuth 인증 시작 URL (백엔드에서 처리)
 const GITHUB_OAUTH_URL = "http://localhost:8080/oauth2/authorization/github";

@@ -3,7 +3,7 @@
  * GitHub API를 호출하여 사용자 정보를 가져오는 함수 모음
  */
 
-import type { User } from "../../types/user/types";
+import type { User } from "@/types/user/types";
 
 // GitHub API 기본 URL
 const GITHUB_API_BASE_URL = "https://api.github.com";

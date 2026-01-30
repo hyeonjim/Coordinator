@@ -4,9 +4,9 @@
  */
 
 import { Outlet } from "react-router-dom";
-import SideBar from "../../components/home/SideBar";
-import Header from "../../components/home/Header";
-import { useOAuthCallback } from "../../hooks/user/useOAuthCallback";
+import SideBar from "@/components/home/SideBar";
+import Header from "@/components/home/Header";
+import { useOAuthCallback } from "@/hooks/user/useOAuthCallback";
 
 export default function HomeLayout() {
   // OAuth 콜백 처리 (URL에 토큰이 있으면 자동 로그인)
@@ -31,7 +31,10 @@ export default function HomeLayout() {
       <div className="h-screen flex items-center justify-center bg-background">
         <div className="text-center text-red-500">
           <p className="mb-4">로그인 오류: {error}</p>
-          <a href="/" className="underline text-foreground hover:text-muted-foreground">
+          <a
+            href="/"
+            className="underline text-foreground hover:text-muted-foreground"
+          >
             다시 시도하기
           </a>
         </div>

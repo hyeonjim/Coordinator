@@ -1,4 +1,4 @@
-import type { Participant } from "../../../types/chat/types";
+import type { Participant } from "@/types/chat/types";
 
 interface ParticipantListProps {
   /** 참여자 목록 */

@@ -1,19 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import FileViewer from "../../components/room/file-viewer";
-import RoomTerminal from "../../components/room/room-terminal";
-import CodeEditor from "../../components/room/code-editor";
+import FileViewer from "@/components/room/file-viewer";
+import RoomTerminal from "@/components/room/room-terminal";
+import CodeEditor from "@/components/room/code-editor";
 
 import { useWebSocket } from "./hooks/useWebSocket";
 import { useWebRTC } from "./hooks/useWebRTC";
 
-import { VoiceChat } from "../../components/room/chat/VoiceChat";
-import { TextChat } from "../../components/room/chat/TextChat";
-import Header from "../../components/room/Header";
+import { VoiceChat } from "@/components/room/chat/VoiceChat";
+import { TextChat } from "@/components/room/chat/TextChat";
+import Header from "@/components/room/Header";
 
-import type { ChatMessage, Participant } from "../../types/chat/types";
-import type { TabType } from "../../types/room/types";
+import type { ChatMessage, Participant } from "@/types/chat/types";
+import type { TabType } from "@/types/room/types";
 
 /**
  * 랜덤 ID 생성 유틸리티 함수
