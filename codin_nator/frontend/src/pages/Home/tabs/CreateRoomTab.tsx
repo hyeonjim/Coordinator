@@ -27,7 +27,7 @@ export default function CreateRoomTab() {
           },
         },
       )
-      .then((res) => {
+      .then(() => {
         navigate("/room/1");
       })
       .catch((err) => console.log(err));

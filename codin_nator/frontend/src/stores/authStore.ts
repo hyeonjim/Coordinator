@@ -11,6 +11,7 @@ import {
   saveGitHubToken,
   clearAllTokens,
 } from "../utils/token/tokenStorage";
+import type { AuthState } from "../types/login";
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -55,6 +56,6 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "auth-storage", // localStorage 키 (기존 유지)
-    }
-  )
+    },
+  ),
 );
