@@ -1,5 +1,6 @@
 package com.gt.codinnator.domain.room.entity;
 
+import com.gt.codinnator.domain.user.utils.GitTokenConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -31,6 +32,7 @@ public class Room {
 
     @Lob // SQL의 TEXT 타입 대응
     @Column(name = "git_token", nullable = false, columnDefinition = "TEXT")
+    @Convert(converter = GitTokenConverter.class) // 자동 암호화
     private String gitToken;
 
     @Column(name = "is_deleted", length = 1)

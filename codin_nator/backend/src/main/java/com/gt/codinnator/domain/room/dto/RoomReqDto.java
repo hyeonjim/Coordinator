@@ -11,4 +11,5 @@ public class RoomReqDto {
     private String name;     // 방 이름
     private Long fileId;     // 관련 파일 ID (보내주신 설계 반영)
     private String gitToken; // 깃 토큰
+    private String branch; // 브랜치
 }
