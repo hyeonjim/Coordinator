@@ -1,5 +1,6 @@
 package com.gt.codinnator.domain.user.utils;
 
+import com.gt.codinnator.domain.user.dto.UserPrincipal;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -61,15 +62,26 @@ public class JwtTokenProvider {
     }
 
     public Authentication getAuthentication(String token) {
-        String gitId = Jwts.parserBuilder()
+        Claims claims = Jwts.parserBuilder()
                 .setSigningKey(signingKey)
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .getBody();
 
-        // 단순 권한 부여
-        return new UsernamePasswordAuthenticationToken(gitId, "",
-                Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
+        String gitId = claims.getSubject();
+
+        // 1. UserPrincipal 객체를 직접 생성하여 Principal로 설정
+        // UserPrincipal(Long id, String email) 생성자 규격에 맞춤
+        UserPrincipal userPrincipal = new UserPrincipal(
+                Long.valueOf(gitId), // String을 Long으로 변환
+                null // 토큰에 이메일 정보가 없다면 우선 null 처리 (또는 claims에서 추출)
+        );
+
+        // 2. 첫 번째 인자에 gitId 대신 userPrincipal 객체를 전달
+        return new UsernamePasswordAuthenticationToken(
+                userPrincipal,
+                token,
+                Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"))
+        );
     }
 }
