@@ -21,7 +21,7 @@ public class FileController {
     private final FileService fileService;
 
     @PostMapping("/{roomId}/uploads")
-    public ResponseEntity<Void> uploadProject(@RequestParam("file") MultipartFile file, @PathVariable Long roomId) throws IOException {
+    public ResponseEntity<Void> uploadProject(@RequestParam("file") List<MultipartFile> file, @PathVariable Long roomId) throws IOException {
         fileService.uploadProject(file, roomId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
