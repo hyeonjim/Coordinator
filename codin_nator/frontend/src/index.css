@@ -165,6 +165,25 @@
   font-family: var(--font-mono);
 }
 
+/* VSCode 스타일 스크롤바 (코드 에디터용) */
+.code-editor-scroll::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.code-editor-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.code-editor-scroll::-webkit-scrollbar-thumb {
+  background: rgba(121, 121, 121, 0.4);
+  border-radius: 4px;
+}
+
+.code-editor-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(121, 121, 121, 0.7);
+}
+
 /* Contribution graph colors */
 .contrib-level-0 {
   background-color: oklch(0.95 0.01 250);

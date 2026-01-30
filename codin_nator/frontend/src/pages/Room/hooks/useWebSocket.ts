@@ -5,10 +5,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type {
-  SignalMessage,
-  UseWebSocketReturn,
-} from "../../../types/chat/types";
+import type { SignalMessage, UseWebSocketReturn } from "@/types/chat/types";
 
 /**
  * WebSocket 연결 관리 훅

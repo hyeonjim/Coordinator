@@ -7,9 +7,9 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "../../../components/home/myPage/avatar";
-import { ContributionGraph } from "../../../components/home/myPage/contribution-graph";
-import { useAuthStore } from "../../../stores/authStore";
+} from "@/components/home/myPage/avatar";
+import { ContributionGraph } from "@/components/home/myPage/contribution-graph";
+import { useAuthStore } from "@/stores/authStore";
 
 export default function MyPage() {
   // 스토어에서 사용자 정보 가져오기

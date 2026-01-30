@@ -1,6 +1,6 @@
-import CreateIcon from "../../assets/icons/CreateIcon";
-import MyPageIcon from "../../assets/icons/MyPageIcon";
-import SettingIcon from "../../assets/icons/SettingIcon";
+import CreateIcon from "@/assets/icons/CreateIcon";
+import MyPageIcon from "@/assets/icons/MyPageIcon";
+import SettingIcon from "@/assets/icons/SettingIcon";
 import Tab from "./Tab";
 
 export default function SideBar() {

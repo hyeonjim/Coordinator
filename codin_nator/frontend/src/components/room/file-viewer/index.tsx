@@ -13,12 +13,12 @@ import {
 } from "react-icons/vsc";
 
 import { FileTreeItem } from "./FileTreeItem";
-import { getFileTree } from "../../../lib/utils";
+import { getFileTree } from "@/lib/utils";
 import type {
   FileNode,
   LocalFileSystemFileEntry,
   RawNode,
-} from "../../../types/file/types";
+} from "@/types/file/types";
 
 // Helper Functions (데이터 처리 로직)
 // 임시 ID 생성을 위한 변수입니다.
@@ -33,7 +33,9 @@ let tempIdSequence = 1;
 const sanitizeTree = (rawList: RawNode[]): FileNode[] => {
   const sanitizeNode = (rawNode: RawNode): FileNode => {
     // 타입 대문자 변환 및 정규화
-    const rawType = String(rawNode.type ?? rawNode.nodeType ?? rawNode.kind ?? "").toUpperCase();
+    const rawType = String(
+      rawNode.type ?? rawNode.nodeType ?? rawNode.kind ?? "",
+    ).toUpperCase();
     const isDir = rawType === "DIR" || rawType === "FOLDER";
     const type: "DIR" | "FILE" = isDir ? "DIR" : "FILE";
 
@@ -71,7 +73,11 @@ const normalizeFileTree = (data: unknown): RawNode[] => {
     result?: unknown[];
     fileTree?: unknown[];
   };
-  return (response?.files || response?.data || response?.result || response?.fileTree || []) as RawNode[];
+  return (response?.files ||
+    response?.data ||
+    response?.result ||
+    response?.fileTree ||
+    []) as RawNode[];
 };
 
 // Main Component
@@ -94,7 +100,9 @@ const FileViewer = ({ roomId, onFileSelect }: FileViewerProps) => {
   // roomId가 유효한 숫자인지 확인합니다.
   const roomIdSafe = useMemo(() => {
     const numericRoomId = Number(roomId);
-    return Number.isFinite(numericRoomId) && numericRoomId > 0 ? numericRoomId : null;
+    return Number.isFinite(numericRoomId) && numericRoomId > 0
+      ? numericRoomId
+      : null;
   }, [roomId]);
 
   // 1. 파일 목록 조회 함수
@@ -162,11 +170,11 @@ const FileViewer = ({ roomId, onFileSelect }: FileViewerProps) => {
 
         try {
           if (!roomIdSafe) throw new Error("유효하지 않은 방 ID입니다.");
-          
+
           await axios.post(`/api/v1/room/${roomIdSafe}/uploads`, formData, {
             headers: { "Content-Type": "multipart/form-data" },
           });
-          
+
           resolve();
         } catch (error) {
           console.error("업로드 실패:", error);
@@ -204,13 +212,13 @@ const FileViewer = ({ roomId, onFileSelect }: FileViewerProps) => {
     try {
       // 드롭된 아이템을 트리 구조로 파싱합니다.
       const parsedTreeRaw = await getFileTree(event.dataTransfer.items);
-      
+
       // 파싱된 데이터를 UI 포맷에 맞게 변환합니다.
       const sanitizedTree = sanitizeTree(parsedTreeRaw as unknown as RawNode[]);
 
       // 변환된 파일들을 업로드 처리합니다.
       await processUploadLoop(sanitizedTree);
-      
+
       // 목록을 새로고침하고 완료 알림을 표시합니다.
       await fetchFileTree();
       alert("파일 업로드가 완료되었습니다.");
@@ -235,13 +243,19 @@ const FileViewer = ({ roomId, onFileSelect }: FileViewerProps) => {
           </span>
           <span>PROJECT-EXPLORER</span>
         </div>
-        
+
         {/* 추가 액션 버튼들 (표시만 해둠) */}
         <div className="hidden group-hover:flex items-center gap-2 text-sm text-[#cccccc]">
-          <VscNewFile className="hover:text-white cursor-pointer" title="새 파일" />
-          <VscNewFolder className="hover:text-white cursor-pointer" title="새 폴더" />
-          <VscRefresh 
-            className="hover:text-white cursor-pointer" 
+          <VscNewFile
+            className="hover:text-white cursor-pointer"
+            title="새 파일"
+          />
+          <VscNewFolder
+            className="hover:text-white cursor-pointer"
+            title="새 폴더"
+          />
+          <VscRefresh
+            className="hover:text-white cursor-pointer"
             title="새로고침"
             onClick={(event) => {
               event.stopPropagation();

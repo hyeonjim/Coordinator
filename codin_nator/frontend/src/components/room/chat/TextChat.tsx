@@ -5,7 +5,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import type { ChatMessage } from "../../../types/chat/types";
+import type { ChatMessage } from "@/types/chat/types";
 
 interface TextChatProps {
   /** 채팅 메시지 목록 */
