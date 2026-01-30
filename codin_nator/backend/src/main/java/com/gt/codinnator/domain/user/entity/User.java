@@ -1,5 +1,6 @@
 package com.gt.codinnator.domain.user.entity;
 
+import com.gt.codinnator.domain.user.utils.GitTokenConverter;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
