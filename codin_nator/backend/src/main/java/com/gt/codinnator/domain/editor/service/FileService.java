@@ -29,7 +29,7 @@ import java.util.zip.ZipInputStream;
 public class FileService {
     private final FileRepository fileRepository;
     // 변경가능성 있음
-    private final String BASE_DIR = System.getProperty("user.home") + "/codinnator/uploads/";
+    private final String BASE_DIR = "/app/data/uploads/";
 
     // 파일 전체 조회
     public List<FileResponseDto> getFileTree(Long roomId) {

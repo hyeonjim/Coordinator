@@ -1,7 +1,10 @@
-version: '3.8'
+version: '3'
 services:
   backend:
-    build: .  # 현재 폴더(Dockerfile이 있는 곳)에서 이미지를 빌드해라
+    image: my-server-image
     container_name: my-backend-server
     ports:
-      - "8080:8080" # 내 컴퓨터 8080포트랑 연결해라
+      - "8080:8080"
+    volumes:
+      - ./uploads:/app/data/uploads
+      - ./application.properties:/app/config/application.properties
