@@ -6,6 +6,8 @@ interface FormInputProps {
   type?: string;
   required?: boolean;
   note?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 //지라
 export default function FormInput({
@@ -14,6 +16,8 @@ export default function FormInput({
   type = "text",
   required = false,
   note,
+  value,
+  onChange,
 }: FormInputProps) {
   const [showPassword, setShowPassword] = useState(false);
   const inputType = type === "password" && showPassword ? "text" : type;
@@ -28,7 +32,12 @@ export default function FormInput({
         <input
           type={inputType}
           placeholder={placeholder}
-          className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-gray-400 pr-10"
+          value={value}
+          onChange={onChange}
+          className="w-full h-10 px-3 border border-gray-300 rounded-md
+             focus:outline-none focus:ring-2 focus:ring-blue-500
+             focus:border-transparent transition-all
+             placeholder:text-gray-400 pr-10"
         />
 
         {/* 👇 비밀번호 타입일 때만 버튼 표시 */}
