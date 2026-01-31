@@ -12,7 +12,6 @@ import java.util.List;
 @Table(name="file")
 public class FileNode {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
     private Long fileId;
 
     @Column(nullable = false)
