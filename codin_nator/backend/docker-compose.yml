@@ -1,7 +1,11 @@
-version: '3.8'
+version: '3'
 services:
   backend:
     build: .
+    image: my-server-image:latest
     container_name: my-backend-server
     ports:
       - "8081:8080"
+    volumes:
+      - ./uploads:/codinnator/data/uploads/
+      - ./application.properties:/app/config/application.properties
