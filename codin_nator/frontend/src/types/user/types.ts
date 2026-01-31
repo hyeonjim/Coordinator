@@ -26,7 +26,4 @@ export interface User {
 export interface AuthTokens {
   /** JWT 액세스 토큰 (백엔드에서 발급) */
   accessToken: string;
-
-  /** GitHub API 접근 토큰 (GitHub에서 발급) */
-  gitHubToken: string;
 }
