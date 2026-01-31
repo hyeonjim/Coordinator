@@ -10,7 +10,7 @@
  */
 
 import { useCallback, useRef, useState } from "react";
-import type { UseWebRTCReturn } from "@/types/chat/types";
+import type { UseWebRTCReturn } from "@/types/chat/webrtc";
 
 /**
  *   STUN 서버:
