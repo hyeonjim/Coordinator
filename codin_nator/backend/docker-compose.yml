@@ -6,5 +6,5 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./uploads:/app/data/uploads
+      - ./uploads:/codinnator/data/uploads/
       - ./application.properties:/app/config/application.properties
