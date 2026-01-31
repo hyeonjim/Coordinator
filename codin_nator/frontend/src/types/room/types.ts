@@ -10,6 +10,7 @@ import type { Participant } from "@/types/chat/voicetypes";
 export interface UseRoomSetupReturn {
   userId: string;
   userName: string;
+  userImageUrl?: string;
   webSocketUrl: string;
   currentRoomId: string;
   isJoined: boolean;
@@ -47,7 +48,7 @@ export interface DebugPanelProps {
  * createTestHelpers 함수 파라미터 타입
  */
 export interface CreateTestHelpersParams {
-  addParticipant: (id: string, name: string) => void;
+  addParticipant: (id: string, name: string, imageUrl?: string) => void;
   setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
   webRTC: UseWebRTCReturn;
 }
@@ -60,7 +61,7 @@ export interface UseWebSocketMessageHandlerParams {
   webRTC: UseWebRTCReturn;
   userId: string;
   currentRoomId: string;
-  addParticipant: (id: string, name: string) => void;
+  addParticipant: (id: string, name: string, imageUrl?: string) => void;
   removeParticipant: (id: string) => void;
   setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
   setIsJoined: React.Dispatch<React.SetStateAction<boolean>>;
@@ -73,9 +74,9 @@ export interface UseRoomActionsParams {
   currentRoomId: string;
   userId: string;
   userName: string;
+  userImageUrl?: string;
   webRTC: UseWebRTCReturn;
   webSocket: UseWebSocketReturn;
-  addParticipant: (id: string, name: string) => void;
   setIsJoined: React.Dispatch<React.SetStateAction<boolean>>;
   setParticipants: React.Dispatch<React.SetStateAction<Participant[]>>;
   setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
@@ -87,7 +88,9 @@ export interface UseRoomActionsParams {
  */
 export interface UseParticipantManagementParams {
   setParticipants: React.Dispatch<React.SetStateAction<Participant[]>>;
-  isJoined: boolean;
   userId: string;
+  userName: string;
+  userImageUrl?: string;
   webRTC: UseWebRTCReturn;
+  isJoined: boolean;
 }

@@ -29,7 +29,7 @@ export function useWebSocketMessageHandler({
           setIsJoined(true);
           for (const peer of message.peers) {
             if (peer.userId !== userId) {
-              addParticipant(peer.userId, peer.userName);
+              addParticipant(peer.userId, peer.userName, peer.imageUrl);
               const offer = await webRTC.createOffer(peer.userId);
               if (offer)
                 webSocket.send({
@@ -46,7 +46,7 @@ export function useWebSocketMessageHandler({
         case "peer-joined":
           // 새로운 참여자 입장 알림
           if (message.userId !== userId)
-            addParticipant(message.userId, message.userName);
+            addParticipant(message.userId, message.userName, message.imageUrl);
           break;
 
         case "offer":
@@ -90,6 +90,7 @@ export function useWebSocketMessageHandler({
               id: generateId("message"),
               userId: message.userId,
               userName: message.userName,
+              imageUrl: message.imageUrl,
               message: message.message,
               timestamp: message.timestamp,
               isMe: message.userId === userId,

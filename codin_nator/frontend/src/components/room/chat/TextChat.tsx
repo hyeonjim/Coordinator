@@ -7,7 +7,10 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import type { ChatMessage, TextChatProps } from "@/types/chat/message";
+import type {
+  ChatMessage,
+  TextChatProps,
+} from "@/types/chat/message";
 
 /**
  * 내 메시지는 오른쪽, 상대 메시지는 왼쪽에 표시
@@ -22,15 +25,28 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 
   return (
     <div
-      className={["flex", message.isMe ? "justify-end" : "justify-start"].join(
-        " ",
-      )}
+      className={["flex gap-2 items-end", message.isMe ? "justify-end" : "justify-start"].join(" ")}
     >
-      <div
-        className={["max-w-[70%]", message.isMe ? "order-1" : "order-2"].join(
-          " ",
-        )}
-      >
+      {/* 아바타 (상대방 메시지만 왼쪽에 표시, 호스트는 표시 안함) */}
+      {!message.isMe && (
+        <div className="flex-shrink-0">
+          <div className="h-8 w-8 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-semibold overflow-hidden border border-slate-200">
+            {message.imageUrl ? (
+              <img
+                src={message.imageUrl}
+                alt={message.userName}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <span className="text-xs">
+                {(message.userName?.trim()?.[0] ?? "?").toUpperCase()}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="max-w-[70%]">
         {/* 발신자 이름 (상대방 메시지만) */}
         {!message.isMe && (
           <p className="text-xs text-slate-500 mb-1 px-1">{message.userName}</p>
@@ -86,7 +102,7 @@ export function TextChat({
    */
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages.length]);
+  }, [messages]);
 
   /**
    * 폼 제출 핸들러
@@ -97,8 +113,13 @@ export function TextChat({
     const text = inputText.trim();
     if (!text) return;
 
-    onSendMessage(text);
-    setInputText(""); // 입력창 초기화
+    try {
+      onSendMessage(text);
+      setInputText(""); // 전송 성공 시에만 입력창 초기화
+    } catch (error) {
+      console.error("메시지 전송 실패:", error);
+      // 입력창은 유지하여 재시도 가능하도록 함
+    }
   };
 
   return (

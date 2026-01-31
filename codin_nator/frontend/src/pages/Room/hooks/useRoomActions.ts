@@ -13,9 +13,9 @@ export function useRoomActions({
   currentRoomId,
   userId,
   userName,
+  userImageUrl,
   webRTC,
   webSocket,
-  addParticipant,
   setIsJoined,
   setParticipants,
   setChatMessages,
@@ -40,8 +40,8 @@ export function useRoomActions({
           roomId: currentRoomId,
           userId,
           userName,
+          imageUrl: userImageUrl,
         });
-        addParticipant(userId, userName);
         setIsJoined(true);
       }, 300);
     } catch (error) {
@@ -54,9 +54,9 @@ export function useRoomActions({
     currentRoomId,
     userId,
     userName,
+    userImageUrl,
     webRTC,
     webSocket,
-    addParticipant,
     setIsJoined,
   ]);
 
@@ -99,6 +99,7 @@ export function useRoomActions({
         roomId: currentRoomId,
         userId,
         userName,
+        imageUrl: userImageUrl,
         message: text,
         timestamp,
       });
@@ -108,13 +109,14 @@ export function useRoomActions({
           id: generateId("message"),
           userId,
           userName,
+          imageUrl: userImageUrl,
           message: text,
           timestamp,
           isMe: true,
         },
       ]);
     },
-    [currentRoomId, userId, userName, webSocket, setChatMessages],
+    [currentRoomId, userId, userName, userImageUrl, webSocket, setChatMessages],
   );
 
   return { handleJoin, handleLeave, handleSendChat };

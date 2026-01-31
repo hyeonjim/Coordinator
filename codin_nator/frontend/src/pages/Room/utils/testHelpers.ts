@@ -1,19 +1,10 @@
-import type { ChatMessage } from "@/types/chat/message";
-import type { UseWebRTCReturn } from "@/types/chat/webrtc";
+import type { CreateTestHelpersParams } from "@/types/room/types";
 import { generateId } from "@/utils/room/idGenerator";
 
 // 테스트 유저 상수
 export const TEST_USER_ID = "test_user_001";
 export const TEST_USER_NAME = "테스트 유저";
-
-/**
- * createTestHelpers 함수 파라미터 타입
- */
-interface CreateTestHelpersParams {
-  addParticipant: (id: string, name: string) => void;
-  setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
-  webRTC: UseWebRTCReturn;
-}
+export const TEST_USER_IMAGE = "https://github.com/identicons/jasonlong.png"; // 테스트용 이미지
 
 /**
  * 테스트/디버그 헬퍼 함수 생성
@@ -31,7 +22,7 @@ export function createTestHelpers({
    * 테스트 유저 입장 시뮬레이션
    */
   const simulateTestUserJoin = () => {
-    addParticipant(TEST_USER_ID, TEST_USER_NAME);
+    addParticipant(TEST_USER_ID, TEST_USER_NAME, TEST_USER_IMAGE);
   };
 
   /**
