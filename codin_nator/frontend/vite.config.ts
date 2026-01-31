@@ -18,7 +18,7 @@ export default defineConfig({
         changeOrigin: true,
       },
       "/oauth2": {
-        target: "http://i14e205.p.ssafy.io:8081",
+        target: "http://localhost:8080",
         changeOrigin: true,
       },
     },
