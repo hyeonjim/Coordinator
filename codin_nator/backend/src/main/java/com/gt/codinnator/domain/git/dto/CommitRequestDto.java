@@ -5,7 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ChangeFileDto {
-    Long fileId;
-    String content;
+public class CommitRequestDto {
+    private String message;
 }

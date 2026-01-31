@@ -4,6 +4,7 @@ package com.gt.codinnator.domain.editor.service;
 import com.gt.codinnator.domain.editor.dto.FileRequestDto;
 import com.gt.codinnator.domain.editor.entity.FileNode;
 import com.gt.codinnator.domain.editor.repository.FileRepository;
+import com.gt.codinnator.domain.git.dto.ChangeFileDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -25,13 +27,17 @@ import java.util.Map;
 public class CodeService {
     private final FileRepository fileRepository;
 
-    // 하드디스크에 변경 파일 저장
-    public void saveChangeFiles(Long roomId, Map<String, String> changedFiles) throws IOException {
-        for (Map.Entry<String, String> m : changedFiles.entrySet()) {
-            Long fileId = Long.parseLong(m.getKey());
-            String content = m.getValue();
+    /**
+     * 변경된 파일 내용 하드디스크에 저장
+     * @param roomId
+     * @param changedFiles
+     * @throws IOException
+     */
+    public void saveChangeFiles(Long roomId, List<ChangeFileDto> changedFiles) throws IOException {
+        for (ChangeFileDto fileDto : changedFiles) {
+            Long fileId = fileDto.getFileId();
+            String content = fileDto.getContent();
 
-            // DB에서 파일 정보 조회
             FileNode fileNode = fileRepository.findById(fileId)
                     .orElseThrow(() -> new IllegalArgumentException("파일을 찾을 수 없습니다: " + fileId));
 
@@ -43,6 +49,13 @@ public class CodeService {
             Files.writeString(filePath, content, StandardCharsets.UTF_8);
         }
     }
+
+    /**
+     * 코드 편집 중 새로운 파일/폴더 추가
+     * @param roomId
+     * @param requestDto
+     * @throws IOException
+     */
     public void newFile(Long roomId, FileRequestDto requestDto) throws IOException {
         FileNode parent = null;
         if (requestDto.getParentId() != null) {
@@ -62,11 +75,8 @@ public class CodeService {
             // 부모가 있으면: /부모경로/새파일명
             newFilePath = parent.getFilePath() + File.separator + requestDto.getFileName();
         } else {
-            // 부모가 없으면(루트): /codinnator/uploads/{roomId}/새파일명
-            String basePath = System.getProperty("user.home")
-                    + File.separator + "codinnator"
-                    + File.separator + "uploads"
-                    + File.separator + roomId;
+            // 부모가 없으면(루트): "/codinnator/data/uploads/{roomId}/새파일명";
+            String basePath = "/codinnator/data/uploads/"+roomId;
             newFilePath = basePath + File.separator + requestDto.getFileName();
         }
 
@@ -97,6 +107,12 @@ public class CodeService {
         FileNode saved = fileRepository.save(newNode);
     }
 
+    /**
+     * 코드 편집 중 파일/폴더 삭제
+     * @param roomId
+     * @param fileId
+     * @throws IOException
+     */
     public void deleteFile(Long roomId, Long fileId) throws IOException {
         FileNode fileNode = fileRepository.findById(fileId)
                 .orElseThrow(() -> new IllegalArgumentException(
