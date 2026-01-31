@@ -2,7 +2,7 @@ import * as Y from "yjs";
 import { createEditor, Transforms } from "slate";
 import { useEffect, useMemo, useCallback } from "react";
 import { WebsocketProvider } from "y-websocket";
-import { Slate, Editable, withReact, ReactEditor } from "slate-react";
+import { Slate, Editable, withReact } from "slate-react";
 import type { RenderElementProps } from "slate-react";
 import { withYjs, withYHistory, withCursors, YjsEditor } from "@slate-yjs/core";
 
@@ -50,47 +50,38 @@ export default function CodeEditor() {
   }, [editor, provider, ydoc]);
 
   // 각 줄(paragraph)에 줄 번호를 표시하는 커스텀 렌더러
-  const renderElement = useCallback(
-    (props: RenderElementProps) => {
-      const { attributes, children, element } = props;
+  const renderElement = useCallback((props: RenderElementProps) => {
+    const { attributes, children } = props;
 
-      // Slate 에디터에서 현재 요소의 경로를 찾아 줄 번호 계산
-      const path = ReactEditor.findPath(editor as ReactEditor, element);
-      const lineNumber = path[0] + 1;
-
-      return (
-        <div {...attributes} className="flex">
-          {/* 줄 번호 영역 */}
-          <span
-            contentEditable={false}
-            className="
+    return (
+      <div {...attributes} className="flex code-line">
+        {/* 줄 번호 영역: CSS Counter를 사용해 표시합니다. */}
+        <span
+          contentEditable={false}
+          className="
+            line-number-gutter
             select-none
             text-[#858585]
-            text-center
-            pr-2
-            pl-2
+            text-right
+            pr-4
             min-w-[40px]
             font-mono
             text-sm
             leading-relaxed
             flex-shrink-0
           "
-          >
-            {lineNumber}
-          </span>
-          {/* 실제 텍스트 내용 */}
-          <span className="flex-1">{children}</span>
-        </div>
-      );
-    },
-    [editor],
-  );
+        />
+        {/* 실제 텍스트 내용 */}
+        <span className="flex-1 whitespace-pre-wrap">{children}</span>
+      </div>
+    );
+  }, []);
 
   return (
     <div
-      className="h-full w-full bg-[#1e1e1e] text-[#d4d4d4] font-mono text-sm leading-relaxed overflow-auto code-editor-scroll"
+      className="h-full w-full bg-[#1e1e1e] text-[#d4d4d4] font-mono text-sm leading-relaxed overflow-auto code-editor-scroll code-editor-container"
       style={{
-        scrollbarWidth: "thin",
+        scrollbarWidth: "auto",
         scrollbarColor: "rgba(121, 121, 121, 0.4) transparent",
       }}
     >
