@@ -1,17 +1,5 @@
-import type { Participant } from "@/types/chat/types";
-
-interface ParticipantListProps {
-  /** 참여자 목록 */
-  participants: Participant[];
-  /** 현재 사용자 ID (내 표시용) */
-  myUserId: string;
-  /** 마이크 토글 핸들러 */
-  onToggleMic: () => void;
-  /** 특정 피어 음소거 토글 핸들러 */
-  onTogglePeerMute: (peerId: string) => void;
-  /** 피어 음소거 상태 확인 함수 */
-  isPeerMuted: (peerId: string) => boolean;
-}
+import type { VoiceChatProps } from "@/types/chat/voicetypes";
+import { DebugPanel } from "@/components/room/DebugPanel";
 // 마이크 on/off
 function MicIcon({ on, isPeerMuted }: { on: boolean; isPeerMuted?: boolean }) {
   // 상대방을 내가 음소거한 경우 (우선순위 높음)
@@ -205,13 +193,8 @@ function ParticipantRow({
 }
 
 /**
- * 참여자 목록 컴포넌트
- *
- * 사용 예시:
- * <ParticipantList
- *   participants={participants}
- *   myUserId={userId}
- * />
+ * 음성 채팅 컴포넌트
+ * 참여자 목록과 개발 도구를 포함합니다.
  */
 export function VoiceChat({
   participants,
@@ -219,7 +202,9 @@ export function VoiceChat({
   onToggleMic,
   onTogglePeerMute,
   isPeerMuted,
-}: ParticipantListProps) {
+  testHelpers,
+  isWebSocketConnected,
+}: VoiceChatProps) {
   return (
     <div className="rounded-xl flex flex-col h-full">
       <div className="flex items-center justify-between mb-1 px-1">
@@ -255,6 +240,16 @@ export function VoiceChat({
           </p>
         )}
       </div>
+
+      {/* 개발 도구 패널 (개발 환경에서만 표시) */}
+      {import.meta.env.DEV && testHelpers && (
+        <DebugPanel
+          onTestUserJoin={testHelpers.simulateTestUserJoin}
+          onTestUserMessage={testHelpers.simulateTestUserMessage}
+          onSimulateAudio={testHelpers.simulateIncomingAudio}
+          isWebSocketConnected={isWebSocketConnected}
+        />
+      )}
     </div>
   );
 }
