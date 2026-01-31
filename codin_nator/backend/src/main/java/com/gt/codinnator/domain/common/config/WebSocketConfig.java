@@ -1,4 +1,4 @@
-package com.gt.codinnator.domain.editor.config;
+package com.gt.codinnator.domain.common.config;
 
 import com.gt.codinnator.domain.editor.config.handler.CodeHandler;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +30,6 @@ public class WebSocketConfig implements WebSocketConfigurer, WebSocketMessageBro
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // 채팅 연결 주소: ws://localhost:8080/ws-chat
-        registry.addEndpoint("/ws-chat").setAllowedOriginPatterns("*").withSockJS();
+        registry.addEndpoint("/ws-chat", "/ws-voice").setAllowedOriginPatterns("*").withSockJS();
     }
 }
