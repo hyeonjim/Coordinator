@@ -29,6 +29,7 @@ export default function RoomPage() {
   const {
     userId,
     userName,
+    userImageUrl,
     webSocketUrl,
     currentRoomId,
     isJoined,
@@ -50,8 +51,9 @@ export default function RoomPage() {
   // 참여자 관리 및 동기화
   const { addParticipant, removeParticipant } = useParticipantManagement({
     setParticipants,
-    isJoined,
     userId,
+    userName,
+    userImageUrl,
     webRTC,
   });
 
@@ -72,9 +74,9 @@ export default function RoomPage() {
     currentRoomId,
     userId,
     userName,
+    userImageUrl,
     webRTC,
     webSocket,
-    addParticipant,
     setIsJoined,
     setParticipants,
     setChatMessages,
@@ -102,7 +104,7 @@ export default function RoomPage() {
 
           {/* 음성 채팅 섹션 */}
           <div className="h-1/3 flex flex-col">
-            <div className="p-2 flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden">
               <VoiceChat
                 participants={participants}
                 myUserId={userId}
