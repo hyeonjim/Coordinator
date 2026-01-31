@@ -1,10 +1,10 @@
-# 1) build stage: jar 생성
-FROM gradle:8.7-jdk17 AS build
+FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
-COPY . .
-RUN gradle clean bootJar -x test
 
-# 2) run stage: jar 실행
+COPY . .
+
+RUN chmod +x ./gradlew && ./gradlew clean bootJar -x test
+
 FROM amazoncorretto:17
 WORKDIR /
 COPY --from=build /app/build/libs/*.jar app.jar
