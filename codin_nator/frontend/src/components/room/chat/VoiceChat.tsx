@@ -201,7 +201,6 @@ export function VoiceChat({
         {participants.map((p) => (
           <ParticipantRow
             key={p.userId}
-            id={p.userId}
             name={p.userName}
             imageUrl={p.imageUrl}
             micOn={p.micOn}

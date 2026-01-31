@@ -34,7 +34,7 @@ export interface AvatarProps {
  * 개별 참여자 행 컴포넌트 Props
  */
 export interface ParticipantRowProps {
-  id: string;
+  id?: string;
   name: string;
   imageUrl?: string;
   micOn: boolean;

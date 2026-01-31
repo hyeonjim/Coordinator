@@ -55,6 +55,7 @@ export default function RoomPage() {
     userName,
     userImageUrl,
     webRTC,
+    isJoined,
   });
 
   // WebSocket 메시지 처리

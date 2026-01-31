@@ -14,6 +14,7 @@ export function useParticipantManagement({
   userName,
   userImageUrl,
   webRTC,
+  isJoined,
 }: UseParticipantManagementParams) {
   // 최신 상태를 interval에서 참조하기 위한 ref들 (렌더링 루프 방지)
   const webRTCRef = useRef(webRTC);
@@ -65,13 +66,13 @@ export function useParticipantManagement({
   );
 
   /**
-   * 호스트(본인) 정보를 목록에 강제 추가/유지
-   * 방 입장 여부와 관계없이 호스트 정보가 있으면 목록에 표시합니다.
+   * 호스트(본인) 정보를 목록에 추가
+   * 참여하기 버튼을 클릭한 후(isJoined === true)에만 목록에 표시합니다.
    */
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !isJoined) return;
     addParticipant(userId, userName, userImageUrl);
-  }, [userId, userName, userImageUrl, addParticipant]);
+  }, [userId, userName, userImageUrl, addParticipant, isJoined]);
 
   /**
    * 참여자 상태 실시간 동기화

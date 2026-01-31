@@ -90,6 +90,7 @@ export function useWebSocketMessageHandler({
               id: generateId("message"),
               userId: message.userId,
               userName: message.userName,
+              imageUrl: message.imageUrl,
               message: message.message,
               timestamp: message.timestamp,
               isMe: message.userId === userId,

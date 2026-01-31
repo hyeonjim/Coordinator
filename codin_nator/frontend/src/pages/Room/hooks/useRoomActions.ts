@@ -109,6 +109,7 @@ export function useRoomActions({
           id: generateId("message"),
           userId,
           userName,
+          imageUrl: userImageUrl,
           message: text,
           timestamp,
           isMe: true,

@@ -9,7 +9,7 @@
  * 5. 연결 완료 후 실시간 음성 통신
  */
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { UseWebRTCReturn } from "@/types/chat/webrtc";
 
 /**
@@ -39,9 +39,15 @@ export function useWebRTC(): UseWebRTCReturn {
 
   // 마이크 상태
   const [isMicOn, setIsMicOn] = useState(true);
+  const isMicOnRef = useRef(isMicOn);
 
   // 로컬 사용자 음성 감지 상태
   const [isSpeaking, setIsSpeaking] = useState(false);
+
+  // isMicOn 상태와 ref 동기화
+  useEffect(() => {
+    isMicOnRef.current = isMicOn;
+  }, [isMicOn]);
 
   /**
    *   Map을 사용하는 이유:
@@ -225,7 +231,7 @@ export function useWebRTC(): UseWebRTCReturn {
   }, []);
 
   const toggleMic = useCallback(async () => {
-    const newState = !isMicOn;
+    const newState = !isMicOnRef.current;  // ref 사용으로 stale closure 문제 해결
 
     if (newState) {
       // 마이크 켜기: 새로운 스트림 획득
@@ -281,7 +287,7 @@ export function useWebRTC(): UseWebRTCReturn {
       }
       analyserRef.current = null;
     }
-  }, [isMicOn, setupSpeakingDetection]);
+  }, [setupSpeakingDetection]);  // isMicOn 제거로 dependency 최적화
 
   /**
    * 특정 피어와의 RTCPeerConnection을 생성하거나 기존 것을 반환합니다.

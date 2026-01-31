@@ -92,4 +92,5 @@ export interface UseParticipantManagementParams {
   userName: string;
   userImageUrl?: string;
   webRTC: UseWebRTCReturn;
+  isJoined: boolean;
 }
