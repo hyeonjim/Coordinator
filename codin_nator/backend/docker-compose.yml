@@ -6,6 +6,8 @@ services:
     container_name: my-backend-server
     ports:
       - "8081:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
     volumes:
       - /home/ubuntu/codinnator/uploads:/codinnator/data/uploads/
-      - ./application.properties:/app/config/application.properties
+      - /home/ubuntu/config:/config
