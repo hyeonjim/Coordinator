@@ -5,8 +5,12 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { AuthTokens } from "../types/user/types";
-import { saveAccessToken, clearAllTokens } from "../utils/token/tokenStorage";
+import type { User, AuthTokens } from "../types/user/types";
+import {
+  saveAccessToken,
+  saveGitHubToken,
+  clearAllTokens,
+} from "../utils/token/tokenStorage";
 import type { AuthState } from "../types/login";
 
 export const useAuthStore = create<AuthState>()(
@@ -14,6 +18,7 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       // 초기 상태
       isAuthenticated: false,
+      user: null,
       tokens: null,
 
       /**
@@ -22,11 +27,14 @@ export const useAuthStore = create<AuthState>()(
        * @param user - 사용자 정보
        * @param tokens - 인증 토큰
        */
-      login: (tokens: AuthTokens) => {
+      login: (user: User, tokens: AuthTokens) => {
         // 토큰을 localStorage에 별도 저장 (API 요청 시 사용)
         saveAccessToken(tokens.accessToken);
+        saveGitHubToken(tokens.gitHubToken);
+
         set({
           isAuthenticated: true,
+          user,
           tokens,
         });
       },
@@ -41,6 +49,7 @@ export const useAuthStore = create<AuthState>()(
 
         set({
           isAuthenticated: false,
+          user: null,
           tokens: null,
         });
       },

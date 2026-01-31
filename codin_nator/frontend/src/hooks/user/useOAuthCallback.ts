@@ -6,6 +6,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
+import { fetchGitHubUserInfo } from "@/services/user/gitHubService";
 import type { AuthTokens } from "@/types/user/types";
 
 /**
@@ -39,9 +40,10 @@ export function useOAuthCallback(): UseOAuthCallbackResult {
   useEffect(() => {
     // URL에서 토큰 파라미터 추출
     const accessToken = searchParams.get("token");
+    const gitHubToken = searchParams.get("gitToken");
 
     // 토큰이 없으면 OAuth 콜백이 아니므로 처리하지 않음
-    if (!accessToken) {
+    if (!accessToken || !gitHubToken) {
       return;
     }
 
@@ -54,14 +56,16 @@ export function useOAuthCallback(): UseOAuthCallbackResult {
 
       try {
         // GitHub API를 호출하여 사용자 정보 가져오기
+        const user = await fetchGitHubUserInfo(gitHubToken!);
 
         // 토큰 객체 생성
         const tokens: AuthTokens = {
           accessToken: accessToken!,
+          gitHubToken: gitHubToken!,
         };
 
         // authStore에 로그인 정보 저장
-        login(tokens);
+        login(user, tokens);
 
         // URL에서 토큰 파라미터 제거 (보안: URL에 토큰 노출 방지)
         searchParams.delete("token");
