@@ -7,6 +7,7 @@ import { useAuthStore } from "@/stores/authStore";
 export default function SettingPage() {
   const navigate = useNavigate();
   const logout = useAuthStore((state) => state.logout);
+  const user = useAuthStore((state) => state.user);
 
   /**
    * 로그아웃 처리
@@ -33,7 +34,7 @@ export default function SettingPage() {
               <div className="relative">
                 <span className="relative flex size-8 shrink-0 overflow-hidden rounded-full h-20 w-20">
                   <img
-                    src={`${profileImg}`}
+                    src={user?.imageUrl}
                     alt="프로필 이미지"
                     className="aspect-square size-full"
                   />
@@ -89,6 +90,7 @@ export default function SettingPage() {
                 <input
                   className="w-full h-9 rounded-md px-3 text-sm border border-gray-200 focus:border-blue-500 focus:outline focus:outline-2 focus:outline-blue-400 transition"
                   id="nickname"
+                  placeholder={user?.name}
                 />
               </div>
               <input
