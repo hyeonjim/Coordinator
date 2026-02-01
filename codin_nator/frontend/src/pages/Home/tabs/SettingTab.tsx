@@ -1,8 +1,21 @@
 import Card from "@/components/home/setting/Card";
 import SettingItem from "@/components/home/setting/SettingItem";
 import profileImg from "@/assets/images/profile-image.jpg";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/stores/authStore";
 
 export default function SettingPage() {
+  const navigate = useNavigate();
+  const logout = useAuthStore((state) => state.logout);
+
+  /**
+   * 로그아웃 처리
+   * 스토어 초기화 후 랜딩 페이지로 이동
+   */
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
   return (
     <main className="flex-1 p-6 bg-[#eff4fa]">
       <div className="max-w-2xl mx-auto space-y-6 ">
@@ -93,10 +106,22 @@ export default function SettingPage() {
             description="계정 관련 중요한 작업입니다. 신중하게 선택해주세요."
             textColor="text-[#d40924]"
           />
-          <SettingItem
-            title="로그아웃"
-            description="현재 세션에서 로그아웃합니다."
-          />
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <SettingItem
+                title="로그아웃"
+                description="현재 세션에서 로그아웃합니다."
+              />
+            </div>
+            {/* 로그아웃 버튼 */}
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 text-sm rounded-lg border border-neutral-700 hover:border-red-500 hover:text-red-500 transition"
+            >
+              Logout
+            </button>
+          </div>
+
           <hr className="border-gray-200 mx-6" />
           <SettingItem
             title="회원 탈퇴"
