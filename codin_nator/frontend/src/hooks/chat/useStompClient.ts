@@ -97,7 +97,7 @@ export function useStompClient(config: StompConfig): UseStompClientReturn {
         ? (str) => {
             console.log("[STOMP Debug]", str);
           }
-        : undefined,
+        : () => {}, // undefined 대신 빈 함수 사용
 
       // 재연결 설정 (5초 간격, 무제한 재시도)
       reconnectDelay: config.reconnectDelay ?? 5000,
