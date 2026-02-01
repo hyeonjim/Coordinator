@@ -1,6 +1,5 @@
 import Card from "@/components/home/setting/Card";
 import SettingItem from "@/components/home/setting/SettingItem";
-import profileImg from "@/assets/images/profile-image.jpg";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
 
