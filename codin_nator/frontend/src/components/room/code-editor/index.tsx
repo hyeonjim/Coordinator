@@ -10,8 +10,8 @@ export default function CodeEditor() {
   const ydoc = useMemo(() => new Y.Doc(), []);
   const provider = useMemo(
     () =>
-      new WebsocketProvider("localhost", "", ydoc, {
-        params: { userId: "tester" },
+      new WebsocketProvider("wss://i14e205.p.ssafy.io", "/ws/code/1/10", ydoc, {
+        connect: true,
       }),
     [ydoc],
   );
