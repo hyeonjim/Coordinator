@@ -56,7 +56,7 @@ export function useTextChatStomp(
   // SockJS는 HTTP/HTTPS URL을 사용 (자동으로 WebSocket으로 업그레이드)
   const chatWsUrl = import.meta.env.DEV
     ? "/ws-chat" // 개발: Vite 프록시 사용
-    : "https://i14e205.p.ssafy.io:8081/ws-chat"; // 프로덕션: 백엔드 직접 연결
+    : "https://i14e205.p.ssafy.io/ws-chat"; // 프로덕션: 백엔드 직접 연결
 
   // STOMP 클라이언트
   const stomp = useStompClient({
