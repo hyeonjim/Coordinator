@@ -81,7 +81,7 @@ export function useVoiceChatStomp(
   const stomp = useStompClient({
     brokerURL: voiceWsUrl,
     debug: import.meta.env.DEV,
-    reconnectDelay: 5000,
+    reconnectDelay: 0, // 재연결 비활성화 (디버깅용)
   });
 
   /**

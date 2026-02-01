@@ -62,7 +62,7 @@ export function useTextChatStomp(
   const stomp = useStompClient({
     brokerURL: chatWsUrl,
     debug: import.meta.env.DEV, // 개발 환경에서만 디버그
-    reconnectDelay: 5000,
+    reconnectDelay: 0, // 재연결 비활성화 (디버깅용)
   });
 
   /**
