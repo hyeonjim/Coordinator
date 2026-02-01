@@ -8,13 +8,21 @@ import { withYjs, withYHistory, withCursors, YjsEditor } from "@slate-yjs/core";
 
 export default function CodeEditor() {
   const ydoc = useMemo(() => new Y.Doc(), []);
-  const provider = useMemo(
-    () =>
-      new WebsocketProvider("wss://i14e205.p.ssafy.io/ws/code", "1/10", ydoc, {
-        connect: true,
-      }),
-    [ydoc],
-  );
+  
+  const provider = useMemo(() => {
+    // Vite 프록시를 통해 연결하기 위해 상대 경로 사용
+    // 개발: ws://localhost:5173/ws/code -> Vite가 ws://i14e205.p.ssafy.io:8081/ws/code로 프록시
+    // 프로덕션: wss://i14e205.p.ssafy.io/ws/code (직접 연결)
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const host = window.location.host; // localhost:5173 in dev
+    const wsUrl = `${protocol}//${host}/ws/code`;
+    
+    console.log(`🔌 코드 에디터 WebSocket 연결: ${wsUrl}/1/10`);
+    
+    return new WebsocketProvider(wsUrl, "1/10", ydoc, {
+      connect: true,
+    });
+  }, [ydoc]);
 
   const yXmlText = useMemo(() => ydoc.get("slate", Y.XmlText), [ydoc]);
 
