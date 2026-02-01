@@ -20,7 +20,7 @@
  * 5. 서버가 구독자들에게 메시지 브로드캐스트
  */
 
-import type { IMessage, IStompSocket } from "@stomp/stompjs";
+
 
 /**
  * STOMP 연결 설정

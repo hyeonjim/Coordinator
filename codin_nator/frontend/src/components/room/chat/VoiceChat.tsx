@@ -225,7 +225,6 @@ export function VoiceChat({
         <div className="border-t border-slate-100 p-2">
           <DebugPanel
             onTestUserJoin={testHelpers.simulateTestUserJoin}
-            onTestUserMessage={testHelpers.simulateTestUserMessage}
             onSimulateAudio={testHelpers.simulateIncomingAudio}
             isWebSocketConnected={isWebSocketConnected}
           />

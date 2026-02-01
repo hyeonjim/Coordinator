@@ -6,7 +6,6 @@ import type { DebugPanelProps } from "@/types/room/types";
  */
 export function DebugPanel({
   onTestUserJoin,
-  onTestUserMessage,
   onSimulateAudio,
   isWebSocketConnected,
 }: DebugPanelProps) {
@@ -19,12 +18,6 @@ export function DebugPanel({
           className="px-1.5 py-0.5 bg-slate-600 text-white text-[10px] rounded hover:bg-slate-700 transition-colors cursor-pointer"
         >
           유저+
-        </button>
-        <button
-          onClick={onTestUserMessage}
-          className="px-1.5 py-0.5 bg-blue-600 text-white text-[10px] rounded hover:bg-blue-700 transition-colors cursor-pointer"
-        >
-          채팅+
         </button>
         <button
           onClick={onSimulateAudio}

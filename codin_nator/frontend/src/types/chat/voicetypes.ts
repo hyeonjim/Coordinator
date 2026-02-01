@@ -44,6 +44,12 @@ export interface ParticipantRowProps {
   onToggle: () => void;
 }
 
+/** 디버그 패널 테스트 헬퍼 */
+export type DebugPanelTestHelpers = {
+  simulateTestUserJoin: () => void;
+  simulateIncomingAudio: () => void;
+};
+
 /**
  * VoiceChat 컴포넌트 Props 타입
  */
@@ -59,11 +65,7 @@ export interface VoiceChatProps {
   /** 피어 음소거 상태 확인 함수 */
   isPeerMuted: (peerId: string) => boolean;
   /** 개발 도구 테스트 헬퍼 */
-  testHelpers?: {
-    simulateTestUserJoin: () => void;
-    simulateTestUserMessage: () => void;
-    simulateIncomingAudio: () => void;
-  };
+  testHelpers?: DebugPanelTestHelpers;
   /** WebSocket 연결 상태 */
   isWebSocketConnected: boolean;
 }

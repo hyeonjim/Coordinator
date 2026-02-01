@@ -1,5 +1,4 @@
 import type { CreateTestHelpersParams } from "@/types/room/types";
-import { generateId } from "@/utils/room/idGenerator";
 
 // 테스트 유저 상수
 export const TEST_USER_ID = "test_user_001";
@@ -15,7 +14,6 @@ export const TEST_USER_IMAGE = "https://github.com/identicons/jasonlong.png"; //
  */
 export function createTestHelpers({
   addParticipant,
-  setChatMessages,
   webRTC,
 }: CreateTestHelpersParams) {
   /**
@@ -23,31 +21,6 @@ export function createTestHelpers({
    */
   const simulateTestUserJoin = () => {
     addParticipant(TEST_USER_ID, TEST_USER_NAME, TEST_USER_IMAGE);
-  };
-
-  /**
-   * 테스트 유저 메시지 전송 시뮬레이션
-   */
-  const simulateTestUserMessage = () => {
-    const messages = [
-      "안녕하세요! 👋",
-      "잘 들리시나요?",
-      "리액트 공부 화이팅!",
-      "테스트 메시지입니다.",
-    ];
-    const randomMessage =
-      messages[Math.floor(Math.random() * messages.length)];
-    setChatMessages((previousMessages) => [
-      ...previousMessages,
-      {
-        id: generateId("message"),
-        userId: TEST_USER_ID,
-        userName: TEST_USER_NAME,
-        message: randomMessage,
-        timestamp: Date.now(),
-        isMe: false,
-      },
-    ]);
   };
 
   /**
@@ -59,7 +32,6 @@ export function createTestHelpers({
 
   return {
     simulateTestUserJoin,
-    simulateTestUserMessage,
     simulateIncomingAudio,
   };
 }

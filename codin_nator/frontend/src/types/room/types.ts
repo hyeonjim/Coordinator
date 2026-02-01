@@ -11,7 +11,6 @@ export interface UseRoomSetupReturn {
   userId: string;
   userName: string;
   userImageUrl?: string;
-  webSocketUrl: string;
   currentRoomId: string;
   isJoined: boolean;
   setIsJoined: React.Dispatch<React.SetStateAction<boolean>>;
@@ -39,7 +38,6 @@ export interface HeaderProps {
  */
 export interface DebugPanelProps {
   onTestUserJoin: () => void;
-  onTestUserMessage: () => void;
   onSimulateAudio: () => void;
   isWebSocketConnected: boolean;
 }
@@ -49,7 +47,6 @@ export interface DebugPanelProps {
  */
 export interface CreateTestHelpersParams {
   addParticipant: (id: string, name: string, imageUrl?: string) => void;
-  setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
   webRTC: UseWebRTCReturn;
 }
 
@@ -72,14 +69,9 @@ export interface UseWebSocketMessageHandlerParams {
  */
 export interface UseRoomActionsParams {
   currentRoomId: string;
-  userId: string;
-  userName: string;
-  userImageUrl?: string;
   webRTC: UseWebRTCReturn;
-  webSocket: UseWebSocketReturn;
   setIsJoined: React.Dispatch<React.SetStateAction<boolean>>;
   setParticipants: React.Dispatch<React.SetStateAction<Participant[]>>;
-  setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
   navigate: NavigateFunction;
 }
 
