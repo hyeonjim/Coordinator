@@ -5,6 +5,15 @@ interface HeaderProps {
 }
 
 export default function Header({ isJoined, onJoin, onLeave }: HeaderProps) {
+  const gitAdd = () => {
+    alert("add");
+  };
+  const gitCommit = () => {
+    alert("commit");
+  };
+  const gitPush = () => {
+    alert("push");
+  };
   return (
     <header className="h-10 bg-slate-700 flex items-center justify-between px-4 shrink-0">
       {/* Logo */}
@@ -18,12 +27,17 @@ export default function Header({ isJoined, onJoin, onLeave }: HeaderProps) {
       <div className="flex items-center gap-2 ">
         {/* Git 버튼 */}
         <div className="flex items-center gap-3 mr-4 border-slate-200">
-          {["add", "commit", "push"].map((action) => (
+          {[
+            { buttonName: "add", buttonFunction: gitAdd },
+            { buttonName: "commit", buttonFunction: gitCommit },
+            { buttonName: "push", buttonFunction: gitPush },
+          ].map((action) => (
             <button
-              key={action}
+              key={action.buttonName}
+              onClick={action.buttonFunction}
               className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-green-200 rounded-md transition-colors bg-gray-200"
             >
-              {action}
+              {action.buttonName}
             </button>
           ))}
         </div>
