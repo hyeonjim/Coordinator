@@ -20,8 +20,8 @@ public class WebSocketConfig implements WebSocketConfigurer, WebSocketMessageBro
                 .setAllowedOrigins(
                         "http://localhost:5173",
                         "http://127.0.0.1:5173",
-                        "http://i14e205.p.ssafy.io:5173",
-                        "http://i14e205.p.ssafy.io"
+                        "http://i14e205.p.ssafy.io",
+                        "https://i14e205.p.ssafy.io"
                 );
     }
 
