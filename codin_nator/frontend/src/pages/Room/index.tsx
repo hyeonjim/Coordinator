@@ -17,6 +17,7 @@ import { useWebSocketMessageHandler } from "./hooks/useWebSocketMessageHandler";
 
 // 연결 테스트용
 import { createTestHelpers } from "./utils/testHelpers";
+import { useState } from "react";
 
 /**
  * Room 페이지 컴포넌트
@@ -25,6 +26,12 @@ export default function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
 
+  // 선택된 파일 상태
+  const [selectedFile, setSelectedFile] = useState<{
+    id: number;
+    name: string;
+    content: string;
+  } | null>(null);
   // 방 초기 설정 및 상태 관리
   const {
     userId,
@@ -100,7 +107,12 @@ export default function RoomPage() {
         <aside className="w-64 flex flex-col">
           {/* 파일 탐색기 */}
           <div className="flex-1 overflow-auto">
-            <FileViewer roomId={Number(currentRoomId)} />
+            <FileViewer
+              roomId={Number(currentRoomId)}
+              onFileSelect={(fileId, content, fileName) => {
+                setSelectedFile({ id: fileId, content, name: fileName });
+              }}
+            />
           </div>
 
           {/* 음성 채팅 섹션 */}
@@ -121,7 +133,13 @@ export default function RoomPage() {
 
         <main className="flex-1 flex flex-col min-w-0 bg-[#1e1e1e] overflow-hidden relative">
           <div className="flex-1 min-h-0 overflow-hidden">
-            <CodeEditor />
+            {selectedFile ? (
+              <CodeEditor fileContent={selectedFile.content} />
+            ) : (
+              <div className="flex items-center justify-center h-full text-[#858585]">
+                파일을 선택해주세요
+              </div>
+            )}
           </div>
           <RoomTerminal />
         </main>

@@ -151,6 +151,7 @@ const FileViewer = ({ roomId, onFileSelect }: FileViewerProps) => {
           },
         },
       );
+      console.log(response);
 
       const content =
         typeof response.data === "string"
