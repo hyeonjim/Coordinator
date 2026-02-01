@@ -16,7 +16,13 @@ public class WebSocketConfig implements WebSocketConfigurer, WebSocketMessageBro
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(yjsWebSocketHandler, "/ws/code/**").setAllowedOrigins("*");
+        registry.addHandler(yjsWebSocketHandler, "/ws/code/**")
+                .setAllowedOrigins(
+                        "http://localhost:5173",
+                        "http://127.0.0.1:5173",
+                        "http://i14e205.p.ssafy.io:5173",
+                        "http://i14e205.p.ssafy.io"
+                );
     }
 
     @Override
