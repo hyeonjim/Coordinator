@@ -93,11 +93,11 @@ export function useStompClient(config: StompConfig): UseStompClientReturn {
       webSocketFactory: () => new SockJS(config.brokerURL),
 
       // 디버그 로그 (개발 환경에서만 활성화 권장)
-      debug: config.debug
-        ? (str) => {
+      debug: (config.debug
+        ? (str: string) => {
             console.log("[STOMP Debug]", str);
           }
-        : () => {}, // undefined 대신 빈 함수 사용
+        : null) as any, // null로 비활성화
 
       // 재연결 설정 (5초 간격, 무제한 재시도)
       reconnectDelay: config.reconnectDelay ?? 5000,
