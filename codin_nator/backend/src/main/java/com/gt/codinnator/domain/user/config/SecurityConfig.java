@@ -26,10 +26,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(request -> {
+                    var config = new org.springframework.web.cors.CorsConfiguration();
+                    config.setAllowCredentials(true);
+                    config.addAllowedOrigin("http://localhost:5173");
+                    config.addAllowedOrigin("http://127.0.0.1:5173");
+                    config.addAllowedOrigin("http://i14e205.p.ssafy.io:5173");
+                    config.addAllowedOrigin("http://i14e205.p.ssafy.io");
+                    config.addAllowedOrigin("https://i14e205.p.ssafy.io");
+                    config.addAllowedHeader("*");
+                    config.addAllowedMethod("*");
+                    return config;
+                }))
                 .csrf(csrf -> csrf.disable()) // 로컬 개발 시에는 편의상 disable (배포 시 보안 검토 필요)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용 안함
                 .headers(headers -> headers.frameOptions(frame -> frame.disable())) // H2 콘솔 등을 쓸 경우 대비
                 .authorizeHttpRequests(auth -> auth
+                                .requestMatchers("/ws/**").permitAll()
                                 .requestMatchers("/", "/login/**", "/oauth2/**").permitAll()
                                 .anyRequest().authenticated()
                 )
