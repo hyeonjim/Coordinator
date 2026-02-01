@@ -10,12 +10,18 @@ export default function CodeEditor() {
   const ydoc = useMemo(() => new Y.Doc(), []);
   
   const provider = useMemo(() => {
-    // Vite 프록시를 통해 연결하기 위해 상대 경로 사용
-    // 개발: ws://localhost:5173/ws/code -> Vite가 ws://i14e205.p.ssafy.io:8081/ws/code로 프록시
-    // 프로덕션: wss://i14e205.p.ssafy.io/ws/code (직접 연결)
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const host = window.location.host; // localhost:5173 in dev
-    const wsUrl = `${protocol}//${host}/ws/code`;
+    // 환경에 따라 WebSocket URL 설정
+    let wsUrl: string;
+    
+    if (import.meta.env.DEV) {
+      // 개발 환경: Vite 프록시 사용
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const host = window.location.host; // localhost:5173
+      wsUrl = `${protocol}//${host}/ws/code`;
+    } else {
+      // 프로덕션 환경: 백엔드 직접 연결 (포트 8081)
+      wsUrl = "wss://i14e205.p.ssafy.io:8081/ws/code";
+    }
     
     console.log(`🔌 코드 에디터 WebSocket 연결: ${wsUrl}/1/10`);
     

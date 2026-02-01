@@ -74,8 +74,8 @@ export function useVoiceChatStomp(
   // WebSocket URL 설정 (개발/프로덕션 자동 감지)
   // SockJS는 HTTP/HTTPS URL을 사용 (자동으로 WebSocket으로 업그레이드)
   const voiceWsUrl = import.meta.env.DEV
-    ? "http://localhost:8080/ws-voice"
-    : "https://i14e205.p.ssafy.io/ws-voice";
+    ? "/ws-voice" // 개발: Vite 프록시 사용
+    : "https://i14e205.p.ssafy.io:8081/ws-voice"; // 프로덕션: 백엔드 직접 연결
 
   // STOMP 클라이언트
   const stomp = useStompClient({
