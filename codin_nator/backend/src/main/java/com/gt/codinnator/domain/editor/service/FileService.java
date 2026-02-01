@@ -31,7 +31,7 @@ public class FileService {
     private final FileRepository fileRepository;
 
     @Value("${file.path}")
-    private final String filePath;
+    private String filePath;
 
     // 파일 전체 조회
     public List<FileResponseDto> getFileTree(Long roomId) {
