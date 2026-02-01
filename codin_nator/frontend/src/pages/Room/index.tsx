@@ -15,6 +15,10 @@ import { useParticipantManagement } from "./hooks/useParticipantManagement";
 import { useRoomActions } from "./hooks/useRoomActions";
 import { useWebSocketMessageHandler } from "./hooks/useWebSocketMessageHandler";
 
+// STOMP 훅
+import { useTextChatStomp } from "@/hooks/chat/useTextChatStomp";
+import { useVoiceChatStomp } from "@/hooks/chat/useVoiceChatStomp";
+
 // 연결 테스트용
 import { createTestHelpers } from "./utils/testHelpers";
 
@@ -44,9 +48,20 @@ export default function RoomPage() {
     setIsSidebarCollapsed,
   } = useRoomSetup(roomId);
 
+  // STOMP 채팅 연결 (WebRTC보다 먼저 생성)
+  const textChatStomp = useTextChatStomp(currentRoomId, userId, userName);
+  const voiceChatStomp = useVoiceChatStomp(
+    currentRoomId,
+    userId,
+    userName,
+    userImageUrl,
+  );
+
   // WebSocket 및 WebRTC 연결
   const webSocket = useWebSocket(webSocketUrl);
-  const webRTC = useWebRTC();
+  const webRTC = useWebRTC({
+    onIceCandidate: voiceChatStomp.sendIce,
+  });
 
   // 참여자 관리 및 동기화
   const { addParticipant, removeParticipant } = useParticipantManagement({
@@ -68,6 +83,7 @@ export default function RoomPage() {
     removeParticipant,
     setChatMessages,
     setIsJoined,
+    voiceChatStomp,
   });
 
   // 방 액션 (입장/퇴장/채팅)
@@ -113,7 +129,7 @@ export default function RoomPage() {
                 onTogglePeerMute={webRTC.togglePeerMute}
                 isPeerMuted={webRTC.isPeerMuted}
                 testHelpers={testHelpers}
-                isWebSocketConnected={webSocket.isConnected}
+                isWebSocketConnected={voiceChatStomp.isConnected}
               />
             </div>
           </div>
@@ -127,9 +143,9 @@ export default function RoomPage() {
         </main>
 
         <TextChat
-          messages={chatMessages}
-          onSendMessage={handleSendChat}
-          disabled={!isJoined}
+          messages={textChatStomp.messages}
+          onSendMessage={textChatStomp.sendMessage}
+          disabled={!textChatStomp.isConnected}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           isSidebarCollapsed={isSidebarCollapsed}

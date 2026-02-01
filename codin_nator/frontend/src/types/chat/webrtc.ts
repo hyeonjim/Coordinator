@@ -1,4 +1,12 @@
 /**
+ * useWebRTC 훅의 파라미터 타입
+ */
+export interface UseWebRTCParams {
+  /** ICE Candidate 생성 시 호출될 콜백 */
+  onIceCandidate?: (peerId: string, candidate: RTCIceCandidateInit) => void;
+}
+
+/**
  * useWebRTC 훅의 반환 타입
  * WebRTC P2P 음성 통신 관련 모든 기능 정의
  */
