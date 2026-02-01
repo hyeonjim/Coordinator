@@ -53,9 +53,10 @@ export function useTextChatStomp(
   const { getParticipant } = useParticipantStore();
 
   // WebSocket URL 설정 (개발/프로덕션 자동 감지)
+  // SockJS는 HTTP/HTTPS URL을 사용 (자동으로 WebSocket으로 업그레이드)
   const chatWsUrl = import.meta.env.DEV
-    ? "ws://localhost:8080/ws-chat"
-    : "wss://i14e205.p.ssafy.io/ws-chat";
+    ? "http://localhost:8080/ws-chat"
+    : "https://i14e205.p.ssafy.io/ws-chat";
 
   // STOMP 클라이언트
   const stomp = useStompClient({
