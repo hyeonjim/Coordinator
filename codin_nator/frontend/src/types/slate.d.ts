@@ -17,11 +17,4 @@ declare module "slate" {
     Element: ParagraphElement;
     Text: CustomText;
   }
-  interface CustomText {
-    text: string;
-    cursor?: {
-      name: string;
-      color: string;
-    };
-  }
 }
