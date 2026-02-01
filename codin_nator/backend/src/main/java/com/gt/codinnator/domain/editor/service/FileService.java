@@ -3,6 +3,7 @@ package com.gt.codinnator.domain.editor.service;
 import com.gt.codinnator.domain.editor.dto.FileResponseDto;
 import com.gt.codinnator.domain.editor.entity.FileNode;
 import com.gt.codinnator.domain.editor.repository.FileRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 
@@ -28,7 +29,9 @@ import java.util.zip.ZipInputStream;
 @RequiredArgsConstructor
 public class FileService {
     private final FileRepository fileRepository;
-    private final String filePath = "/codinnator/data/uploads/";
+
+    @Value("${file.path}")
+    private final String filePath;
 
     // 파일 전체 조회
     public List<FileResponseDto> getFileTree(Long roomId) {
@@ -66,6 +69,7 @@ public class FileService {
 
     @Transactional
     public void uploadProject(List<MultipartFile> files, Long roomId) throws IOException {
+        fileRepository.deleteByRoomId(roomId);
         Path root = Paths.get(filePath, String.valueOf(roomId));
         Files.createDirectories(root);
 
