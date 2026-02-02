@@ -2,7 +2,7 @@ import type { NavigateFunction } from "react-router-dom";
 import type { ChatMessage, TabType } from "@/types/chat/message";
 import type { UseWebRTCReturn } from "@/types/chat/webrtc";
 import type { UseWebSocketReturn } from "@/types/chat/websocket";
-import type { UseTextChatWebSocketReturn } from "@/types/chat/stomp";
+import type { UseTextChatWebSocketReturn, UseVoiceChatWebSocketReturn } from "@/types/chat/stomp";
 import type { Participant } from "@/types/chat/voicetypes";
 
 /**
@@ -77,8 +77,8 @@ export interface UseRoomActionsParams {
   userName: string;
   userImageUrl?: string;
   webRTC: UseWebRTCReturn;
-  webSocket: UseWebSocketReturn;
   textChatWebSocket: UseTextChatWebSocketReturn;
+  voiceChatWebSocket: UseVoiceChatWebSocketReturn;
   setIsJoined: React.Dispatch<React.SetStateAction<boolean>>;
   setParticipants: React.Dispatch<React.SetStateAction<Participant[]>>;
   setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;

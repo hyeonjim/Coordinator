@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import type { UseRoomActionsParams } from "@/types/room/types";
 import { generateId } from "@/utils/room/idGenerator";
 
@@ -15,8 +15,8 @@ export function useRoomActions({
   userName,
   userImageUrl,
   webRTC,
-  webSocket,
   textChatWebSocket,
+  voiceChatWebSocket,
   setIsJoined,
   setParticipants,
   setChatMessages,
@@ -36,23 +36,11 @@ export function useRoomActions({
       // 1. 마이크 권한 요청 및 오디오 스트림 시작
       await webRTC.startAudio();
 
-      // 2. WebSocket 연결 (WebRTC 시그널링용 - 음성 채팅)
-      webSocket.connect();
-
-      // 3. STOMP 연결 (텍스트 채팅용)
+      // 2. STOMP 연결 (텍스트 채팅용)
       textChatWebSocket.connect();
 
       setTimeout(() => {
-        // 4-1. WebRTC 시그널링 입장 메시지 (기존 방식 유지)
-        webSocket.send({
-          type: "join",
-          roomId: currentRoomId,
-          userId,
-          userName,
-          imageUrl: userImageUrl,
-        });
-
-        // 4-2. 텍스트 채팅 입장 메시지 (STOMP)
+        // 1. 텍스트 채팅 입장 메시지 (STOMP)
         // message를 빈 문자열로 전송하면, 서버가 "{sender}님이 입장하셨습니다."로 자동 생성
         textChatWebSocket.sendMessage({
           roomId: currentRoomId,
@@ -76,8 +64,8 @@ export function useRoomActions({
     userName,
     userImageUrl,
     webRTC,
-    webSocket,
     textChatWebSocket,
+    voiceChatWebSocket,
     setIsJoined,
   ]);
 
@@ -90,15 +78,12 @@ export function useRoomActions({
    * 5. 홈 화면으로 이동
    */
   const handleLeave = useCallback(() => {
-    // 1. WebRTC 시그널링 퇴장 메시지 (기존)
-    webSocket.send({ type: "leave", roomId: currentRoomId, userId });
-
-    // 2. 오디오 스트림 정지
+    // 1. 오디오 스트림 정지
     webRTC.stopAudio();
 
-    // 3. WebSocket 연결 종료
-    webSocket.disconnect(); // WebRTC 시그널링
+    // 2. WebSocket 연결 종료
     textChatWebSocket.disconnect(); // 텍스트 채팅 STOMP
+    voiceChatWebSocket.disconnect(); // VoiceChat STOMP (WebRTC signaling 포함)
 
     // 4. 상태 초기화
     setIsJoined(false);
@@ -108,11 +93,9 @@ export function useRoomActions({
     // 5. 홈 화면으로 이동
     navigate("/home", { replace: true });
   }, [
-    currentRoomId,
-    userId,
     webRTC,
-    webSocket,
     textChatWebSocket,
+    voiceChatWebSocket,
     setIsJoined,
     setParticipants,
     setChatMessages,
@@ -166,5 +149,8 @@ export function useRoomActions({
     ],
   );
 
-  return { handleJoin, handleLeave, handleSendChat };
+  return useMemo(
+    () => ({ handleJoin, handleLeave, handleSendChat }),
+    [handleJoin, handleLeave, handleSendChat]
+  );
 }

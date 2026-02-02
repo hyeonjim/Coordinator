@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import type {
@@ -35,6 +35,8 @@ export function useTextChatWebSocket(brokerUrl: string): UseTextChatWebSocketRet
    * 방을 나가거나 다른 방으로 이동 시 구독을 해제하기 위해 저장합니다.
    */
   const subscriptionRef = useRef<{ unsubscribe: () => void } | null>(null);
+  /** 현재 구독 중인 방 ID (중복 구독 방지) */
+  const currentSubRoomIdRef = useRef<string | null>(null);
 
   /**
    * STOMP 연결 상태
@@ -71,14 +73,9 @@ export function useTextChatWebSocket(brokerUrl: string): UseTextChatWebSocketRet
       webSocketFactory: () => new SockJS(brokerUrl),
 
       /**
-       * 디버그 로그 (개발 환경에서만 활성화)
-       * STOMP 프로토콜의 모든 프레임을 콘솔에 출력합니다.
+       * 디버그 로그 (실제 로그가 필요하지 않으면 빈 함수 사용)
        */
-      debug: (message: string) => {
-        if (import.meta.env.DEV) {
-          console.log('📡 STOMP:', message);
-        }
-      },
+      debug: () => {},
 
       /**
        * 재연결 설정
@@ -176,6 +173,12 @@ export function useTextChatWebSocket(brokerUrl: string): UseTextChatWebSocketRet
         return;
       }
 
+      // 이미 같은 방을 구독 중이면 무시
+      if (currentSubRoomIdRef.current === roomId && subscriptionRef.current) {
+        console.log(`ℹ️ 이미 텍스트 채팅방 ${roomId}을(를) 구독 중입니다.`);
+        return;
+      }
+
       // 기존 구독 해제 (다른 방으로 이동하는 경우)
       if (subscriptionRef.current) {
         subscriptionRef.current.unsubscribe();
@@ -201,6 +204,7 @@ export function useTextChatWebSocket(brokerUrl: string): UseTextChatWebSocketRet
       );
 
       subscriptionRef.current = subscription;
+      currentSubRoomIdRef.current = roomId;
       console.log(`📢 채팅방 구독 시작: ${roomId}`);
     },
     []
@@ -214,6 +218,7 @@ export function useTextChatWebSocket(brokerUrl: string): UseTextChatWebSocketRet
     if (subscriptionRef.current) {
       subscriptionRef.current.unsubscribe();
       subscriptionRef.current = null;
+      currentSubRoomIdRef.current = null;
       console.log('📢 채팅방 구독 해제');
     }
   }, []);
@@ -256,12 +261,19 @@ export function useTextChatWebSocket(brokerUrl: string): UseTextChatWebSocketRet
     };
   }, [disconnect]);
 
-  return {
+  return useMemo(() => ({
     isConnected,
     subscribeToRoom,
     unsubscribeFromRoom,
     sendMessage,
     connect,
     disconnect,
-  };
+  }), [
+    isConnected,
+    subscribeToRoom,
+    unsubscribeFromRoom,
+    sendMessage,
+    connect,
+    disconnect,
+  ]);
 }

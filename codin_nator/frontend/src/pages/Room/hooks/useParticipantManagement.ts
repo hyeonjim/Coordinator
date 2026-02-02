@@ -33,10 +33,27 @@ export function useParticipantManagement({
       setParticipants((prev) => {
         const exists = prev.find((p) => p.userId === id);
         if (exists) {
-          // 이미 존재하면 정보만 최신화 (이름, 이미지 등)
+          // 이미 존재하면 정보 업데이트
+          // 만약 전달받은 name이 ID와 같고, 기존에 이미 실명이 있었다면 업데이트하지 않음 (이름 퇴행 방지)
+          const isNewNameTemporary = name === id;
+          const isExistingNameBetter = exists.userName !== exists.userId;
+
+          if (isNewNameTemporary && isExistingNameBetter) {
+            console.log(`ℹ️ [Participant] 기등록된 실명 보유 중 - 업데이트 스킵: ${id}`);
+            return prev;
+          }
+
           if (exists.userName === name && exists.imageUrl === imageUrl) return prev;
+
+          console.log(
+            `📝 [Participant] 정보 업데이트: ${id} -> ${name} (img: ${
+              imageUrl ? "yes" : "no"
+            })`,
+          );
           return prev.map((p) =>
-            p.userId === id ? { ...p, userName: name, imageUrl } : p
+            p.userId === id
+              ? { ...p, userName: name, imageUrl: imageUrl ?? p.imageUrl }
+              : p,
           );
         }
         // 새로 추가
@@ -123,5 +140,17 @@ export function useParticipantManagement({
     return () => clearInterval(interval);
   }, [userId, setParticipants]); // userId와 setParticipants만 의존성으로 가짐 (안정적)
 
-  return { addParticipant, removeParticipant };
+  /**
+   * 참여자의 마이크 상태를 업데이트합니다.
+   */
+  const updateParticipantMicStatus = useCallback(
+    (id: string, micOn: boolean) => {
+      setParticipants((prev) =>
+        prev.map((p) => (p.userId === id ? { ...p, micOn } : p))
+      );
+    },
+    [setParticipants]
+  );
+
+  return { addParticipant, removeParticipant, updateParticipantMicStatus };
 }
