@@ -1,5 +1,3 @@
-import type { Client, IMessage } from "@stomp/stompjs";
-
 /**
  * 텍스트 채팅 메시지 타입
  * 백엔드 TextChatMessage.MessageType enum과 정확히 일치합니다.
