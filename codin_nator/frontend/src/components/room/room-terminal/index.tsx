@@ -7,10 +7,6 @@ import "xterm/css/xterm.css";
 import type { RoomTerminalProps } from "@/types/terminal/types";
 import { TERMINAL_CONSTRAINTS } from "@/types/terminal/types";
 
-// =============================================================================
-// 유틸리티 함수
-// =============================================================================
-
 /**
  * 랜덤 ID 생성 함수
  * @param prefix - ID 접두사 (기본값: "id")
@@ -20,10 +16,7 @@ function generateId(prefix = "id"): string {
   return `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-// =============================================================================
 // 기본 상수
-// =============================================================================
-
 /** 기본 프로젝트 이름 */
 const DEFAULT_PROJECT_NAME = "codin_nator";
 
@@ -33,50 +26,18 @@ const DEFAULT_BRANCH_NAME = "main";
 /** 기본 실행 명령어 */
 const DEFAULT_COMMAND = "npm test";
 
-/** 기본 터미널 출력 (샘플 데이터) */
-const DEFAULT_OUTPUT = `PASS  src/App.test.jsx
-✓ 화면에 Hello React가 보인다 (32 ms)
-
-Test Suites: 1 passed, 1 total
-Tests:       1 passed, 1 total`;
-
-/**
- * RoomTerminal 컴포넌트
- *
- * 터미널의 모든 기능을 포함하는 완전히 독립적인 컴포넌트입니다:
- * - 토글 버튼: 터미널 열기/닫기
- * - 드래그 핸들: 터미널 높이 조절
- * - xterm 터미널: 실제 터미널 화면 표시
- *
- * 모든 props가 선택적이며, 제공되지 않으면 내부에서 자동으로 생성하거나 기본값을 사용합니다.
- *
- * @param userName - 사용자 이름 (선택적, 자동 생성)
- * @param projectName - 프로젝트 이름 (선택적, 기본값: "codin_nator")
- * @param branchName - 브랜치 이름 (선택적, 기본값: "main")
- * @param command - 실행 명령어 (선택적, 기본값: "npm test")
- * @param output - 터미널 출력 내용 (선택적, 기본 샘플 데이터)
- * @param initialHeight - 초기 높이 (선택적, 기본값: DEFAULT_HEIGHT)
- * @param initialIsOpen - 초기 열림 상태 (선택적, 기본값: true)
- */
 export default function RoomTerminal({
   userName: userNameProp,
   projectName: projectNameProp,
   branchName: branchNameProp,
   command: commandProp,
   output: outputProp,
+  testCode,
   initialHeight = TERMINAL_CONSTRAINTS.DEFAULT_HEIGHT,
   initialIsOpen = true,
 }: RoomTerminalProps = {}) {
-  // ==========================================================================
   // 사용자 이름 자동 생성
-  // ==========================================================================
-
-  /**
-   * 자동 생성된 사용자 ID
-   * props로 userName이 제공되지 않으면 사용됩니다.
-   */
   const generatedUserId = useMemo(() => generateId("user"), []);
-
   /**
    * 자동 생성된 사용자 이름
    * userId의 마지막 4자리를 사용합니다.
@@ -86,60 +47,30 @@ export default function RoomTerminal({
     [generatedUserId],
   );
 
-  // ==========================================================================
-  // Props 기본값 처리
-  // ==========================================================================
-
-  /** 사용자 이름 (props 우선, 없으면 자동 생성) */
   const userName = userNameProp ?? generatedUserName;
-
-  /** 프로젝트 이름 (props 우선, 없으면 기본값) */
   const projectName = projectNameProp ?? DEFAULT_PROJECT_NAME;
-
-  /** 브랜치 이름 (props 우선, 없으면 기본값) */
   const branchName = branchNameProp ?? DEFAULT_BRANCH_NAME;
-
-  /** 실행 명령어 (props 우선, 없으면 기본값) */
   const command = commandProp ?? DEFAULT_COMMAND;
+  const output = testCode ?? outputProp ?? ""; // 기본 출력은 "" (빈 문자열로 설정)
 
-  /** 터미널 출력 (props 우선, 없으면 기본 샘플 데이터) */
-  const output = outputProp ?? DEFAULT_OUTPUT;
-  // ==========================================================================
   // 상태 관리
-  // ==========================================================================
-
-  /** 터미널 열림/닫힘 상태 */
   const [isTerminalOpen, setIsTerminalOpen] = useState(initialIsOpen);
-
-  /** 터미널 높이 (픽셀) */
   const [terminalHeight, setTerminalHeight] = useState<number>(initialHeight);
-
-  /** 드래그 중인지 여부 */
   const isDraggingRef = useRef(false);
-
   /** 드래그 시작 시 마우스 Y 위치 */
   const startYRef = useRef(0);
-
   /** 드래그 시작 시 터미널 높이 */
   const startHeightRef = useRef(0);
 
-  // ==========================================================================
   // xterm 터미널 관리
-  // ==========================================================================
-
   /** 터미널 컨테이너 DOM 참조 */
   const terminalContainerRef = useRef<HTMLDivElement>(null);
-
   /** xterm Terminal 인스턴스 참조 */
   const terminalRef = useRef<Terminal | null>(null);
-
   /** FitAddon 참조 (터미널 크기 자동 조절) */
   const fitAddonRef = useRef<FitAddon | null>(null);
 
-  // ==========================================================================
   // Effect: 터미널 초기화
-  // ==========================================================================
-
   /**
    * 컴포넌트 마운트 시 xterm 터미널을 초기화합니다.
    *
@@ -210,10 +141,7 @@ export default function RoomTerminal({
     };
   }, [projectName, branchName, userName, command]);
 
-  // ==========================================================================
-  // Effect: 출력 내용 업데이트
-  // ==========================================================================
-
+  // Effect: 출력 내용 업데이트-
   /**
    * output prop이 변경될 때마다 터미널에 내용을 출력합니다.
    *
@@ -222,8 +150,9 @@ export default function RoomTerminal({
    * 2. 각 줄을 터미널에 출력 (긴 줄은 자동으로 줄바꿈됨)
    * 3. 세로 스크롤을 최하단으로 이동
    */
+  // output이 변경될 때마다 터미널에 출력하기
   useEffect(() => {
-    if (!terminalRef.current || !output) return;
+    if (!terminalRef.current || !(output || testCode)) return;
 
     // output을 줄 단위로 분리하여 출력
     const lines = output.split("\n");
@@ -238,7 +167,6 @@ export default function RoomTerminal({
   }, [output]);
 
   // 드래그 핸들링
-
   /**
    * React.MouseEvent를 사용하여 드래그를 시작하고 전역 이벤트 리스너를 등록합니다.
    */
@@ -255,16 +183,13 @@ export default function RoomTerminal({
        */
       const handleMouseMove = (moveEvent: MouseEvent) => {
         if (!isDraggingRef.current) return;
-
         const deltaY = startYRef.current - moveEvent.clientY;
         const newHeight = startHeightRef.current + deltaY;
-
         // 최소/최대 높이 제약 조건 적용
         const constrainedHeight = Math.max(
           TERMINAL_CONSTRAINTS.MIN_HEIGHT,
           Math.min(TERMINAL_CONSTRAINTS.MAX_HEIGHT, newHeight),
         );
-
         setTerminalHeight(constrainedHeight);
       };
 

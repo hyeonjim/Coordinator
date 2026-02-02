@@ -7,9 +7,13 @@ import type { RenderElementProps } from "slate-react";
 import { withYjs, withYHistory, withCursors, YjsEditor } from "@slate-yjs/core";
 
 interface CodeEditorProps {
+  roomId: number;
+  fileId: number;
   fileContent?: string;
+  fileName?: string;
+  onChange?: (code: string) => void;
+  onTestGenerated?: (testCode: string) => void;
 }
-
 export default function CodeEditor({ fileContent }: CodeEditorProps) {
   const ydoc = useMemo(() => new Y.Doc(), []);
   const provider = useMemo(
