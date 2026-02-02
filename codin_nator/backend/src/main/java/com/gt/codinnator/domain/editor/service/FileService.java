@@ -3,6 +3,7 @@ package com.gt.codinnator.domain.editor.service;
 import com.gt.codinnator.domain.editor.dto.FileResponseDto;
 import com.gt.codinnator.domain.editor.entity.FileNode;
 import com.gt.codinnator.domain.editor.repository.FileRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 
@@ -28,8 +29,9 @@ import java.util.zip.ZipInputStream;
 @RequiredArgsConstructor
 public class FileService {
     private final FileRepository fileRepository;
-    // 변경가능성 있음
-    private final String BASE_DIR = System.getProperty("user.home") + "/codinnator/uploads/";
+
+    @Value("${file.path}")
+    private String filePath;
 
     // 파일 전체 조회
     public List<FileResponseDto> getFileTree(Long roomId) {
@@ -42,10 +44,13 @@ public class FileService {
     }
 
     // 파일 상세 조회
-    public String getFileContent(Long fileId) throws IOException {
+    public String getFileContent(Long roomId, Long fileId) throws IOException {
         FileNode node = fileRepository.findById(fileId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 파일입니다."));
 
+        if(!node.getRoomId().equals(roomId)) {
+            throw new IllegalArgumentException("존재하지 않는 방");
+        }
         Path path = Paths.get(node.getFilePath());
 
         try {
@@ -63,26 +68,75 @@ public class FileService {
     }
 
     @Transactional
-    public void uploadProject(MultipartFile zipFile, Long roomId) throws IOException {
-        String savePath = BASE_DIR + roomId;
-        File rootDir = new File(savePath);
-        if (!rootDir.exists()) rootDir.mkdirs();
+    public void uploadProject(List<MultipartFile> files, Long roomId) throws IOException {
+        // 기존 폴더 삭제
+        fileRepository.deleteByRoomId(roomId);
 
-        unzipFile(zipFile, rootDir);
+        Path root = Paths.get(filePath, String.valueOf(roomId));
 
-        File[] files = rootDir.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                // 루트 폴더는 parent가 null
-                saveDirectory(file, null, roomId);
+        if (Files.exists(root)) {
+            // root 하위 파일/폴더 전부 삭제
+            Files.walk(root)
+                    .sorted((a, b) -> b.compareTo(a)) // 하위부터 지워야 함
+                    .forEach(p -> {
+                        try {
+                            Files.deleteIfExists(p);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+        }
+
+        Files.createDirectories(root);
+
+        for (MultipartFile mf : files) {
+            if (mf.isEmpty()) continue;
+
+            String original = mf.getOriginalFilename();
+            if (original == null || original.isBlank()) continue;
+
+            String rel = original.replace("\\", "/");
+            String lower = rel.toLowerCase();
+
+            if (lower.endsWith(".zip")) {
+                unzipFile(mf, root.toFile()); // ✅ MultipartFile 그대로 사용
+                continue;
+            }
+
+            Path target = root.resolve(rel).normalize();
+            if (!target.startsWith(root)) {
+                throw new IOException("Security Error: Invalid path " + rel);
+            }
+
+            String name = target.getFileName().toString();
+
+            if (name.endsWith(".class")) continue;
+            if (rel.startsWith(".idea/") || rel.contains("/.idea/")) continue;
+            if (rel.startsWith("build/") || rel.contains("/build/")) continue;
+            if (rel.startsWith("out/") || rel.contains("/out/")) continue;
+            if (rel.startsWith(".gradle/") || rel.contains("/.gradle/")) continue;
+            // Mac 사용자가 올릴 경우 생기는 쓰레기 파일 차단
+            if (name.equals(".DS_Store") || rel.contains("__MACOSX")) continue;
+
+            // 4. 물리적 저장
+            Files.createDirectories(target.getParent());
+            mf.transferTo(target.toFile());
+        }
+
+        // 5. DB 동기화
+        File rootDir = root.toFile();
+        File[] top = rootDir.listFiles();
+        if (top != null) {
+            // 기존 DB 데이터가 꼬이지 않게 해당 방의 파일 정보를 리셋하거나, 중복 체크 로직 필요
+            // fileRepository.deleteByRoomId(roomId); // 필요시 초기화
+            for (File f : top) {
+                saveDirectory(f, null, roomId);
             }
         }
     }
 
 
-
     private void saveDirectory(File currentFile, FileNode parentNode, Long roomId) {
-        // [추가된 필터링 로직]
         // 1. 숨김 파일(.git 등) 무시
         if (currentFile.isHidden()) return;
 
@@ -104,8 +158,8 @@ public class FileService {
                 .roomId(roomId)
                 .parentId(parentNode)
                 .build();
+        fileRepository.save(myNode); //insert
 
-        fileRepository.save(myNode);
 
         if (currentFile.isDirectory()) {
             File[] children = currentFile.listFiles();
@@ -120,10 +174,12 @@ public class FileService {
     // [유틸] 압축 해제 로직
     private void unzipFile(MultipartFile zipFile, File destDir) throws IOException {
         byte[] buffer = new byte[1024];
-        try (ZipInputStream zis = new ZipInputStream(zipFile.getInputStream())) {
+
+        try (ZipInputStream zis = new ZipInputStream(zipFile.getInputStream(), Charset.forName("MS949"))) {
             ZipEntry zipEntry = zis.getNextEntry();
             while (zipEntry != null) {
                 File newFile = new File(destDir, zipEntry.getName());
+
                 if (zipEntry.isDirectory()) {
                     newFile.mkdirs();
                 } else {

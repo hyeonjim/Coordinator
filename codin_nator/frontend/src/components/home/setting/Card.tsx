@@ -1,4 +1,4 @@
-import type CardProps from "../../../types/setting/card";
+import type CardProps from "@/types/home/setting/card";
 
 export default function Card({ children, border }: CardProps) {
   return (

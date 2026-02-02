@@ -124,6 +124,23 @@
   }
 }
 
+/* 터미널 컴포넌트 전용 스타일 */
+@layer components {
+  /* xterm.js 터미널 스크롤바 커스터마이징 */
+  .xterm-viewport::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .xterm-viewport::-webkit-scrollbar-thumb {
+    background-color: #424242;
+    border-radius: 4px;
+  }
+
+  .xterm-viewport::-webkit-scrollbar-thumb:hover {
+    background-color: #4f4f4f;
+  }
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -146,6 +163,38 @@
 /* Code editor styles */
 .code-editor {
   font-family: var(--font-mono);
+}
+
+/* VSCode 스타일 스크롤바 (코드 에디터용) */
+.code-editor-scroll::-webkit-scrollbar {
+  width: 20px;
+  height: 20px;
+}
+
+.code-editor-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.code-editor-scroll::-webkit-scrollbar-thumb {
+  background: rgba(121, 121, 121, 0.4);
+  border-radius: 4px;
+}
+
+.code-editor-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(121, 121, 121, 0.7);
+}
+
+/* 줄 번호 카운터 설정 */
+.code-editor-container {
+  counter-reset: line-number;
+}
+
+.code-line {
+  counter-increment: line-number;
+}
+
+.line-number-gutter::before {
+  content: counter(line-number);
 }
 
 /* Contribution graph colors */
