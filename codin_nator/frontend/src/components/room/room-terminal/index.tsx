@@ -115,7 +115,17 @@ export default function RoomTerminal({
 
     // 3. DOM에 터미널 마운트
     terminal.open(terminalContainerRef.current);
-    fitAddon.fit(); // 현재 컨테이너 크기에 맞춤
+
+    // 이중 requestAnimationFrame으로 레이아웃 계산 완료 보장
+    // 첫 번째 RAF: 현재 프레임 렌더링 완료 대기
+    // 두 번째 RAF: 다음 프레임까지 대기하여 dimensions 계산 완료
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (terminalContainerRef.current) {
+          fitAddon.fit();
+        }
+      });
+    });
 
     // Ref에 저장 (다른 곳에서 사용하기 위해)
     terminalRef.current = terminal;
