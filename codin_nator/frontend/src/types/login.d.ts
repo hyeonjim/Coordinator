@@ -1,4 +1,5 @@
 import type { User, AuthTokens } from "./user/types";
+import type { AuthState } from "../types/login";
 
 /**
  * 인증 상태 관리를 위한 Zustand 스토어 타입

@@ -9,6 +9,7 @@ pipeline {
     BUILD_DIR = 'codin_nator/frontend/dist'                // frontend 디렉토리 안에서의 빌드 결과
     NGINX_CONTAINER = 'nginx'
     NGINX_HTML_PATH = '/usr/share/nginx/html'
+    VITE_API_BASE_URL = 'http://i14e205.p.ssafy.io:8081'
   }
 
   stages {

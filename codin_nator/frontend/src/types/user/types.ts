@@ -30,3 +30,41 @@ export interface AuthTokens {
   /** GitHub API 접근 토큰 (GitHub에서 발급) */
   gitHubToken: string;
 }
+
+/**
+ * GitHub API 응답 타입 (필요한 필드만 정의)
+ */
+export interface GitHubUserResponse {
+  /** GitHub 고유 ID */
+  id: number;
+  /** GitHub 로그인 닉네임 */
+  login: string;
+  /** 사용자 이메일 (비공개 시 null) */
+  email: string | null;
+  /** 프로필 이미지 URL */
+  avatar_url: string;
+}
+
+/**
+ * 에러 로그 데이터 구조 demo
+ */
+export interface ErrorLog {
+  id: string;
+  time: string;
+  display_name: string;
+  error: string;
+  stacktrace: string;
+  resolution: string;
+}
+
+export type ContributionData = Record<
+  string,
+  {
+    count: number;
+    logs: ErrorLog[];
+  }
+>;
+
+export interface ContributionGraphProps {
+  data?: ContributionData;
+}

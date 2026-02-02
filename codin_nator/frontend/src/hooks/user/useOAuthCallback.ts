@@ -5,9 +5,9 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../stores/authStore";
-import { fetchGitHubUserInfo } from "../../services/user/gitHubService";
-import type { AuthTokens } from "../../types/user/types";
+import { useAuthStore } from "@/stores/authStore";
+import { fetchGitHubUserInfo } from "@/services/user/gitHubService";
+import type { AuthTokens } from "@/types/user/types";
 
 /**
  * OAuth 콜백 처리 결과 타입
@@ -77,7 +77,9 @@ export function useOAuthCallback(): UseOAuthCallbackResult {
       } catch (err) {
         // 에러 처리
         const errorMessage =
-          err instanceof Error ? err.message : "로그인 처리 중 오류가 발생했습니다.";
+          err instanceof Error
+            ? err.message
+            : "로그인 처리 중 오류가 발생했습니다.";
         setError(errorMessage);
         console.error("OAuth 콜백 처리 실패:", err);
       } finally {

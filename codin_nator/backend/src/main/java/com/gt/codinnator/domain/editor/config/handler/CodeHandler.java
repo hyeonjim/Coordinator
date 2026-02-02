@@ -20,17 +20,16 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class CodeHandler extends BinaryWebSocketHandler {
 
-    // Key: "roomId:fileId"
     private final Map<String, Set<WebSocketSession>> roomAttendees = new ConcurrentHashMap<>();
+    // 각 room의 마지막 상태 저장
+    private final Map<String, byte[]> roomStates = new ConcurrentHashMap<>();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         URI uri = session.getUri();
-        String path = uri.getPath(); // 예: /ws/code/1/10
+        String path = uri.getPath();
         String[] segments = path.split("/");
 
-        // [수정] 방어 코드 주석 해제 (안전장치)
-        // segments: ["", "ws", "code", "1", "10"] -> 최소 5개여야 함
         if (segments.length < 5) {
             log.error("잘못된 접속 주소입니다: {}", path);
             session.close();
@@ -42,10 +41,21 @@ public class CodeHandler extends BinaryWebSocketHandler {
         String roomKey = roomId + ":" + fileId;
 
         session.getAttributes().put("roomKey", roomKey);
-
         roomAttendees.computeIfAbsent(roomKey, k -> ConcurrentHashMap.newKeySet()).add(session);
 
         log.info("Client Connected: RoomKey={}, SessionID={}", roomKey, session.getId());
+
+        // 새 클라이언트에게 기존 상태 전송
+        byte[] savedState = roomStates.get(roomKey);
+        if (savedState != null && savedState.length > 0) {
+            try {
+                synchronized (session) {
+                    session.sendMessage(new BinaryMessage(savedState));
+                }
+            } catch (IOException e) {
+                log.warn("기존 상태 전송 실패: {}", session.getId());
+            }
+        }
     }
 
     @Override
@@ -53,15 +63,18 @@ public class CodeHandler extends BinaryWebSocketHandler {
         String roomKey = (String) session.getAttributes().get("roomKey");
         Set<WebSocketSession> attendees = roomAttendees.get(roomKey);
 
-        if (attendees == null) return;
+        if (attendees == null || roomKey == null) return;
 
         ByteBuffer payload = message.getPayload();
         byte[] bytes = new byte[payload.remaining()];
         payload.get(bytes);
 
-        // 나를 제외한 모든 사람에게 바이너리 데이터 릴레이
+        // 상태 저장
+        roomStates.put(roomKey, bytes);
+
+        // 모든 클라이언트에게 브로드캐스트
         for (WebSocketSession attendee : attendees) {
-            if (attendee.isOpen() && !attendee.getId().equals(session.getId())) {
+            if (attendee.isOpen()) {
                 try {
                     synchronized (attendee) {
                         attendee.sendMessage(new BinaryMessage(bytes));
@@ -82,6 +95,7 @@ public class CodeHandler extends BinaryWebSocketHandler {
                 attendees.remove(session);
                 if (attendees.isEmpty()) {
                     roomAttendees.remove(roomKey);
+                    roomStates.remove(roomKey);  // 방이 비면 상태도 삭제
                 }
             }
         }
