@@ -1,5 +1,6 @@
 package com.gt.codinnator.domain.room.entity;
 
+import com.gt.codinnator.domain.user.utils.GitTokenConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicInsert // null인 필드는 SQL 인서트문에서 제외하여 DB Default값 적용
+@ToString
 public class Room {
 
     @Id
@@ -31,6 +33,7 @@ public class Room {
 
     @Lob // SQL의 TEXT 타입 대응
     @Column(name = "git_token", nullable = false, columnDefinition = "TEXT")
+    @Convert(converter = GitTokenConverter.class) // 자동 암호화
     private String gitToken;
 
     @Column(name = "is_deleted", length = 1)
