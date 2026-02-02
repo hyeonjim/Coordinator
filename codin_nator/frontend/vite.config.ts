@@ -1,14 +1,27 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import path from "path";
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  // SockJS 클라이언트를 위한 Node.js 전역 객체 폴리필
+  define: {
+    global: "globalThis", // ← 이 줄 추가!
+  },
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:8080", // ← 백엔드 포트로 바꾸기
+        target: "http://i14e205.p.ssafy.io:8081",
+        changeOrigin: true,
+      },
+      "/oauth2": {
+        target: "http://localhost:8080",
         changeOrigin: true,
       },
     },

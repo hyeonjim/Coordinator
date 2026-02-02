@@ -20,34 +20,42 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class CodeHandler extends BinaryWebSocketHandler {
 
-    // 방(Room)별로 접속한 사람들을 관리하는 메모리 저장소
-    // Key: "roomId:fileId", Value: 세션 목록
     private final Map<String, Set<WebSocketSession>> roomAttendees = new ConcurrentHashMap<>();
+    // 각 room의 마지막 상태 저장
+    private final Map<String, byte[]> roomStates = new ConcurrentHashMap<>();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        // 1. 주소 파싱 (/ws/code/1/10?userId=tester)
         URI uri = session.getUri();
         String path = uri.getPath();
         String[] segments = path.split("/");
 
-//        if (segments.length < 5) {
-//            log.error("잘못된 접속 주소입니다: {}", path);
-//            session.close();
-//            return;
-//        }
+        if (segments.length < 5) {
+            log.error("잘못된 접속 주소입니다: {}", path);
+            session.close();
+            return;
+        }
 
         String roomId = segments[3];
         String fileId = segments[4];
         String roomKey = roomId + ":" + fileId;
 
-        // 2. 세션 속성에 저장 (나중에 퇴장할 때 쓰려고)
         session.getAttributes().put("roomKey", roomKey);
-
-        // 3. 방에 입장 시키기 (Set에 추가)
         roomAttendees.computeIfAbsent(roomKey, k -> ConcurrentHashMap.newKeySet()).add(session);
 
-        log.info("입장 >> : RoomKey={}, SessionID={}", roomKey, session.getId());
+        log.info("Client Connected: RoomKey={}, SessionID={}", roomKey, session.getId());
+
+        // 새 클라이언트에게 기존 상태 전송
+        byte[] savedState = roomStates.get(roomKey);
+        if (savedState != null && savedState.length > 0) {
+            try {
+                synchronized (session) {
+                    session.sendMessage(new BinaryMessage(savedState));
+                }
+            } catch (IOException e) {
+                log.warn("기존 상태 전송 실패: {}", session.getId());
+            }
+        }
     }
 
     @Override
@@ -55,18 +63,19 @@ public class CodeHandler extends BinaryWebSocketHandler {
         String roomKey = (String) session.getAttributes().get("roomKey");
         Set<WebSocketSession> attendees = roomAttendees.get(roomKey);
 
-        if (attendees == null) return;
+        if (attendees == null || roomKey == null) return;
 
-        // 메시지 내용 복사 (ByteBuffer는 한 번 읽으면 사라지므로 복사해서 써야 함)
         ByteBuffer payload = message.getPayload();
         byte[] bytes = new byte[payload.remaining()];
         payload.get(bytes);
 
-        // 🔥 [핵심] 나를 제외한 모든 사람에게 그대로 전달 (Relay)
+        // 상태 저장
+        roomStates.put(roomKey, bytes);
+
+        // 모든 클라이언트에게 브로드캐스트
         for (WebSocketSession attendee : attendees) {
-            if (attendee.isOpen() && !attendee.getId().equals(session.getId())) {
+            if (attendee.isOpen()) {
                 try {
-                    // 동기화 블록으로 전송 순서 꼬임 방지
                     synchronized (attendee) {
                         attendee.sendMessage(new BinaryMessage(bytes));
                     }
@@ -80,15 +89,16 @@ public class CodeHandler extends BinaryWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         String roomKey = (String) session.getAttributes().get("roomKey");
-        Set<WebSocketSession> attendees = roomAttendees.get(roomKey);
-
-        if (attendees != null) {
-            attendees.remove(session);
-            // 방에 아무도 없으면 방 자체를 삭제 (메모리 절약)
-            if (attendees.isEmpty()) {
-                roomAttendees.remove(roomKey);
+        if (roomKey != null) {
+            Set<WebSocketSession> attendees = roomAttendees.get(roomKey);
+            if (attendees != null) {
+                attendees.remove(session);
+                if (attendees.isEmpty()) {
+                    roomAttendees.remove(roomKey);
+                    roomStates.remove(roomKey);  // 방이 비면 상태도 삭제
+                }
             }
         }
-        log.info("퇴장: RoomKey={}, SessionID={}", roomKey, session.getId());
+        log.info("Client Disconnected: RoomKey={}, SessionID={}", roomKey, session.getId());
     }
 }

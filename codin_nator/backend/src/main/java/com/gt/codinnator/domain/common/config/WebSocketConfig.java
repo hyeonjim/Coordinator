@@ -1,4 +1,4 @@
-package com.gt.codinnator.domain.editor.config;
+package com.gt.codinnator.domain.common.config;
 
 import com.gt.codinnator.domain.editor.config.handler.CodeHandler;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,13 @@ public class WebSocketConfig implements WebSocketConfigurer, WebSocketMessageBro
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(yjsWebSocketHandler, "/ws/code/**").setAllowedOrigins("*");
+        registry.addHandler(yjsWebSocketHandler, "/ws/code/**")
+                .setAllowedOrigins(
+                        "http://localhost:5173",
+                        "http://127.0.0.1:5173",
+                        "http://i14e205.p.ssafy.io",
+                        "https://i14e205.p.ssafy.io"
+                );
     }
 
     @Override
@@ -30,6 +36,6 @@ public class WebSocketConfig implements WebSocketConfigurer, WebSocketMessageBro
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // 채팅 연결 주소: ws://localhost:8080/ws-chat
-        registry.addEndpoint("/ws-chat").setAllowedOriginPatterns("*").withSockJS();
+        registry.addEndpoint("/ws-chat", "/ws-voice").setAllowedOriginPatterns("*").withSockJS();
     }
 }

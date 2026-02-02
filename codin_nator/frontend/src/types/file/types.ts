@@ -70,3 +70,21 @@ export type RawNode = Partial<BackendFileNode> & {
   type?: string;
   children?: RawNode[];
 };
+
+/**
+ * FileViewer 컴포넌트 Props
+ */
+export interface FileViewerProps {
+  roomId: number;
+  onFileSelect?: (fileId: number, content: string, fileName: string) => void;
+}
+
+/**
+ * FileTreeItem 컴포넌트 Props
+ */
+export interface FileTreeItemProps {
+  node: FileNode;
+  depth: number;
+  selectedId: number | null;
+  onSelect: (node: FileNode) => void;
+}

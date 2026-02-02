@@ -27,9 +27,9 @@ public class RoomService {
         Room room = Room.builder()
                 .title(request.getName())
                 .userId(loginUserId) // 방장 ID 저장
-                .fileId(request.getFileId())
                 .gitToken(request.getGitToken())
-                .roomUrl(UUID.randomUUID().toString()) // 고유한 방 주소 생성
+//                .roomUrl(UUID.randomUUID().toString()) // 고유한 방 주소 생성
+                .branch(request.getBranch())
                 .build();
 
         // Room 저장
