@@ -25,6 +25,8 @@ export interface TerminalDisplayProps {
  * - 모든 필드가 선택적이며, 제공되지 않으면 내부에서 기본값 사용
  */
 export interface RoomTerminalProps {
+  /** 테스트 코드 (선택적) */
+  testCode?: string | null;
   /** 사용자 이름 (선택적, 자동 생성) */
   userName?: string;
   /** 프로젝트 이름 (선택적, 기본값: "codin_nator") */

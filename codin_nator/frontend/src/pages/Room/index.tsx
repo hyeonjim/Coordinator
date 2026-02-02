@@ -34,6 +34,12 @@ export default function RoomPage() {
     name: string;
     content: string;
   } | null>(null);
+
+  // 테스트 코드 상태
+  const [generatedTestCode, setGeneratedTestCode] = useState<string | null>(
+    null,
+  );
+
   // 방 초기 설정 및 상태 관리
   const {
     userId,
@@ -57,7 +63,9 @@ export default function RoomPage() {
   // 1. WebRTC 시그널링 (음성 채팅용)
   const webSocket = useWebSocket(webSocketUrl);
   // 2. 텍스트 채팅 STOMP (localhost 백엔드 연결)
-  const textChatWebSocket = useTextChatWebSocket('http://localhost:8080/ws-chat');
+  const textChatWebSocket = useTextChatWebSocket(
+    "http://localhost:8080/ws-chat",
+  );
 
   // WebRTC 연결
   const webRTC = useWebRTC();
@@ -152,14 +160,22 @@ export default function RoomPage() {
         <main className="flex-1 flex flex-col min-w-0 bg-[#1e1e1e] overflow-hidden relative">
           <div className="flex-1 min-h-0 overflow-hidden">
             {selectedFile ? (
-              <CodeEditor fileContent={selectedFile.content} />
+              <CodeEditor
+                fileId={selectedFile.id}
+                roomId={Number(currentRoomId)}
+                fileContent={selectedFile.content}
+                fileName={selectedFile.name}
+                onTestGenerated={setGeneratedTestCode}
+              />
             ) : (
               <div className="flex items-center justify-center h-full text-[#858585]">
                 파일을 선택해주세요
               </div>
             )}
           </div>
-          <RoomTerminal />
+
+          {/* 터미널에 테스트 코드 전달 */}
+          <RoomTerminal testCode={generatedTestCode} />
         </main>
 
         <TextChat
