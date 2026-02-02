@@ -69,8 +69,24 @@ public class FileService {
 
     @Transactional
     public void uploadProject(List<MultipartFile> files, Long roomId) throws IOException {
+        // 기존 폴더 삭제
         fileRepository.deleteByRoomId(roomId);
+
         Path root = Paths.get(filePath, String.valueOf(roomId));
+
+        if (Files.exists(root)) {
+            // root 하위 파일/폴더 전부 삭제
+            Files.walk(root)
+                    .sorted((a, b) -> b.compareTo(a)) // 하위부터 지워야 함
+                    .forEach(p -> {
+                        try {
+                            Files.deleteIfExists(p);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+        }
+
         Files.createDirectories(root);
 
         for (MultipartFile mf : files) {
@@ -80,6 +96,13 @@ public class FileService {
             if (original == null || original.isBlank()) continue;
 
             String rel = original.replace("\\", "/");
+            String lower = rel.toLowerCase();
+
+            if (lower.endsWith(".zip")) {
+                unzipFile(mf, root.toFile()); // ✅ MultipartFile 그대로 사용
+                continue;
+            }
+
             Path target = root.resolve(rel).normalize();
             if (!target.startsWith(root)) {
                 throw new IOException("Security Error: Invalid path " + rel);
