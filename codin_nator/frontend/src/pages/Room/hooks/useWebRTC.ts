@@ -9,8 +9,8 @@
  * 5. 연결 완료 후 실시간 음성 통신
  */
 
-import { useCallback, useRef, useState } from "react";
-import type { UseWebRTCReturn } from "../../../types/room/types";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { UseWebRTCReturn } from "@/types/chat/webrtc";
 
 /**
  *   STUN 서버:
@@ -39,9 +39,15 @@ export function useWebRTC(): UseWebRTCReturn {
 
   // 마이크 상태
   const [isMicOn, setIsMicOn] = useState(true);
+  const isMicOnRef = useRef(isMicOn);
 
   // 로컬 사용자 음성 감지 상태
   const [isSpeaking, setIsSpeaking] = useState(false);
+
+  // isMicOn 상태와 ref 동기화
+  useEffect(() => {
+    isMicOnRef.current = isMicOn;
+  }, [isMicOn]);
 
   /**
    *   Map을 사용하는 이유:
@@ -66,47 +72,14 @@ export function useWebRTC(): UseWebRTCReturn {
     Map<string, { ctx: AudioContext; timer: number }>
   >(new Map());
 
-  // 로컬 오디오 시작
+  // --- 내부 헬퍼 함수 정의 (사용 전에 선언되어야 함) ---
 
-  /**
-   *   마이크 권한을 요청하고 로컬 오디오 스트림을 시작합니다.
-   *   getUserMedia API:
-   * - 사용자의 카메라/마이크에 접근하는 API
-   * - 사용자 동의가 필요 (브라우저가 권한 요청 팝업 표시)
-   */
-  const startAudio = useCallback(async () => {
-    // 이미 스트림이 있으면 재사용
-    if (localStreamRef.current) return;
-
-    try {
-      // 마이크 스트림 요청
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true, // 에코 제거
-          noiseSuppression: true, // 노이즈 제거
-          autoGainControl: true, // 자동 볼륨 조절
-        },
-        video: false,
-      });
-
-      localStreamRef.current = stream;
-      setLocalStream(stream);
-
-      // 음성 감지 시작
-      setupSpeakingDetection(stream);
-    } catch (error) {
-      console.error("마이크 권한 요청 실패:", error);
-      throw error;
-    }
-  }, []);
-
-  // 음성 감지 설정
   /**
    * Web Audio API를 사용하여 음성 감지를 설정합니다.
    * Web Audio API 흐름:
    * MediaStream → MediaStreamSource → Analyser → 주파수 데이터 분석
    */
-  const setupSpeakingDetection = (stream: MediaStream) => {
+  const setupSpeakingDetection = useCallback((stream: MediaStream) => {
     // 기존 컨텍스트가 있다면 정리
     if (audioContextRef.current) {
       audioContextRef.current.close().catch(() => {});
@@ -156,8 +129,6 @@ export function useWebRTC(): UseWebRTCReturn {
       const avg = sum / data.length;
 
       const now = Date.now();
-      // isMicOn 상태를 여기서 직접 참조하기보다, toggleMic에서 제어하므로
-      // 분석기가 돌아간다는 것은 이미 마이크가 켜진 상태를 전제합니다.
       const speakingNow = avg > SPEAKING_THRESHOLD;
 
       if (speakingNow) lastSpokeAt = now;
@@ -165,9 +136,80 @@ export function useWebRTC(): UseWebRTCReturn {
       // 말이 끝나도 잠시 유지 (깜빡임 방지)
       setIsSpeaking(speakingNow || now - lastSpokeAt < SPEAKING_HOLD_MS);
     }, 100);
-  };
+  }, []);
 
-  // 로컬 오디오 중지
+  const setupRemoteSpeakingDetection = useCallback(
+    (peerId: string, stream: MediaStream) => {
+      if (peerAnalysersRef.current.has(peerId)) return;
+
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext })
+          .webkitAudioContext;
+      const ctx = new AudioCtx();
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 1024;
+
+      const source = ctx.createMediaStreamSource(stream);
+      source.connect(analyser);
+
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      let lastSpokeAt = 0;
+
+      const timer = window.setInterval(() => {
+        analyser.getByteFrequencyData(data);
+        let sum = 0;
+        for (let i = 0; i < data.length; i++) sum += data[i];
+        const avg = sum / data.length;
+
+        const now = Date.now();
+        const speakingNow = avg > SPEAKING_THRESHOLD;
+        if (speakingNow) lastSpokeAt = now;
+
+        peerSpeakingRef.current.set(
+          peerId,
+          speakingNow || now - lastSpokeAt < SPEAKING_HOLD_MS,
+        );
+      }, 100);
+
+      peerAnalysersRef.current.set(peerId, { ctx, timer });
+    },
+    [],
+  );
+
+  // --- 외부 노출 함수 정의 ---
+
+  /**
+   *   마이크 권한을 요청하고 로컬 오디오 스트림을 시작합니다.
+   *   getUserMedia API:
+   * - 사용자의 카메라/마이크에 접근하는 API
+   * - 사용자 동의가 필요 (브라우저가 권한 요청 팝업 표시)
+   */
+  const startAudio = useCallback(async () => {
+    // 이미 스트림이 있으면 재사용
+    if (localStreamRef.current) return;
+
+    try {
+      // 마이크 스트림 요청
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true, // 에코 제거
+          noiseSuppression: true, // 노이즈 제거
+          autoGainControl: true, // 자동 볼륨 조절
+        },
+        video: false,
+      });
+
+      localStreamRef.current = stream;
+      setLocalStream(stream);
+
+      // 음성 감지 시작
+      setupSpeakingDetection(stream);
+    } catch (error) {
+      console.error("마이크 권한 요청 실패:", error);
+      throw error;
+    }
+  }, [setupSpeakingDetection]);
 
   const stopAudio = useCallback(() => {
     // 타이머 정리
@@ -188,10 +230,8 @@ export function useWebRTC(): UseWebRTCReturn {
     setIsSpeaking(false);
   }, []);
 
-  // 마이크 토글
-
   const toggleMic = useCallback(async () => {
-    const newState = !isMicOn;
+    const newState = !isMicOnRef.current;  // ref 사용으로 stale closure 문제 해결
 
     if (newState) {
       // 마이크 켜기: 새로운 스트림 획득
@@ -247,9 +287,7 @@ export function useWebRTC(): UseWebRTCReturn {
       }
       analyserRef.current = null;
     }
-  }, [isMicOn]);
-
-  // PeerConnection 생성/관리
+  }, [setupSpeakingDetection]);  // isMicOn 제거로 dependency 최적화
 
   /**
    * 특정 피어와의 RTCPeerConnection을 생성하거나 기존 것을 반환합니다.
@@ -293,58 +331,11 @@ export function useWebRTC(): UseWebRTCReturn {
       peerConnectionsRef.current.set(peerId, pc);
       return pc;
     },
-    [],
+    [setupRemoteSpeakingDetection],
   );
-
-  // 원격 피어 음성 감지
-
-  const setupRemoteSpeakingDetection = (
-    peerId: string,
-    stream: MediaStream,
-  ) => {
-    if (peerAnalysersRef.current.has(peerId)) return;
-
-    const AudioCtx =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext })
-        .webkitAudioContext;
-    const ctx = new AudioCtx();
-    const analyser = ctx.createAnalyser();
-    analyser.fftSize = 1024;
-
-    const source = ctx.createMediaStreamSource(stream);
-    source.connect(analyser);
-
-    const data = new Uint8Array(analyser.frequencyBinCount);
-    let lastSpokeAt = 0;
-
-    const timer = window.setInterval(() => {
-      analyser.getByteFrequencyData(data);
-      let sum = 0;
-      for (let i = 0; i < data.length; i++) sum += data[i];
-      const avg = sum / data.length;
-
-      const now = Date.now();
-      const speakingNow = avg > SPEAKING_THRESHOLD;
-      if (speakingNow) lastSpokeAt = now;
-
-      peerSpeakingRef.current.set(
-        peerId,
-        speakingNow || now - lastSpokeAt < SPEAKING_HOLD_MS,
-      );
-    }, 100);
-
-    peerAnalysersRef.current.set(peerId, { ctx, timer });
-  };
-
-  // WebRTC Signaling 메서드들
 
   /**
    * Offer 생성 (연결 제안)
-   *    Offer/Answer 패턴:
-   * 1. A가 Offer 생성 → B에게 전송
-   * 2. B가 Offer 수신 → Answer 생성 → A에게 전송
-   * 3. A가 Answer 수신 → 연결 완료
    */
   const createOffer = useCallback(
     async (peerId: string): Promise<RTCSessionDescriptionInit | null> => {
@@ -353,7 +344,6 @@ export function useWebRTC(): UseWebRTCReturn {
         const offer = await pc.createOffer({
           offerToReceiveAudio: true,
           offerToReceiveVideo: false,
-          // 이 부분에서 비디오가 왜나왔는지 모르겠음 추후 확인예정
         });
         await pc.setLocalDescription(offer);
         return offer;
@@ -405,12 +395,9 @@ export function useWebRTC(): UseWebRTCReturn {
 
   /**
    * ICE Candidate 수신
-   *   ICE (Interactive Connectivity Establishment):
-   * - 두 피어 간의 최적의 네트워크 경로를 찾는 프로토콜
-   * - NAT, 방화벽을 통과하기 위한 정보 교환
    */
   const handleIce = useCallback(
-    async (peerId: string, candidate: RTCIceCandidateInit): Promise<void> => {
+    async (peerId: string, candidate: RTCIceCandidateInit) => {
       try {
         const pc = peerConnectionsRef.current.get(peerId);
         if (!pc) return;
@@ -421,8 +408,6 @@ export function useWebRTC(): UseWebRTCReturn {
     },
     [],
   );
-
-  // 피어 연결 정리
 
   const removePeer = useCallback((peerId: string) => {
     // PeerConnection 정리
@@ -452,19 +437,10 @@ export function useWebRTC(): UseWebRTCReturn {
     peerSpeakingRef.current.delete(peerId);
   }, []);
 
-  // 피어 음성 상태 조회
-
   const getPeerSpeaking = useCallback((peerId: string): boolean => {
     return peerSpeakingRef.current.get(peerId) ?? false;
   }, []);
 
-  // 테스트용 오디오 시뮬레이션
-
-  /**
-   * 테스트 유저의 목소리(비프음)를 시뮬레이션합니다.
-   * Web Audio API의 Oscillator를 사용하여 소리를 생성하고,
-   * 이를 MediaStream으로 변환하여 마치 상대방이 말하는 것처럼 처리합니다.
-   */
   const simulateIncomingAudio = useCallback((peerId: string) => {
     // 1. AudioContext 생성
     const AudioCtx =
@@ -475,44 +451,36 @@ export function useWebRTC(): UseWebRTCReturn {
 
     // 2. 소리 생성 (Oscillator)
     const oscillator = ctx.createOscillator();
-    oscillator.type = "sine"; // 부드러운 사인파
-    oscillator.frequency.setValueAtTime(440, ctx.currentTime); // 440Hz (A4)
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(440, ctx.currentTime);
 
     // 3. 볼륨 조절 (Gain)
     const gainNode = ctx.createGain();
-    gainNode.gain.setValueAtTime(0.3, ctx.currentTime); // 볼륨 30%
+    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
 
-    // 4. MediaStreamDestination 생성 (Web Audio -> MediaStream)
+    // 4. MediaStreamDestination 생성
     const destination = ctx.createMediaStreamDestination();
 
-    // 연결: Oscillator -> Gain -> Destination
     oscillator.connect(gainNode);
     gainNode.connect(destination);
 
-    // 5. 소리 재생 (2초간)
     oscillator.start();
     oscillator.stop(ctx.currentTime + 2);
 
-    // 6. 생성된 스트림을 리모트 스트림으로 처리 (기존 로직 재사용)
-    // 인위적으로 track 이벤트를 발생시키는 대신 직접 스트림 처리 로직 수행
     const stream = destination.stream;
 
-    // 오디오 엘리먼트 생성 및 재생
-    // (기존 getOrCreatePeerConnection 내부 로직과 유사하지만 단순화)
     let audioEl = audioElementsRef.current.get(peerId);
     if (!audioEl) {
       audioEl = document.createElement("audio");
       audioEl.autoplay = true;
       audioElementsRef.current.set(peerId, audioEl);
-      document.body.appendChild(audioEl); // DOM에 추가해야 소리가 나는 경우도 있음 (크롬 정책)
+      document.body.appendChild(audioEl);
     }
     audioEl.srcObject = stream;
 
-    // 비프음이 나는 동안만 '말하는 중' 상태로 표시
     peerSpeakingRef.current.set(peerId, true);
     setTimeout(() => {
       peerSpeakingRef.current.set(peerId, false);
-      // 정리
       oscillator.disconnect();
       gainNode.disconnect();
       ctx.close();
@@ -521,8 +489,6 @@ export function useWebRTC(): UseWebRTCReturn {
       }
     }, 2000);
   }, []);
-
-  // 특정 피어 로컬 음소거 제어
 
   const togglePeerMute = useCallback((peerId: string) => {
     setMutedPeers((prev) => {
@@ -535,7 +501,6 @@ export function useWebRTC(): UseWebRTCReturn {
         next.add(peerId);
       }
 
-      // 오디오 엘리먼트 실제 음소거 적용
       const audioEl = audioElementsRef.current.get(peerId);
       if (audioEl) {
         audioEl.muted = !isMuted;
@@ -552,21 +517,40 @@ export function useWebRTC(): UseWebRTCReturn {
     [mutedPeers],
   );
 
-  return {
-    localStream,
-    isMicOn,
-    isSpeaking,
-    toggleMic,
-    startAudio,
-    stopAudio,
-    createOffer,
-    handleOffer,
-    handleAnswer,
-    handleIce,
-    removePeer,
-    getPeerSpeaking,
-    simulateIncomingAudio,
-    togglePeerMute,
-    isPeerMuted,
-  };
+  return useMemo(
+    () => ({
+      localStream,
+      isMicOn,
+      isSpeaking,
+      toggleMic,
+      startAudio,
+      stopAudio,
+      createOffer,
+      handleOffer,
+      handleAnswer,
+      handleIce,
+      removePeer,
+      getPeerSpeaking,
+      simulateIncomingAudio,
+      togglePeerMute,
+      isPeerMuted,
+    }),
+    [
+      localStream,
+      isMicOn,
+      isSpeaking,
+      toggleMic,
+      startAudio,
+      stopAudio,
+      createOffer,
+      handleOffer,
+      handleAnswer,
+      handleIce,
+      removePeer,
+      getPeerSpeaking,
+      simulateIncomingAudio,
+      togglePeerMute,
+      isPeerMuted,
+    ],
+  );
 }

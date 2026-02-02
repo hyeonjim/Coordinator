@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface FileRepository extends JpaRepository<FileNode, Long> {
     List<FileNode> findAllByRoomIdAndParentIdIsNull(Long roomId);
-
+    void deleteByRoomId(Long roomId);
 }

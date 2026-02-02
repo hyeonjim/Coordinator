@@ -1,10 +1,16 @@
 import { NavLink } from "react-router-dom";
 
-interface TabProps {
-  to: string;
-  label: string;
-}
-
-export default function Tab({ to, label }: TabProps) {
-  return <NavLink to={to}>{label}</NavLink>;
+export default function Tab({ to, icon }: TabProps) {
+  return (
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `flex items-center justify-center ${
+          isActive ? "text-primary" : "text-muted-foreground"
+        }`
+      }
+    >
+      {icon}
+    </NavLink>
+  );
 }
