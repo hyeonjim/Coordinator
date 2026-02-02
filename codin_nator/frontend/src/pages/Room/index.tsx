@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import CodeEditor from "@/components/room/code-editor";
@@ -9,10 +8,12 @@ import { VoiceChat } from "@/components/room/chat/VoiceChat";
 import { TextChat } from "@/components/room/chat/TextChat";
 
 // 커스텀 훅
+import { useWebSocket } from "./hooks/useWebSocket";
 import { useWebRTC } from "./hooks/useWebRTC";
 import { useRoomSetup } from "./hooks/useRoomSetup";
 import { useParticipantManagement } from "./hooks/useParticipantManagement";
 import { useRoomActions } from "./hooks/useRoomActions";
+import { useWebSocketMessageHandler } from "./hooks/useWebSocketMessageHandler";
 
 // STOMP 훅
 import { useTextChatStomp } from "@/hooks/chat/useTextChatStomp";
@@ -33,11 +34,14 @@ export default function RoomPage() {
     userId,
     userName,
     userImageUrl,
+    webSocketUrl,
     currentRoomId,
     isJoined,
     setIsJoined,
     participants,
     setParticipants,
+    chatMessages,
+    setChatMessages,
     activeTab,
     setActiveTab,
     isSidebarCollapsed,
@@ -53,7 +57,8 @@ export default function RoomPage() {
     userImageUrl,
   );
 
-  // WebRTC 연결
+  // WebSocket 및 WebRTC 연결
+  const webSocket = useWebSocket(webSocketUrl);
   const webRTC = useWebRTC({
     onIceCandidate: voiceChatStomp.sendIce,
   });
@@ -68,75 +73,36 @@ export default function RoomPage() {
     isJoined,
   });
 
-  // STOMP 시그널링 메시지 처리 등록
-  useEffect(() => {
-    if (!voiceChatStomp.isConnected) return;
-
-    // JOIN 메시지 수신 (새 참여자 입장)
-    voiceChatStomp.onJoin((peerId, userInfo) => {
-      addParticipant(peerId, userInfo.userName, userInfo.imageUrl);
-    });
-
-    // PEER_LIST 메시지 수신 (기존 참여자 목록)
-    voiceChatStomp.onPeerList(async (peerIds) => {
-      setIsJoined(true);
-      // 각 피어에게 Offer 전송
-      for (const peerId of peerIds) {
-        if (peerId !== userId) {
-          const offer = await webRTC.createOffer(peerId);
-          if (offer) {
-            voiceChatStomp.sendOffer(peerId, offer);
-          }
-        }
-      }
-    });
-
-    // OFFER 메시지 수신
-    voiceChatStomp.onOffer(async (peerId, sdp) => {
-      const answer = await webRTC.handleOffer(peerId, sdp);
-      if (answer) {
-        voiceChatStomp.sendAnswer(peerId, answer);
-      }
-    });
-
-    // ANSWER 메시지 수신
-    voiceChatStomp.onAnswer(async (peerId, sdp) => {
-      await webRTC.handleAnswer(peerId, sdp);
-    });
-
-    // ICE Candidate 수신
-    voiceChatStomp.onIce(async (peerId, candidate) => {
-      await webRTC.handleIce(peerId, candidate);
-    });
-
-    // LEAVE 메시지 수신 (참여자 퇴장)
-    voiceChatStomp.onLeave((peerId) => {
-      removeParticipant(peerId);
-      webRTC.removePeer(peerId);
-    });
-  }, [
-    voiceChatStomp,
+  // WebSocket 메시지 처리
+  useWebSocketMessageHandler({
+    webSocket,
     webRTC,
     userId,
+    currentRoomId,
     addParticipant,
     removeParticipant,
+    setChatMessages,
     setIsJoined,
-  ]);
+    voiceChatStomp,
+  });
 
   // 방 액션 (입장/퇴장/채팅)
-  const { handleJoin, handleLeave } = useRoomActions({
+  const { handleJoin, handleLeave, handleSendChat } = useRoomActions({
     currentRoomId,
+    userId,
+    userName,
+    userImageUrl,
     webRTC,
-    textChatStomp,
-    voiceChatStomp,
+    webSocket,
     setIsJoined,
     setParticipants,
+    setChatMessages,
     navigate,
   });
 
   // 테스트 헬퍼 (개발 환경만)
   const testHelpers = import.meta.env.DEV
-    ? createTestHelpers({ addParticipant, webRTC })
+    ? createTestHelpers({ addParticipant, setChatMessages, webRTC })
     : undefined;
 
   return (

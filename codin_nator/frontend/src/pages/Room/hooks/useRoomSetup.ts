@@ -24,6 +24,10 @@ export function useRoomSetup(roomId: string | undefined): UseRoomSetupReturn {
   );
   const userImageUrl = user?.imageUrl;
 
+  const webSocketUrl = useMemo(
+    () => (import.meta.env.VITE_SIGNALING_URL as string) || "",
+    [],
+  );
   const currentRoomId = roomId ?? "";
 
   // 방 상태 관리
@@ -40,6 +44,7 @@ export function useRoomSetup(roomId: string | undefined): UseRoomSetupReturn {
     userId,
     userName,
     userImageUrl,
+    webSocketUrl,
     currentRoomId,
     // 방 상태
     isJoined,

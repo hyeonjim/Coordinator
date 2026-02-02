@@ -38,7 +38,6 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frame -> frame.disable())) // H2 콘솔 등을 쓸 경우 대비
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers("/ws/**").permitAll()
-                                .requestMatchers("/ws-chat/**", "/ws-voice/**").permitAll()
                                 .requestMatchers("/", "/login/**", "/oauth2/**").permitAll()
                                 .anyRequest().authenticated()
                 )
