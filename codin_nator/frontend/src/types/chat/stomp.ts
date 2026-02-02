@@ -11,8 +11,6 @@ export type TextChatMessageType = "ENTER" | "TALK";
 /**
  * 백엔드로 전송하는 텍스트 채팅 메시지
  * 백엔드 TextChatMessage DTO와 정확히 일치해야 합니다.
- *
- * 주의: 백엔드 DTO에는 userId, imageUrl, timestamp 필드가 없습니다!
  */
 export interface TextChatMessagePayload {
   /** 채팅방 ID */
@@ -26,6 +24,12 @@ export interface TextChatMessagePayload {
 
   /** 메시지 타입: ENTER(입장) 또는 TALK(채팅) */
   type: TextChatMessageType;
+
+  /** 프로필 이미지 URL (GitHub 아바타) - 선택적 */
+  imageUrl?: string;
+
+  /** 메시지 전송 시간 (Unix timestamp) - 선택적, 서버가 자동 설정 */
+  timestamp?: number;
 }
 
 /**
@@ -46,6 +50,12 @@ export interface TextChatMessageReceived {
 
   /** 메시지 타입 */
   type: TextChatMessageType;
+
+  /** 프로필 이미지 URL (GitHub 아바타) */
+  imageUrl?: string;
+
+  /** 메시지 전송 시간 (Unix timestamp, 서버에서 설정) */
+  timestamp?: number;
 }
 
 /**

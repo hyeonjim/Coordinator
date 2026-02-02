@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
-import type { UseTextChatWebSocketReturn } from '@/types/chat/stomp';
-import type { ChatMessage } from '@/types/chat/message';
-import { generateId } from '@/utils/room/idGenerator';
+import { useEffect } from "react";
+import type { UseTextChatWebSocketReturn } from "@/types/chat/stomp";
+import type { ChatMessage } from "@/types/chat/message";
+import { generateId } from "@/utils/room/idGenerator";
 
 /**
  * 텍스트 채팅 메시지 수신 처리 훅의 파라미터
@@ -56,7 +56,7 @@ export function useTextChatMessageHandler({
     // STOMP가 연결되지 않았으면 대기
     // connect()가 완료되면 이 effect가 다시 실행됩니다.
     if (!textChatWebSocket.isConnected) {
-      console.log('⏳ STOMP 연결 대기 중...');
+      console.log("⏳ STOMP 연결 대기 중...");
       return;
     }
 
@@ -78,8 +78,13 @@ export function useTextChatMessageHandler({
        *
        * 반대로 ENTER 메시지는 로컬에 추가하지 않았으므로 모두 표시합니다.
        */
-      if (receivedMessage.sender === userName && receivedMessage.type === 'TALK') {
-        console.log('🔄 내가 보낸 메시지는 이미 로컬에 추가되어 있으므로 무시합니다.');
+      if (
+        receivedMessage.sender === userName &&
+        receivedMessage.type === "TALK"
+      ) {
+        console.log(
+          "🔄 내가 보낸 메시지는 이미 로컬에 추가되어 있으므로 무시합니다.",
+        );
         return;
       }
 
@@ -87,29 +92,19 @@ export function useTextChatMessageHandler({
        * 수신한 메시지를 UI 형태로 변환
        *
        * 백엔드 DTO (TextChatMessageReceived):
-       * - roomId, sender, message, type만 있음
-       * - userId, imageUrl, timestamp 필드 없음!
-       *
-       * UI 형태 (ChatMessage):
-       * - id: 고유 ID (프론트엔드에서 생성)
-       * - userId: 백엔드에 없으므로 sender를 대신 사용
-       * - userName: sender
-       * - message: 메시지 내용
-       * - timestamp: 현재 시간 (백엔드에서 제공하지 않음)
-       * - isMe: 내가 보낸 메시지인지 여부
-       * - imageUrl: 백엔드에서 제공하지 않으므로 undefined
+       * - 이제 imageUrl과 timestamp가 포함됨!
        */
       const chatMessage: ChatMessage = {
-        id: generateId('message'),
-        userId: receivedMessage.sender, // userId 대신 sender 사용
+        id: generateId("message"),
+        userId: receivedMessage.sender,
         userName: receivedMessage.sender,
         message: receivedMessage.message,
-        timestamp: Date.now(), // 백엔드에서 timestamp를 제공하지 않으므로 현재 시간 사용
+        timestamp: receivedMessage.timestamp ?? Date.now(),
         isMe: receivedMessage.sender === userName,
-        // imageUrl은 백엔드에서 제공하지 않으므로 생략 (undefined)
+        imageUrl: receivedMessage.imageUrl,
       };
 
-      console.log('💬 새 채팅 메시지 추가:', chatMessage);
+      console.log("💬 새 채팅 메시지 추가:", chatMessage);
 
       /**
        * 채팅 메시지 목록에 추가
@@ -131,11 +126,5 @@ export function useTextChatMessageHandler({
     return () => {
       textChatWebSocket.unsubscribeFromRoom();
     };
-  }, [
-    textChatWebSocket,
-    currentRoomId,
-    userName,
-    isJoined,
-    setChatMessages,
-  ]);
+  }, [textChatWebSocket, currentRoomId, userName, isJoined, setChatMessages]);
 }

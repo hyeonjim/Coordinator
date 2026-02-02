@@ -7,10 +7,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import type {
-  ChatMessage,
-  TextChatProps,
-} from "@/types/chat/message";
+import type { ChatMessage, TextChatProps } from "@/types/chat/message";
 
 /**
  * 내 메시지는 오른쪽, 상대 메시지는 왼쪽에 표시
@@ -25,7 +22,10 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 
   return (
     <div
-      className={["flex gap-2 items-end", message.isMe ? "justify-end" : "justify-start"].join(" ")}
+      className={[
+        "flex gap-2 items-end",
+        message.isMe ? "justify-end" : "justify-start",
+      ].join(" ")}
     >
       {/* 아바타 (상대방 메시지만 왼쪽에 표시, 호스트는 표시 안함) */}
       {!message.isMe && (
@@ -47,11 +47,6 @@ function MessageBubble({ message }: { message: ChatMessage }) {
       )}
 
       <div className="max-w-[70%]">
-        {/* 발신자 이름 (상대방 메시지만) */}
-        {!message.isMe && (
-          <p className="text-xs text-slate-500 mb-1 px-1">{message.userName}</p>
-        )}
-
         {/* 메시지 내용 */}
         <div
           className={[
@@ -64,15 +59,20 @@ function MessageBubble({ message }: { message: ChatMessage }) {
           <p className="text-sm break-words">{message.message}</p>
         </div>
 
-        {/* 시간 */}
-        <p
+        {/* 시간 및 발신자 이름 (상대방 메시지만 이름 표시) */}
+        <div
           className={[
-            "text-xs text-slate-400 mt-1 px-1",
-            message.isMe ? "text-right" : "text-left",
+            "flex items-center gap-1 mt-1 px-1",
+            message.isMe ? "justify-end" : "justify-start",
           ].join(" ")}
         >
-          {time}
-        </p>
+          {!message.isMe && (
+            <span className="text-xs pr-3 text-slate-500">
+              {message.userName}
+            </span>
+          )}
+          <span className="text-xs text-slate-400">{time}</span>
+        </div>
       </div>
     </div>
   );
@@ -168,9 +168,7 @@ export function TextChat({
                 <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4">
                   <span className="text-3xl">✨</span>
                 </div>
-                <h3 className="text-slate-900 font-bold mb-1">
-                  AI Assistant
-                </h3>
+                <h3 className="text-slate-900 font-bold mb-1">AI Assistant</h3>
                 <p className="text-slate-500 text-sm">
                   안녕하세요! 코드에 대해 질문하거나,
                   <br />

@@ -24,6 +24,11 @@ public class TextChatController {
      */
     @MessageMapping("/chat/message") // 클라이언트가 /pub/chat/message로 보낼 때
     public void message(TextChatMessage message) {
+        // 0. 서버에서 타임스탬프 설정 (클라이언트가 보내지 않은 경우)
+        if (message.getTimestamp() == null) {
+            message.setTimestamp(System.currentTimeMillis());
+        }
+
         // 1. 입장 메시지 처리
         if (TextChatMessage.MessageType.ENTER.equals(message.getType())) {
             message.setMessage(message.getSender() + "님이 입장하셨습니다.");

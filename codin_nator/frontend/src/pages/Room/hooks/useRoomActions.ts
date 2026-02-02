@@ -57,8 +57,9 @@ export function useRoomActions({
         textChatWebSocket.sendMessage({
           roomId: currentRoomId,
           sender: userName,
-          message: '',
-          type: 'ENTER',
+          message: "",
+          type: "ENTER",
+          imageUrl: userImageUrl,
         });
 
         setIsJoined(true);
@@ -135,7 +136,8 @@ export function useRoomActions({
         roomId: currentRoomId,
         sender: userName,
         message: text,
-        type: 'TALK',
+        type: "TALK",
+        imageUrl: userImageUrl,
       });
 
       // 2. 로컬 UI에 즉시 반영
