@@ -167,12 +167,12 @@ const FileViewer = ({ roomId, onFileSelect }: FileViewerProps) => {
 
         const formData = new FormData();
         formData.append("file", file);
-        const accessToken = localStorage.getItem("access_token");
+
         try {
           if (!roomIdSafe) throw new Error("유효하지 않은 방 ID입니다.");
 
-          await axios.post("/api/v1/room/1/uploads", formData, {
-            headers: { Authorization: `Bearer ${accessToken}` },
+          await axios.post(`/api/v1/room/${roomIdSafe}/uploads`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
           });
 
           resolve();

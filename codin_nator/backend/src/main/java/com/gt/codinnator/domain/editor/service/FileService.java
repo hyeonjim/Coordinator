@@ -69,24 +69,8 @@ public class FileService {
 
     @Transactional
     public void uploadProject(List<MultipartFile> files, Long roomId) throws IOException {
-        // 기존 폴더 삭제
         fileRepository.deleteByRoomId(roomId);
-
         Path root = Paths.get(filePath, String.valueOf(roomId));
-
-        if (Files.exists(root)) {
-            // root 하위 파일/폴더 전부 삭제
-            Files.walk(root)
-                    .sorted((a, b) -> b.compareTo(a)) // 하위부터 지워야 함
-                    .forEach(p -> {
-                        try {
-                            Files.deleteIfExists(p);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-        }
-
         Files.createDirectories(root);
 
         for (MultipartFile mf : files) {
@@ -96,25 +80,11 @@ public class FileService {
             if (original == null || original.isBlank()) continue;
 
             String rel = original.replace("\\", "/");
-            String lower = rel.toLowerCase();
-
-            // 일반 파일일 때
-            if (lower.endsWith(".zip")) {
-                Path zipTarget = root.resolve(rel).normalize();
-                if (!zipTarget.startsWith(root)) throw new IOException("Invalid path: " + rel);
-
-                Files.createDirectories(zipTarget.getParent());
-                mf.transferTo(zipTarget.toFile());
-
-                unzipFile((MultipartFile) zipTarget.toFile(), root.toFile());   // 아래 unzipFile(File,..) 사용
-                Files.deleteIfExists(zipTarget);                // zip 파일 자체는 제거(원하면 보관 가능)
-                continue;
-            }
-            // 일반 파일
             Path target = root.resolve(rel).normalize();
             if (!target.startsWith(root)) {
                 throw new IOException("Security Error: Invalid path " + rel);
             }
+
             String name = target.getFileName().toString();
 
             if (name.endsWith(".class")) continue;
