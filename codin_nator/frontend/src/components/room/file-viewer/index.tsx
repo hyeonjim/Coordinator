@@ -104,7 +104,7 @@ const FileViewer = ({ roomId, onFileSelect }: FileViewerProps) => {
       ? numericRoomId
       : null;
   }, [roomId]);
-
+  const accessToken = localStorage.getItem("access_token");
   // 1. 파일 목록 조회 함수
   const fetchFileTree = useCallback(async () => {
     if (!roomIdSafe) {
@@ -114,7 +114,11 @@ const FileViewer = ({ roomId, onFileSelect }: FileViewerProps) => {
 
     try {
       setLoading(true);
-      const response = await axios.get(`/api/v1/room/${roomIdSafe}/files`);
+      const response = await axios.get(`/api/v1/room/${roomIdSafe}/files`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       const normalized = normalizeFileTree(response.data);
       setFiles(sanitizeTree(normalized));
     } catch (error) {
@@ -138,9 +142,15 @@ const FileViewer = ({ roomId, onFileSelect }: FileViewerProps) => {
 
     try {
       // 파일 내용을 서버에서 가져옵니다.
-      const response = await axios.get(`/api/v1/room/files/${node.fileId}`, {
-        responseType: "text",
-      });
+      const response = await axios.get(
+        `/api/v1/room/${roomIdSafe}/${node.fileId}`,
+        {
+          responseType: "text",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
 
       const content =
         typeof response.data === "string"
@@ -167,12 +177,12 @@ const FileViewer = ({ roomId, onFileSelect }: FileViewerProps) => {
 
         const formData = new FormData();
         formData.append("file", file);
-
+        const accessToken = localStorage.getItem("access_token");
         try {
           if (!roomIdSafe) throw new Error("유효하지 않은 방 ID입니다.");
 
           await axios.post(`/api/v1/room/${roomIdSafe}/uploads`, formData, {
-            headers: { "Content-Type": "multipart/form-data" },
+            headers: { Authorization: `Bearer ${accessToken}` },
           });
 
           resolve();
