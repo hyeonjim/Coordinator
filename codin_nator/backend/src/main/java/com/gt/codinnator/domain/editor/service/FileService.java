@@ -98,16 +98,23 @@ public class FileService {
             String rel = original.replace("\\", "/");
             String lower = rel.toLowerCase();
 
+            // 일반 파일일 때
             if (lower.endsWith(".zip")) {
-                unzipFile(mf, root.toFile()); // ✅ MultipartFile 그대로 사용
+                Path zipTarget = root.resolve(rel).normalize();
+                if (!zipTarget.startsWith(root)) throw new IOException("Invalid path: " + rel);
+
+                Files.createDirectories(zipTarget.getParent());
+                mf.transferTo(zipTarget.toFile());
+
+                unzipFile((MultipartFile) zipTarget.toFile(), root.toFile());   // 아래 unzipFile(File,..) 사용
+                Files.deleteIfExists(zipTarget);                // zip 파일 자체는 제거(원하면 보관 가능)
                 continue;
             }
-
+            // 일반 파일
             Path target = root.resolve(rel).normalize();
             if (!target.startsWith(root)) {
                 throw new IOException("Security Error: Invalid path " + rel);
             }
-
             String name = target.getFileName().toString();
 
             if (name.endsWith(".class")) continue;
