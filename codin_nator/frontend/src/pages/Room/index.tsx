@@ -9,11 +9,13 @@ import { TextChat } from "@/components/room/chat/TextChat";
 
 // 커스텀 훅
 import { useWebSocket } from "./hooks/useWebSocket";
+import { useTextChatWebSocket } from "./hooks/useTextChatWebSocket";
 import { useWebRTC } from "./hooks/useWebRTC";
 import { useRoomSetup } from "./hooks/useRoomSetup";
 import { useParticipantManagement } from "./hooks/useParticipantManagement";
 import { useRoomActions } from "./hooks/useRoomActions";
 import { useWebSocketMessageHandler } from "./hooks/useWebSocketMessageHandler";
+import { useTextChatMessageHandler } from "./hooks/useTextChatMessageHandler";
 
 // 연결 테스트용
 import { createTestHelpers } from "./utils/testHelpers";
@@ -44,8 +46,13 @@ export default function RoomPage() {
     setIsSidebarCollapsed,
   } = useRoomSetup(roomId);
 
-  // WebSocket 및 WebRTC 연결
+  // WebSocket 연결 (2개의 독립적인 연결)
+  // 1. WebRTC 시그널링 (음성 채팅용)
   const webSocket = useWebSocket(webSocketUrl);
+  // 2. 텍스트 채팅 STOMP (localhost 백엔드 연결)
+  const textChatWebSocket = useTextChatWebSocket('http://localhost:8080/ws-chat');
+
+  // WebRTC 연결
   const webRTC = useWebRTC();
 
   // 참여자 관리 및 동기화
@@ -59,6 +66,7 @@ export default function RoomPage() {
   });
 
   // WebSocket 메시지 처리
+  // 1. WebRTC 시그널링 메시지 처리 (음성 채팅)
   useWebSocketMessageHandler({
     webSocket,
     webRTC,
@@ -70,6 +78,15 @@ export default function RoomPage() {
     setIsJoined,
   });
 
+  // 2. 텍스트 채팅 메시지 수신 처리 (STOMP)
+  useTextChatMessageHandler({
+    textChatWebSocket,
+    currentRoomId,
+    userName,
+    isJoined,
+    setChatMessages,
+  });
+
   // 방 액션 (입장/퇴장/채팅)
   const { handleJoin, handleLeave, handleSendChat } = useRoomActions({
     currentRoomId,
@@ -78,6 +95,7 @@ export default function RoomPage() {
     userImageUrl,
     webRTC,
     webSocket,
+    textChatWebSocket,
     setIsJoined,
     setParticipants,
     setChatMessages,
