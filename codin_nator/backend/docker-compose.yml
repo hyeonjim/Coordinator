@@ -12,3 +12,33 @@ services:
     volumes:
       - /home/ubuntu/codinnator/uploads:/codinnator/data/uploads/
       - /home/ubuntu/config:/config
+  # 1. Redis: 작업 큐 및 상태 관리용
+  redis:
+    image: redis:latest
+    container_name: codinnator-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - codinnator-network
+
+  # 2. Worker Server: 테스트 실행 및 결과 분석용
+  worker:
+    build: .
+    container_name: codinnator-worker
+    environment:
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - JAVA_OPTS=-Dfile.encoding=UTF-8
+    depends_on:
+      - redis
+    volumes:
+      - /tmp/codinnator:/tmp/codinnator  # 호스트와 임시 폴더 공유 (로그 확인용)
+    networks:
+      - codinnator-network
+    deploy:
+      resources:
+        limits:
+          memory: 1G # 서버 사양에 맞춰 조절
+networks:
+  codinnator-network:
+    driver: bridge

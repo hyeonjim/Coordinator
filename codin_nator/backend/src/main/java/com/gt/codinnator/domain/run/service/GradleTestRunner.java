@@ -8,8 +8,10 @@ import org.w3c.dom.Node;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
@@ -28,12 +30,20 @@ public class GradleTestRunner {
             if (isWindows) {
                 // 윈도우: cmd /c gradlew.bat test ...
                 pb = new ProcessBuilder(
-                        "cmd.exe", "/c", "gradlew.bat", "test", "--tests", testClassName
+                        "cmd.exe", "/c", "gradlew.bat", "clean", "test", "--tests", testClassName, "--rerun-tasks"
                 );
             } else {
+                File gradlew = projectPath.resolve("gradlew").toFile();
+                if (gradlew.exists()) {
+                    gradlew.setExecutable(true); // 리눅스 서버에서 gradlew 실행 권한 부여
+                }
                 // 리눅스/맥: ./gradlew test ...
                 pb = new ProcessBuilder(
-                        "./gradlew", "test", "--tests", testClassName
+//                        "./gradlew", "clean", "test", "--tests", testClassName, "--rerun-tasks"
+                        "docker", "run", "--rm",
+                        "-v", projectPath.toAbsolutePath() + ":/app", // 호스트 폴더를 컨테이너에 마운트
+                        "eclipse-temurin:17-jdk",                    // 테스트용 JDK 이미지
+                        "sh", "-c", "cd /app && chmod +x gradlew && ./gradlew clean test --tests " + testClassName + " && chmod -R 777 /app/build"
                 );
             }
 
@@ -42,6 +52,15 @@ public class GradleTestRunner {
 
             // 2. 실행 및 프로세스 종료 대기 (타임아웃 1분 설정)
             Process process = pb.start();
+
+            // 실행 로그를 서버 콘솔에 실시간으로 출력
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println("[Gradle Log] " + line);
+                }
+            }
+
             boolean finished = process.waitFor(1, TimeUnit.MINUTES);
 
             if (!finished) {
@@ -76,14 +95,33 @@ public class GradleTestRunner {
 
             Node testSuite = doc.getElementsByTagName("testsuite").item(0);
             int failures = Integer.parseInt(testSuite.getAttributes().getNamedItem("failures").getNodeValue());
-            int errors = Integer.parseInt(testSuite.getAttributes().getNamedItem("errors").getNodeValue());
 
-            boolean isSuccess = (failures == 0 && errors == 0);
-            String message = isSuccess ? "모든 테스트 통과!" : "테스트 실패: " + failures + "건의 오류 발생";
+            if (failures == 0) {
+                return new TestResultDto(true, "모든 테스트 통과!");
+            }
 
-            // 실패 상세 내용이 필요하면 <failure> 태그의 텍스트를 긁어오면 됩니다.
-            return new TestResultDto(isSuccess, message);
+            // 실패한 경우 <failure> 태그 내의 상세 메시지 추출
+            StringBuilder errorDetail = new StringBuilder("테스트 실패:\n");
+            var testCases = doc.getElementsByTagName("testcase");
 
+            for (int i = 0; i < testCases.getLength(); i++) {
+                Node testCase = testCases.item(i);
+                var failureNodes = testCase.getChildNodes();
+                for (int j = 0; j < failureNodes.getLength(); j++) {
+                    Node child = failureNodes.item(j);
+                    if ("failure".equals(child.getNodeName())) {
+                        // 1. 단순 메시지 대신 상세 Stack Trace 전체를 가져옴
+                        String fullStackTrace = child.getTextContent();
+
+                        // 2. 가독성을 위해 테스트 케이스 이름과 함께 추가
+                        String testName = testCase.getAttributes().getNamedItem("name").getNodeValue();
+                        errorDetail.append("[").append(testName).append("] 실패 상세:\n")
+                                .append(fullStackTrace).append("\n\n");
+                    }
+                }
+            }
+
+            return new TestResultDto(false, errorDetail.toString());
         } catch (Exception e) {
             return new TestResultDto(false, "리포트 분석 중 오류: " + e.getMessage());
         }
