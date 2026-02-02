@@ -10,7 +10,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { UseWebRTCReturn, UseWebRTCParams } from "@/types/chat/webrtc";
+import type { UseWebRTCReturn } from "@/types/chat/webrtc";
 
 /**
  *   STUN 서버:
@@ -28,11 +28,9 @@ const SPEAKING_HOLD_MS = 300; // 말이 끝나도 이 시간 동안 유지
 /**
  * WebRTC P2P 연결 관리 훅
  *
- * @param params - onIceCandidate 콜백 등 설정
  * @returns WebRTC 관련 상태와 제어 함수들
  */
-export function useWebRTC(params?: UseWebRTCParams): UseWebRTCReturn {
-  const { onIceCandidate } = params || {};
+export function useWebRTC(): UseWebRTCReturn {
   // 상태 및 ref 정의
 
   // 로컬 미디어 스트림 (내 마이크 입력)
@@ -308,14 +306,6 @@ export function useWebRTC(params?: UseWebRTCParams): UseWebRTCReturn {
         pc.addTrack(track, localStreamRef.current!);
       });
 
-      // ICE Candidate 생성 시 전송
-      pc.onicecandidate = (event) => {
-        if (event.candidate && onIceCandidate) {
-          console.log(`[WebRTC] 🧊 ICE Candidate 생성: ${peerId}`);
-          onIceCandidate(peerId, event.candidate.toJSON());
-        }
-      };
-
       // 원격 트랙 수신 시 처리
       pc.ontrack = (event) => {
         let remoteStream = remoteStreamsRef.current.get(peerId);
@@ -341,7 +331,7 @@ export function useWebRTC(params?: UseWebRTCParams): UseWebRTCReturn {
       peerConnectionsRef.current.set(peerId, pc);
       return pc;
     },
-    [setupRemoteSpeakingDetection, onIceCandidate],
+    [setupRemoteSpeakingDetection],
   );
 
   /**

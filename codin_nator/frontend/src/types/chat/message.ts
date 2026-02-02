@@ -57,19 +57,3 @@ export interface TextChatProps {
   /** 사이드바 축소 상태 변경 */
   setIsSidebarCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
 }
-
-/**
- * useTextChatStomp 훅 반환 타입
- */
-export interface UseTextChatStompReturn {
-  /** STOMP 연결 상태 */
-  isConnected: boolean;
-  /** 메시지 전송 */
-  sendMessage: (message: string) => void;
-  /** 입장 메시지 전송 (보통 자동으로 호출됨) */
-  sendEnter: () => void;
-  /** 채팅 메시지 목록 */
-  messages: ChatMessage[];
-  /** 메시지 목록 초기화 */
-  clearMessages: () => void;
-}

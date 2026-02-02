@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import type { UseWebSocketMessageHandlerParams } from "@/types/room/types";
-import type { UseVoiceChatStompReturn } from "@/types/chat/voicetypes";
 import { generateId } from "@/utils/room/idGenerator";
 
 /**
@@ -18,76 +17,7 @@ export function useWebSocketMessageHandler({
   removeParticipant,
   setChatMessages,
   setIsJoined,
-  voiceChatStomp,
-}: UseWebSocketMessageHandlerParams & {
-  voiceChatStomp: UseVoiceChatStompReturn;
-}) {
-  // STOMP 음성 채팅 시그널링 콜백 등록
-  useEffect(() => {
-    console.log("[WebSocketMessageHandler] 🔗 STOMP 시그널링 콜백 등록");
-
-    // JOIN 메시지 수신 (새 참여자 입장)
-    voiceChatStomp.onJoin((peerId, userInfo) => {
-      console.log(
-        `[WebSocketMessageHandler] 👤 새 참여자 입장: ${userInfo.userName}`,
-      );
-      addParticipant(peerId, userInfo.userName, userInfo.imageUrl);
-    });
-
-    // PEER_LIST 메시지 수신 (기존 참여자 목록)
-    voiceChatStomp.onPeerList(async (peerIds) => {
-      console.log(
-        `[WebSocketMessageHandler] 📋 기존 참여자 목록 수신: ${peerIds.length}명`,
-      );
-      setIsJoined(true);
-
-      // 각 피어에게 Offer 전송
-      for (const peerId of peerIds) {
-        if (peerId !== userId) {
-          const offer = await webRTC.createOffer(peerId);
-          if (offer) {
-            voiceChatStomp.sendOffer(peerId, offer);
-          }
-        }
-      }
-    });
-
-    // OFFER 메시지 수신
-    voiceChatStomp.onOffer(async (peerId, sdp) => {
-      console.log(`[WebSocketMessageHandler] 📞 OFFER 수신: ${peerId}`);
-      const answer = await webRTC.handleOffer(peerId, sdp);
-      if (answer) {
-        voiceChatStomp.sendAnswer(peerId, answer);
-      }
-    });
-
-    // ANSWER 메시지 수신
-    voiceChatStomp.onAnswer(async (peerId, sdp) => {
-      console.log(`[WebSocketMessageHandler] 📞 ANSWER 수신: ${peerId}`);
-      await webRTC.handleAnswer(peerId, sdp);
-    });
-
-    // ICE Candidate 수신
-    voiceChatStomp.onIce(async (peerId, candidate) => {
-      console.log(`[WebSocketMessageHandler] 🧊 ICE 수신: ${peerId}`);
-      await webRTC.handleIce(peerId, candidate);
-    });
-
-    // LEAVE 메시지 수신 (참여자 퇴장)
-    voiceChatStomp.onLeave((peerId) => {
-      console.log(`[WebSocketMessageHandler] 👋 참여자 퇴장: ${peerId}`);
-      removeParticipant(peerId);
-      webRTC.removePeer(peerId);
-    });
-  }, [
-    voiceChatStomp,
-    webRTC,
-    userId,
-    addParticipant,
-    removeParticipant,
-    setIsJoined,
-  ]);
-
+}: UseWebSocketMessageHandlerParams) {
   useEffect(() => {
     const message = webSocket.lastMessage;
     if (!message) return;

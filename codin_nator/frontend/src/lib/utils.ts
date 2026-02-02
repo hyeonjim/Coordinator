@@ -1,5 +1,3 @@
-// 이게 무슨 파일이지?? 나중에 확인 바람
-
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type {
