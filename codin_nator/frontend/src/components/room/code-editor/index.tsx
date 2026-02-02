@@ -6,7 +6,11 @@ import { Slate, Editable, withReact } from "slate-react";
 import type { RenderElementProps } from "slate-react";
 import { withYjs, withYHistory, withCursors, YjsEditor } from "@slate-yjs/core";
 
-export default function CodeEditor() {
+interface CodeEditorProps {
+  fileContent?: string;
+}
+
+export default function CodeEditor({ fileContent }: CodeEditorProps) {
   const ydoc = useMemo(() => new Y.Doc(), []);
   const provider = useMemo(
     () =>
@@ -35,7 +39,13 @@ export default function CodeEditor() {
   useEffect(() => {
     YjsEditor.connect(editor);
 
-    if (editor.children.length === 0) {
+    if (fileContent) {
+      Transforms.delete(editor, { at: [0] }); // 기존 내용 삭제
+      Transforms.insertNodes(editor, {
+        type: "paragraph",
+        children: [{ text: fileContent }],
+      });
+    } else if (editor.children.length === 0) {
       Transforms.insertNodes(editor, {
         type: "paragraph",
         children: [{ text: "" }],
@@ -47,7 +57,7 @@ export default function CodeEditor() {
       provider.disconnect();
       ydoc.destroy();
     };
-  }, [editor, provider, ydoc]);
+  }, [editor, provider, ydoc, fileContent]);
 
   // 각 줄(paragraph)에 줄 번호를 표시하는 커스텀 렌더러
   const renderElement = useCallback((props: RenderElementProps) => {
