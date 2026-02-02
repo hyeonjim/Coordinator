@@ -4,7 +4,6 @@ import { useEffect, useMemo, useCallback } from "react";
 import { WebsocketProvider } from "y-websocket";
 import { Slate, Editable, withReact } from "slate-react";
 import type { RenderElementProps } from "slate-react";
-import type { RenderLeafProps } from "slate-react";
 import { withYjs, withYHistory, withCursors, YjsEditor } from "@slate-yjs/core";
 
 export default function CodeEditor() {
@@ -78,40 +77,6 @@ export default function CodeEditor() {
     );
   }, []);
 
-  const renderLeaf = useCallback((props: RenderLeafProps) => {
-    const { attributes, children, leaf } = props;
-
-    // 다른 유저 커서일 때
-    if (leaf.cursor) {
-      const { name, color } = leaf.cursor;
-
-      return (
-        <span
-          {...attributes}
-          className="relative"
-          style={{ backgroundColor: `${color}33` }}
-        >
-          {/* 커서 말풍선 */}
-          <span
-            contentEditable={false}
-            className="absolute -top-6 left-0 px-2 py-0.5 text-xs rounded whitespace-nowrap"
-            style={{
-              backgroundColor: color,
-              color: "white",
-            }}
-          >
-            {name}
-          </span>
-
-          {/* 실제 텍스트 */}
-          {children}
-        </span>
-      );
-    }
-
-    return <span {...attributes}>{children}</span>;
-  }, []);
-
   return (
     <div
       className="h-full w-full bg-[#1e1e1e] text-[#d4d4d4] font-mono text-sm leading-relaxed overflow-auto code-editor-scroll code-editor-container"
@@ -123,7 +88,6 @@ export default function CodeEditor() {
       <Slate editor={editor} initialValue={[]}>
         <Editable
           renderElement={renderElement}
-          renderLeaf={renderLeaf}
           className="
             min-h-full
             w-max
