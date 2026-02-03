@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
-import type { UseParticipantManagementParams } from "@/types/room/types";
+import type { UseParticipantManagementParams } from "@/types/voicechat";
 
 /**
  * 참여자 관리 및 실시간 동기화 훅
@@ -29,14 +29,35 @@ export function useParticipantManagement({
    * 새로운 참여자를 목록에 추가하거나 기존 참여자 정보를 갱신합니다.
    */
   const addParticipant = useCallback(
-    (id: string, name: string, imageUrl?: string) => {
+    (id: string, name: string, imageUrl?: string, micOn?: boolean) => {
       setParticipants((prev) => {
         const exists = prev.find((p) => p.userId === id);
         if (exists) {
-          // 이미 존재하면 정보만 최신화 (이름, 이미지 등)
-          if (exists.userName === name && exists.imageUrl === imageUrl) return prev;
+          // 이름 퇴행 방지: 전달받은 name이 ID와 같고 기존에 실명이 있으면 이름은 유지하지만 micOn은 갱신 가능
+          const isNewNameTemporary = name === id;
+          const isExistingNameBetter = exists.userName !== exists.userId;
+
+          if (isNewNameTemporary && isExistingNameBetter) {
+            if (micOn !== undefined && exists.micOn !== micOn) {
+              return prev.map((p) =>
+                p.userId === id ? { ...p, micOn } : p
+              );
+            }
+            console.log(`ℹ️ [Participant] 기등록된 실명 보유 중 - 업데이트 스킵: ${id}`);
+            return prev;
+          }
+
+          if (exists.userName === name && exists.imageUrl === imageUrl && (micOn === undefined || exists.micOn === micOn)) return prev;
+
+          console.log(
+            `📝 [Participant] 정보 업데이트: ${id} -> ${name} (img: ${
+              imageUrl ? "yes" : "no"
+            })`,
+          );
           return prev.map((p) =>
-            p.userId === id ? { ...p, userName: name, imageUrl } : p
+            p.userId === id
+              ? { ...p, userName: name, imageUrl: imageUrl ?? p.imageUrl, micOn: micOn ?? p.micOn }
+              : p,
           );
         }
         // 새로 추가
@@ -47,7 +68,7 @@ export function useParticipantManagement({
             userName: name,
             imageUrl,
             isSpeaking: false,
-            micOn: true,
+            micOn: micOn ?? true,
           },
         ];
       });
@@ -123,5 +144,17 @@ export function useParticipantManagement({
     return () => clearInterval(interval);
   }, [userId, setParticipants]); // userId와 setParticipants만 의존성으로 가짐 (안정적)
 
-  return { addParticipant, removeParticipant };
+  /**
+   * 참여자의 마이크 상태를 업데이트합니다.
+   */
+  const updateParticipantMicStatus = useCallback(
+    (id: string, micOn: boolean) => {
+      setParticipants((prev) =>
+        prev.map((p) => (p.userId === id ? { ...p, micOn } : p))
+      );
+    },
+    [setParticipants]
+  );
+
+  return { addParticipant, removeParticipant, updateParticipantMicStatus };
 }

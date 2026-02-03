@@ -14,7 +14,7 @@ export default function Header() {
         <div>
           {/* Welcome 메시지와 GitHub 닉네임 표시 */}
           <h1 className="text-lg font-semibold text-foreground">
-            Welcome, {user?.name || "Guest"}
+            Welcome, {user?.name}
           </h1>
         </div>
       </div>
