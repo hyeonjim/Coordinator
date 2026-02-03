@@ -93,6 +93,8 @@ export default function CodeEditor({
   useEffect(() => {
     if (fileContent === undefined) return;
 
+    if (yjsSharedXmlText.length > 0) return;
+
     const lines = String(fileContent).split(/\r?\n/);
     const nodes = (lines.length ? lines : [""]).map((line) => ({
       type: "paragraph" as const,
