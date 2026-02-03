@@ -107,6 +107,43 @@ export default function CodeEditor({
     });
   }, [editor, fileContent]);
 
+  const [isSynced, setIsSynced] = useState(false);
+  useEffect(() => {
+    const handleSync = (isSynced: boolean) => {
+      if (isSynced) {
+        setIsSynced(true);
+      }
+    };
+
+    provider.on("sync", handleSync);
+
+    return () => {
+      provider.off("sync", handleSync);
+    };
+  }, [provider]);
+
+  useEffect(() => {
+    if (!isSynced) return;
+    if (fileContent === undefined) return;
+
+    // ⭐ 이 체크는 sync 이후에만 의미가 있음
+    if (yjsSharedXmlText.length > 0) return;
+
+    const lines = String(fileContent).split(/\r?\n/);
+    const nodes = (lines.length ? lines : [""]).map((line) => ({
+      type: "paragraph" as const,
+      children: [{ text: line }],
+    }));
+
+    Editor.withoutNormalizing(editor, () => {
+      Transforms.removeNodes(editor, {
+        at: [],
+        match: () => true,
+      });
+      Transforms.insertNodes(editor, nodes, { at: [0] });
+    });
+  }, [isSynced, fileContent, editor, yjsSharedXmlText]);
+
   /* =========================
      Prism Highlight 핵심
      ========================= */
