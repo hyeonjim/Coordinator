@@ -89,8 +89,25 @@ export default function CodeEditor({
     };
   }, [yDocument]);
 
-  const [isSynced, setIsSynced] = useState(false);
+  /* 파일 내용 주입 */
+  useEffect(() => {
+    if (fileContent === undefined) return;
 
+    const lines = String(fileContent).split(/\r?\n/);
+    const nodes = (lines.length ? lines : [""]).map((line) => ({
+      type: "paragraph" as const,
+      children: [{ text: line }],
+    }));
+
+    Editor.withoutNormalizing(editor, () => {
+      while (editor.children.length > 0) {
+        Transforms.removeNodes(editor, { at: [0] });
+      }
+      Transforms.insertNodes(editor, nodes, { at: [0] });
+    });
+  }, [editor, fileContent]);
+
+  const [isSynced, setIsSynced] = useState(false);
   useEffect(() => {
     const handleSync = (isSynced: boolean) => {
       if (isSynced) {
@@ -105,17 +122,12 @@ export default function CodeEditor({
     };
   }, [provider]);
 
-  /* 파일 내용 주입 */
   useEffect(() => {
     if (!isSynced) return;
     if (fileContent === undefined) return;
 
-    // ⭐ 이미 Yjs에 내용 있으면 절대 주입 금지
-    const isYjsEmpty =
-      yjsSharedXmlText.length === 0 ||
-      yjsSharedXmlText.toString().trim() === "";
-
-    if (!isYjsEmpty) return;
+    // ⭐ 이 체크는 sync 이후에만 의미가 있음
+    if (yjsSharedXmlText.length > 0) return;
 
     const lines = String(fileContent).split(/\r?\n/);
     const nodes = (lines.length ? lines : [""]).map((line) => ({
@@ -124,7 +136,10 @@ export default function CodeEditor({
     }));
 
     Editor.withoutNormalizing(editor, () => {
-      Transforms.removeNodes(editor, { at: [], match: () => true });
+      Transforms.removeNodes(editor, {
+        at: [],
+        match: () => true,
+      });
       Transforms.insertNodes(editor, nodes, { at: [0] });
     });
   }, [isSynced, fileContent, editor, yjsSharedXmlText]);
