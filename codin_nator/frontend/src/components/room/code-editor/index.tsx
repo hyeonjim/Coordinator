@@ -27,7 +27,7 @@ interface CodeEditorProps {
 }
 
 const WS_BASE_URL =
-  import.meta.env.VITE_CODE_WS_URL ?? "wss://i14e205.p.ssafy.io/ws/code";
+  import.meta.env.VITE_CODE_WS_URL ?? "ws://localhost:8080/ws/code";
 
 export default function CodeEditor({
   roomId,
