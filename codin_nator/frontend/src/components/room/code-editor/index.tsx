@@ -45,7 +45,6 @@ export default function CodeEditor({
   );
 
   const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [currentCode, setCurrentCode] = useState("");
 
   /* Yjs */
@@ -190,7 +189,6 @@ export default function CodeEditor({
 
     try {
       setIsGenerating(true);
-      setError(null);
 
       const response = await aiService.generateTestCode(
         roomId,
@@ -205,9 +203,7 @@ export default function CodeEditor({
       onTestGenerated?.(response.testCode);
       alert("테스트 코드 생성 완료!");
     } catch (e: any) {
-      setError(e.message ?? "오류 발생");
-    } finally {
-      setIsGenerating(false);
+      alert(e.message ?? "오류 발생");
     }
   };
 
