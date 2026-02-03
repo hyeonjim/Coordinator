@@ -4,6 +4,7 @@ import type { ChatMessage, TabType } from "@/types/chat/message";
 import type { Participant } from "@/types/chat/voicetypes";
 import { generateId } from "@/utils/room/idGenerator";
 import { useAuthStore } from "@/stores/authStore";
+import { getSignalingWebSocketUrl } from "@/utils/socketUtils";
 
 /**
  * 방 초기 설정 및 상태 관리 훅
@@ -16,16 +17,17 @@ export function useRoomSetup(roomId: string | undefined): UseRoomSetupReturn {
   const { user } = useAuthStore();
 
   // 사용자 정보 초기화
+  // WebRTC 식별을 위해 세션별로 고유한 임시 ID를 사용합니다.
   const userId = useMemo(() => generateId("user"), []);
-  // 로그인한 사용자가 있으면 해당 정보 사용, 없으면 익명 정보 생성
   const userName = useMemo(
     () => user?.name ?? `사용자_${userId.slice(-4)}`,
-    [userId, user],
+    [userId, user?.name],
   );
   const userImageUrl = user?.imageUrl;
 
   const webSocketUrl = useMemo(
-    () => (import.meta.env.VITE_SIGNALING_URL as string) || "",
+    () => (import.meta.env.VITE_SIGNALING_URL as string) ||
+           `${getSignalingWebSocketUrl()}/ws-signaling`,
     [],
   );
   const currentRoomId = roomId ?? "";
@@ -39,24 +41,40 @@ export function useRoomSetup(roomId: string | undefined): UseRoomSetupReturn {
   const [activeTab, setActiveTab] = useState<TabType>("chat");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  return {
-    // 사용자 정보
-    userId,
-    userName,
-    userImageUrl,
-    webSocketUrl,
-    currentRoomId,
-    // 방 상태
-    isJoined,
-    setIsJoined,
-    participants,
-    setParticipants,
-    chatMessages,
-    setChatMessages,
-    // UI 상태
-    activeTab,
-    setActiveTab,
-    isSidebarCollapsed,
-    setIsSidebarCollapsed,
-  };
+  return useMemo(
+    () => ({
+      userId,
+      userName,
+      userImageUrl,
+      webSocketUrl,
+      currentRoomId,
+      isJoined,
+      setIsJoined,
+      participants,
+      setParticipants,
+      chatMessages,
+      setChatMessages,
+      activeTab,
+      setActiveTab,
+      isSidebarCollapsed,
+      setIsSidebarCollapsed,
+    }),
+    [
+      userId,
+      userName,
+      userImageUrl,
+      webSocketUrl,
+      currentRoomId,
+      isJoined,
+      setIsJoined,
+      participants,
+      setParticipants,
+      chatMessages,
+      setChatMessages,
+      activeTab,
+      setActiveTab,
+      isSidebarCollapsed,
+      setIsSidebarCollapsed,
+    ]
+  );
 }

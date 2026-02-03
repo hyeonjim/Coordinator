@@ -9,6 +9,7 @@ export type ParagraphElement = {
 
 export type CustomText = {
   text: string;
+  tokenType?: string;
 };
 
 declare module "slate" {

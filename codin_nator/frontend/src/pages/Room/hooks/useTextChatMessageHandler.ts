@@ -126,5 +126,5 @@ export function useTextChatMessageHandler({
     return () => {
       textChatWebSocket.unsubscribeFromRoom();
     };
-  }, [textChatWebSocket, currentRoomId, userName, isJoined, setChatMessages]);
+  }, [textChatWebSocket.isConnected, textChatWebSocket.subscribeToRoom, textChatWebSocket.unsubscribeFromRoom, currentRoomId, userName, isJoined, setChatMessages]);
 }

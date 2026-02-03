@@ -8,18 +8,19 @@ import { VoiceChat } from "@/components/room/chat/VoiceChat";
 import { TextChat } from "@/components/room/chat/TextChat";
 
 // 커스텀 훅
-import { useWebSocket } from "./hooks/useWebSocket";
 import { useTextChatWebSocket } from "./hooks/useTextChatWebSocket";
+import { useVoiceChatWebSocket } from "./hooks/useVoiceChatWebSocket";
 import { useWebRTC } from "./hooks/useWebRTC";
 import { useRoomSetup } from "./hooks/useRoomSetup";
 import { useParticipantManagement } from "./hooks/useParticipantManagement";
 import { useRoomActions } from "./hooks/useRoomActions";
-import { useWebSocketMessageHandler } from "./hooks/useWebSocketMessageHandler";
 import { useTextChatMessageHandler } from "./hooks/useTextChatMessageHandler";
+import { useVoiceChatMessageHandler } from "./hooks/useVoiceChatMessageHandler";
 
 // 연결 테스트용
 import { createTestHelpers } from "./utils/testHelpers";
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { getSocketBaseUrl } from "@/utils/socketUtils";
 
 /**
  * Room 페이지 컴포넌트
@@ -45,7 +46,6 @@ export default function RoomPage() {
     userId,
     userName,
     userImageUrl,
-    webSocketUrl,
     currentRoomId,
     isJoined,
     setIsJoined,
@@ -59,19 +59,38 @@ export default function RoomPage() {
     setIsSidebarCollapsed,
   } = useRoomSetup(roomId);
 
-  // WebSocket 연결 (2개의 독립적인 연결)
-  // 1. WebRTC 시그널링 (음성 채팅용)
-  const webSocket = useWebSocket(webSocketUrl);
-  // 2. 텍스트 채팅 STOMP (localhost 백엔드 연결)
+  // WebSocket 연결 (2개의 독립적인 STOMP 연결)
+  // 1. 텍스트 채팅 STOMP (localhost 백엔드 연결)
   const textChatWebSocket = useTextChatWebSocket(
-    "http://localhost:8080/ws-chat",
+    `${getSocketBaseUrl()}/ws-chat`,
+  );
+  // 3. VoiceChat STOMP (localhost 백엔드 연결)
+  const voiceChatWebSocket = useVoiceChatWebSocket(
+    `${getSocketBaseUrl()}/ws-voice`,
   );
 
   // WebRTC 연결
-  const webRTC = useWebRTC();
+  const handleIceCandidate = useCallback(
+    (peerId: string, candidate: RTCIceCandidate) => {
+      voiceChatWebSocket.sendMessage({
+        type: "ICE",
+        roomId: currentRoomId,
+        senderId: userId,
+        receiverId: peerId,
+        data: candidate,
+      });
+    },
+    [voiceChatWebSocket, currentRoomId, userId],
+  );
+
+  const webRTC = useWebRTC(handleIceCandidate);
 
   // 참여자 관리 및 동기화
-  const { addParticipant, removeParticipant } = useParticipantManagement({
+  const {
+    addParticipant,
+    removeParticipant,
+    updateParticipantMicStatus,
+  } = useParticipantManagement({
     setParticipants,
     userId,
     userName,
@@ -80,26 +99,27 @@ export default function RoomPage() {
     isJoined,
   });
 
-  // WebSocket 메시지 처리
-  // 1. WebRTC 시그널링 메시지 처리 (음성 채팅)
-  useWebSocketMessageHandler({
-    webSocket,
-    webRTC,
-    userId,
-    currentRoomId,
-    addParticipant,
-    removeParticipant,
-    setChatMessages,
-    setIsJoined,
-  });
-
-  // 2. 텍스트 채팅 메시지 수신 처리 (STOMP)
+  // 1. 텍스트 채팅 메시지 수신 처리 (STOMP)
   useTextChatMessageHandler({
     textChatWebSocket,
     currentRoomId,
     userName,
     isJoined,
     setChatMessages,
+  });
+
+  // 3. VoiceChat 메시지 처리 (STOMP - WebRTC signaling 포함)
+  useVoiceChatMessageHandler({
+    voiceChatWebSocket,
+    webRTC,
+    currentRoomId,
+    userId,
+    userName,
+    isJoined,
+    addParticipant,
+    removeParticipant,
+    updateParticipantMicStatus,
+    userImageUrl,
   });
 
   // 방 액션 (입장/퇴장/채팅)
@@ -109,8 +129,8 @@ export default function RoomPage() {
     userName,
     userImageUrl,
     webRTC,
-    webSocket,
     textChatWebSocket,
+    voiceChatWebSocket,
     setIsJoined,
     setParticipants,
     setChatMessages,
@@ -121,6 +141,17 @@ export default function RoomPage() {
   const testHelpers = import.meta.env.DEV
     ? createTestHelpers({ addParticipant, setChatMessages, webRTC })
     : undefined;
+
+  const handleToggleMic = useCallback(async () => {
+    await webRTC.toggleMic();
+    // 마이크 상태 변경을 다른 참여자에게 알림
+    voiceChatWebSocket.sendMessage({
+      type: "MIC",
+      roomId: currentRoomId,
+      senderId: userId,
+      data: { microphoneOn: !webRTC.isMicOn },
+    });
+  }, [webRTC, voiceChatWebSocket, currentRoomId, userId]);
 
   return (
     <div className="h-screen flex flex-col">
@@ -147,11 +178,11 @@ export default function RoomPage() {
               <VoiceChat
                 participants={participants}
                 myUserId={userId}
-                onToggleMic={webRTC.toggleMic}
+                onToggleMic={handleToggleMic}
                 onTogglePeerMute={webRTC.togglePeerMute}
                 isPeerMuted={webRTC.isPeerMuted}
                 testHelpers={testHelpers}
-                isWebSocketConnected={webSocket.isConnected}
+                isWebSocketConnected={voiceChatWebSocket.isConnected}
               />
             </div>
           </div>

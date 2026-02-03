@@ -28,9 +28,12 @@ const SPEAKING_HOLD_MS = 300; // 말이 끝나도 이 시간 동안 유지
 /**
  * WebRTC P2P 연결 관리 훅
  *
+ * @param onIceCandidate - ICE candidate 발생 시 호출될 콜백
  * @returns WebRTC 관련 상태와 제어 함수들
  */
-export function useWebRTC(): UseWebRTCReturn {
+export function useWebRTC(
+  onIceCandidate?: (peerId: string, candidate: RTCIceCandidate) => void
+): UseWebRTCReturn {
   // 상태 및 ref 정의
 
   // 로컬 미디어 스트림 (내 마이크 입력)
@@ -306,6 +309,13 @@ export function useWebRTC(): UseWebRTCReturn {
         pc.addTrack(track, localStreamRef.current!);
       });
 
+      // ICE candidate 발생 시 처리
+      pc.onicecandidate = (event) => {
+        if (event.candidate && onIceCandidate) {
+          onIceCandidate(peerId, event.candidate);
+        }
+      };
+
       // 원격 트랙 수신 시 처리
       pc.ontrack = (event) => {
         let remoteStream = remoteStreamsRef.current.get(peerId);
@@ -320,6 +330,8 @@ export function useWebRTC(): UseWebRTCReturn {
         if (!audioEl) {
           audioEl = document.createElement("audio");
           audioEl.autoplay = true;
+          audioEl.style.display = "none";
+          document.body.appendChild(audioEl);
           audioElementsRef.current.set(peerId, audioEl);
         }
         audioEl.srcObject = remoteStream;
@@ -331,7 +343,7 @@ export function useWebRTC(): UseWebRTCReturn {
       peerConnectionsRef.current.set(peerId, pc);
       return pc;
     },
-    [setupRemoteSpeakingDetection],
+    [setupRemoteSpeakingDetection, onIceCandidate],
   );
 
   /**
@@ -421,6 +433,9 @@ export function useWebRTC(): UseWebRTCReturn {
     const audioEl = audioElementsRef.current.get(peerId);
     if (audioEl) {
       audioEl.srcObject = null;
+      if (document.body.contains(audioEl)) {
+        document.body.removeChild(audioEl);
+      }
       audioElementsRef.current.delete(peerId);
     }
 
