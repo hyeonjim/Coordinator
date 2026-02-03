@@ -151,6 +151,6 @@ export function useRoomActions({
 
   return useMemo(
     () => ({ handleJoin, handleLeave, handleSendChat }),
-    [handleJoin, handleLeave, handleSendChat]
+    [handleJoin, handleLeave, handleSendChat],
   );
 }

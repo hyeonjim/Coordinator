@@ -29,21 +29,25 @@ export function useParticipantManagement({
    * 새로운 참여자를 목록에 추가하거나 기존 참여자 정보를 갱신합니다.
    */
   const addParticipant = useCallback(
-    (id: string, name: string, imageUrl?: string) => {
+    (id: string, name: string, imageUrl?: string, micOn?: boolean) => {
       setParticipants((prev) => {
         const exists = prev.find((p) => p.userId === id);
         if (exists) {
-          // 이미 존재하면 정보 업데이트
-          // 만약 전달받은 name이 ID와 같고, 기존에 이미 실명이 있었다면 업데이트하지 않음 (이름 퇴행 방지)
+          // 이름 퇴행 방지: 전달받은 name이 ID와 같고 기존에 실명이 있으면 이름은 유지하지만 micOn은 갱신 가능
           const isNewNameTemporary = name === id;
           const isExistingNameBetter = exists.userName !== exists.userId;
 
           if (isNewNameTemporary && isExistingNameBetter) {
+            if (micOn !== undefined && exists.micOn !== micOn) {
+              return prev.map((p) =>
+                p.userId === id ? { ...p, micOn } : p
+              );
+            }
             console.log(`ℹ️ [Participant] 기등록된 실명 보유 중 - 업데이트 스킵: ${id}`);
             return prev;
           }
 
-          if (exists.userName === name && exists.imageUrl === imageUrl) return prev;
+          if (exists.userName === name && exists.imageUrl === imageUrl && (micOn === undefined || exists.micOn === micOn)) return prev;
 
           console.log(
             `📝 [Participant] 정보 업데이트: ${id} -> ${name} (img: ${
@@ -52,7 +56,7 @@ export function useParticipantManagement({
           );
           return prev.map((p) =>
             p.userId === id
-              ? { ...p, userName: name, imageUrl: imageUrl ?? p.imageUrl }
+              ? { ...p, userName: name, imageUrl: imageUrl ?? p.imageUrl, micOn: micOn ?? p.micOn }
               : p,
           );
         }
@@ -64,7 +68,7 @@ export function useParticipantManagement({
             userName: name,
             imageUrl,
             isSpeaking: false,
-            micOn: true,
+            micOn: micOn ?? true,
           },
         ];
       });
