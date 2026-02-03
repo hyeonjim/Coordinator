@@ -107,7 +107,7 @@ export default function CodeEditor({
       }
       Transforms.insertNodes(editor, nodes, { at: [0] });
     });
-  }, [editor, fileContent]);
+  }, [editor, fileContent, yjsSharedXmlText]);
 
   /* =========================
      Prism Highlight 핵심
