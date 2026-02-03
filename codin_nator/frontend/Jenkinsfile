@@ -14,6 +14,18 @@ pipeline {
     VITE_API_URL_PROD='https://i14e205.p.ssafy.io'
   }
 
+stage('Reset Git Only') {
+  steps {
+    sh '''
+      rm -rf .git
+      git init
+      git remote add origin https://lab.ssafy.com/s14-webmobile1-sub1/S14P11E205.git
+      git fetch --all
+      git checkout -f dev
+    '''
+  }
+}
+
   stages {
 
     stage('Install Dependencies') {
