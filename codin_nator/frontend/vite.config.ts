@@ -17,7 +17,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://i14e205.p.ssafy.io:8081",
+        target: "http://i14e205.p.ssafy.io:8001",
         changeOrigin: true,
       },
       "/oauth2": {

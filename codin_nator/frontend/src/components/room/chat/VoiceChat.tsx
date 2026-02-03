@@ -147,8 +147,8 @@ function ParticipantRow({
               isRemoteMuted
                 ? "text-rose-500"
                 : micOn
-                ? "text-emerald-500"
-                : "text-slate-400"
+                  ? "text-emerald-500"
+                  : "text-slate-400"
             }
           `}
         >
@@ -161,8 +161,8 @@ function ParticipantRow({
               isRemoteMuted
                 ? "text-rose-600"
                 : micOn
-                ? "text-emerald-600"
-                : "text-slate-400"
+                  ? "text-emerald-600"
+                  : "text-slate-400"
             }
           `}
         >
