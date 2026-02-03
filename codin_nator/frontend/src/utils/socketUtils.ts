@@ -8,18 +8,10 @@ export const getSocketBaseUrl = () => {
 
   // .env에 설정된 변수가 없을 경우를 대비해 VITE_API_BASE_URL이나 기본 로컬 주소를 사용합니다.
   if (isProd) {
-    return (
-      import.meta.env.VITE_API_URL_PROD ||
-      import.meta.env.VITE_API_BASE_URL ||
-      "https://i14e205.p.ssafy.io"
-    );
+    return import.meta.env.VITE_API_URL_PROD || "https://i14e205.p.ssafy.io";
   }
 
-  return (
-    import.meta.env.VITE_API_URL_LOCAL ||
-    import.meta.env.VITE_API_BASE_URL ||
-    "http://localhost:8080"
-  );
+  return import.meta.env.VITE_API_URL_LOCAL || "http://localhost:8080";
 };
 
 /**
