@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
@@ -20,101 +21,126 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class GradleTestRunner {
 
+    /**
+     * ✅ worker 컨테이너(리눅스)에서 실행되는 것을 전제로:
+     * - docker run 제거
+     * - ./gradlew clean test --tests <클래스명> 로 직접 실행
+     * - gradle stdout/stderr를 String으로 모아서 반환(프론트 터미널 출력용)
+     */
     public TestResultDto runTest(Path projectPath, String testClassName) {
+        StringBuilder gradleLog = new StringBuilder();
+
         try {
-            // OS 확인
             boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
 
-            // 1. 윈도우와 리눅스에 따른 명령어 분기
             ProcessBuilder pb;
+
             if (isWindows) {
-                // 윈도우: cmd /c gradlew.bat test ...
+                // (로컬 윈도우 테스트용)
                 pb = new ProcessBuilder(
-                        "cmd.exe", "/c", "gradlew.bat", "clean", "test", "--tests", testClassName, "--rerun-tasks"
+                        "cmd.exe", "/c",
+                        "gradlew.bat", "clean", "test",
+                        "--tests", testClassName,
+                        "--rerun-tasks"
                 );
             } else {
+                // ✅ worker 컨테이너(리눅스)에서는 gradlew 직접 실행
                 File gradlew = projectPath.resolve("gradlew").toFile();
-                if (gradlew.exists()) {
-                    gradlew.setExecutable(true); // 리눅스 서버에서 gradlew 실행 권한 부여
+                if (!gradlew.exists()) {
+                    return new TestResultDto(false,
+                            "gradlew 파일을 찾을 수 없습니다. projectPath=" + projectPath);
                 }
-                // 리눅스/맥: ./gradlew test ...
+                gradlew.setExecutable(true);
+
                 pb = new ProcessBuilder(
-//                        "./gradlew", "clean", "test", "--tests", testClassName, "--rerun-tasks"
-                        "docker", "run", "--rm",
-                        "-v", projectPath.toAbsolutePath() + ":/app", // 호스트 폴더를 컨테이너에 마운트
-                        "eclipse-temurin:17-jdk",                    // 테스트용 JDK 이미지
-                        "sh", "-c", "cd /app && chmod +x gradlew && ./gradlew clean test --tests " + testClassName + " && chmod -R 777 /app/build"
+                        "./gradlew", "clean", "test",
+                        "--tests", testClassName,
+                        "--rerun-tasks",
+                        "--no-daemon"
                 );
             }
 
-            pb.directory(projectPath.toFile()); // 작업 디렉토리를 프로젝트 폴더로 설정
-            pb.redirectErrorStream(true); // 에러 로그를 표준 출력과 합침
+            pb.directory(projectPath.toFile());
+            pb.redirectErrorStream(true);
 
-            // 2. 실행 및 프로세스 종료 대기 (타임아웃 1분 설정)
             Process process = pb.start();
 
-            // 실행 로그를 서버 콘솔에 실시간으로 출력
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            // ✅ 실행 로그를 "모아서" 반환 + 서버 로그에도 찍기
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    System.out.println("[Gradle Log] " + line);
+                    gradleLog.append(line).append("\n");
+                    log.info("[Gradle] {}", line);
                 }
             }
 
-            boolean finished = process.waitFor(1, TimeUnit.MINUTES);
-
+            // 타임아웃: 프로젝트 크면 1분은 짧을 수 있어서 3분 권장
+            boolean finished = process.waitFor(3, TimeUnit.MINUTES);
             if (!finished) {
                 process.destroyForcibly();
-                return new TestResultDto(false, "테스트 실행 시간 초과 (Timeout)");
+                return new TestResultDto(false,
+                        "테스트 실행 시간 초과(Timeout)\n\n===== Gradle Output =====\n" + gradleLog);
             }
 
-            // 3. 결과 XML 리포트 파싱
-            // 보통 build/test-results/test/ 폴더 안에 생깁니다.
-            Path reportPath = projectPath.resolve("build/test-results/test");
-            return parseJUnitXml(reportPath);
+            // JUnit 리포트 파싱
+            Path reportDir = projectPath.resolve("build/test-results/test");
+            TestResultDto junit = parseJUnitXml(reportDir);
+
+            // ✅ 최종 메시지: gradle 로그 + junit 결과 합쳐서 프론트 터미널로 보냄
+            String finalMessage =
+                    "===== Gradle Output =====\n" + gradleLog +
+                    "\n===== JUnit Report =====\n" + junit.getMessage();
+
+            return new TestResultDto(junit.isSuccess(), finalMessage);
 
         } catch (Exception e) {
             log.error("테스트 실행 실패", e);
-            return new TestResultDto(false, "시스템 오류: " + e.getMessage());
+            return new TestResultDto(false,
+                    "시스템 오류: " + e.getMessage() +
+                    "\n\n===== Gradle Output =====\n" + gradleLog);
         }
     }
 
     private TestResultDto parseJUnitXml(Path reportDirPath) {
         try {
-            // 해당 폴더의 첫 번째 XML 파일 읽기
+            if (!Files.exists(reportDirPath) || !Files.isDirectory(reportDirPath)) {
+                return new TestResultDto(false,
+                        "JUnit 리포트 폴더가 없습니다: " + reportDirPath);
+            }
+
             File reportFile = Files.list(reportDirPath)
                     .filter(p -> p.toString().endsWith(".xml"))
                     .map(Path::toFile)
                     .findFirst()
-                    .orElseThrow(() -> new IOException("리포트 파일을 찾을 수 없습니다."));
+                    .orElseThrow(() -> new IOException("리포트 XML 파일을 찾을 수 없습니다."));
 
-            // XML 파싱 (간단하게 요약본만 추출)
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document doc = builder.parse(reportFile);
 
             Node testSuite = doc.getElementsByTagName("testsuite").item(0);
-            int failures = Integer.parseInt(testSuite.getAttributes().getNamedItem("failures").getNodeValue());
+            int failures = Integer.parseInt(
+                    testSuite.getAttributes().getNamedItem("failures").getNodeValue()
+            );
 
             if (failures == 0) {
                 return new TestResultDto(true, "모든 테스트 통과!");
             }
 
-            // 실패한 경우 <failure> 태그 내의 상세 메시지 추출
             StringBuilder errorDetail = new StringBuilder("테스트 실패:\n");
             var testCases = doc.getElementsByTagName("testcase");
 
             for (int i = 0; i < testCases.getLength(); i++) {
                 Node testCase = testCases.item(i);
                 var failureNodes = testCase.getChildNodes();
+
                 for (int j = 0; j < failureNodes.getLength(); j++) {
                     Node child = failureNodes.item(j);
                     if ("failure".equals(child.getNodeName())) {
-                        // 1. 단순 메시지 대신 상세 Stack Trace 전체를 가져옴
                         String fullStackTrace = child.getTextContent();
-
-                        // 2. 가독성을 위해 테스트 케이스 이름과 함께 추가
                         String testName = testCase.getAttributes().getNamedItem("name").getNodeValue();
+
                         errorDetail.append("[").append(testName).append("] 실패 상세:\n")
                                 .append(fullStackTrace).append("\n\n");
                     }

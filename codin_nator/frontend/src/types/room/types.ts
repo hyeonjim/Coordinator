@@ -2,7 +2,10 @@ import type { NavigateFunction } from "react-router-dom";
 import type { ChatMessage, TabType } from "@/types/chat/message";
 import type { UseWebRTCReturn } from "@/types/chat/webrtc";
 import type { UseWebSocketReturn } from "@/types/chat/websocket";
-import type { UseTextChatWebSocketReturn } from "@/types/chat/stomp";
+import type {
+  UseTextChatWebSocketReturn,
+  UseVoiceChatWebSocketReturn,
+} from "@/types/chat/stomp";
 import type { Participant } from "@/types/chat/voicetypes";
 
 /**
@@ -49,7 +52,12 @@ export interface DebugPanelProps {
  * createTestHelpers 함수 파라미터 타입
  */
 export interface CreateTestHelpersParams {
-  addParticipant: (id: string, name: string, imageUrl?: string) => void;
+  addParticipant: (
+    id: string,
+    name: string,
+    imageUrl?: string,
+    micOn?: boolean,
+  ) => void;
   setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
   webRTC: UseWebRTCReturn;
 }
@@ -62,7 +70,12 @@ export interface UseWebSocketMessageHandlerParams {
   webRTC: UseWebRTCReturn;
   userId: string;
   currentRoomId: string;
-  addParticipant: (id: string, name: string, imageUrl?: string) => void;
+  addParticipant: (
+    id: string,
+    name: string,
+    imageUrl?: string,
+    micOn?: boolean,
+  ) => void;
   removeParticipant: (id: string) => void;
   setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
   setIsJoined: React.Dispatch<React.SetStateAction<boolean>>;
@@ -77,22 +90,10 @@ export interface UseRoomActionsParams {
   userName: string;
   userImageUrl?: string;
   webRTC: UseWebRTCReturn;
-  webSocket: UseWebSocketReturn;
   textChatWebSocket: UseTextChatWebSocketReturn;
+  voiceChatWebSocket: UseVoiceChatWebSocketReturn;
   setIsJoined: React.Dispatch<React.SetStateAction<boolean>>;
   setParticipants: React.Dispatch<React.SetStateAction<Participant[]>>;
   setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
   navigate: NavigateFunction;
-}
-
-/**
- * useParticipantManagement 훅 파라미터 타입
- */
-export interface UseParticipantManagementParams {
-  setParticipants: React.Dispatch<React.SetStateAction<Participant[]>>;
-  userId: string;
-  userName: string;
-  userImageUrl?: string;
-  webRTC: UseWebRTCReturn;
-  isJoined: boolean;
 }

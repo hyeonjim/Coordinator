@@ -18,6 +18,8 @@ services:
     container_name: codinnator-redis
     ports:
       - "6379:6379"
+    networks:
+      - codinnator-network
 
   # 2. Worker Server: 테스트 실행 및 결과 분석용
   worker:
@@ -34,8 +36,13 @@ services:
     volumes:
       - /tmp/codinnator:/tmp/codinnator # 호스트와 임시 폴더 공유 (로그 확인용)
       - /home/ubuntu/codinnator/uploads:/codinnator/data/uploads/ # ✅ backend와 동일
+    networks:
+      - codinnator-network
     deploy:
       resources:
         limits:
           memory: 1G # 서버 사양에 맞춰 조절
 
+networks:
+  codinnator-network:
+    driver: bridge
