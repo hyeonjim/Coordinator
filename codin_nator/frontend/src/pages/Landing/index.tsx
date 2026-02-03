@@ -1,14 +1,3 @@
-// import LoginButton from "../../components/landing/LoginButton";
-
-// export default function LandingPage() {
-//   return (
-//     <>
-//       <h1>Landing Page</h1>
-//       <LoginButton />
-//     </>
-//   );
-// }
-
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useRef } from "react";

@@ -4,10 +4,22 @@
  * - 로컬 환경에서는 HTTP/WS 프로토콜이 적용된 로컬 주소
  */
 export const getSocketBaseUrl = () => {
-  const isProd = window.location.hostname.includes('ssafy.io');
-  return isProd 
-    ? import.meta.env.VITE_API_URL_PROD 
-    : import.meta.env.VITE_API_URL_LOCAL;
+  const isProd = window.location.hostname.includes("i14e205.p.ssafy.io");
+
+  // .env에 설정된 변수가 없을 경우를 대비해 VITE_API_BASE_URL이나 기본 로컬 주소를 사용합니다.
+  if (isProd) {
+    return (
+      import.meta.env.VITE_API_URL_PROD ||
+      import.meta.env.VITE_API_BASE_URL ||
+      "https://i14e205.p.ssafy.io"
+    );
+  }
+
+  return (
+    import.meta.env.VITE_API_URL_LOCAL ||
+    import.meta.env.VITE_API_BASE_URL ||
+    "http://localhost:8080"
+  );
 };
 
 /**
@@ -15,7 +27,8 @@ export const getSocketBaseUrl = () => {
  * (SockJS를 사용하지 않는 순수 WebSocket용)
  */
 export const getSignalingWebSocketUrl = () => {
-    const baseUrl = getSocketBaseUrl();
-    // http:// -> ws://, https:// -> wss:// 로 변환
-    return baseUrl.replace(/^http/, 'ws');
-}
+  const baseUrl = getSocketBaseUrl();
+  if (!baseUrl) return "";
+  // http:// -> ws://, https:// -> wss:// 로 변환
+  return baseUrl.replace(/^http/, "ws");
+};
