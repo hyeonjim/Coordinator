@@ -93,8 +93,6 @@ export default function CodeEditor({
   useEffect(() => {
     if (fileContent === undefined) return;
 
-    if (yjsSharedXmlText.length > 0) return;
-
     const lines = String(fileContent).split(/\r?\n/);
     const nodes = (lines.length ? lines : [""]).map((line) => ({
       type: "paragraph" as const,
@@ -107,7 +105,7 @@ export default function CodeEditor({
       }
       Transforms.insertNodes(editor, nodes, { at: [0] });
     });
-  }, [editor, fileContent, yjsSharedXmlText]);
+  }, [editor, fileContent]);
 
   /* =========================
      Prism Highlight 핵심
