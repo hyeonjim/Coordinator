@@ -60,12 +60,10 @@ export function useRoomActions({
     }
   }, [
     currentRoomId,
-    userId,
     userName,
     userImageUrl,
     webRTC,
     textChatWebSocket,
-    voiceChatWebSocket,
     setIsJoined,
   ]);
 

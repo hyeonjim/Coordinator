@@ -97,15 +97,3 @@ export interface UseRoomActionsParams {
   setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
   navigate: NavigateFunction;
 }
-
-/**
- * useParticipantManagement 훅 파라미터 타입
- */
-export interface UseParticipantManagementParams {
-  setParticipants: React.Dispatch<React.SetStateAction<Participant[]>>;
-  userId: string;
-  userName: string;
-  userImageUrl?: string;
-  webRTC: UseWebRTCReturn;
-  isJoined: boolean;
-}

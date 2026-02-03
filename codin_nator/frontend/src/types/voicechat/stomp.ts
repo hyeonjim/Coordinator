@@ -1,4 +1,6 @@
 import type { VoiceChatMessagePayload, VoiceChatMessageReceived } from "./message";
+import type { Participant } from "@/types/chat/voicetypes";
+import type { UseWebRTCReturn } from "@/types/chat/webrtc";
 
 /**
  * STOMP 클라이언트 설정
@@ -35,4 +37,16 @@ export interface UseVoiceChatWebSocketReturn {
 
   /** WebSocket 연결 해제 */
   disconnect(): void;
+}
+
+/**
+ * useParticipantManagement 훅 파라미터 타입
+ */
+export interface UseParticipantManagementParams {
+  setParticipants: React.Dispatch<React.SetStateAction<Participant[]>>;
+  userId: string;
+  userName: string;
+  userImageUrl?: string;
+  webRTC: UseWebRTCReturn;
+  isJoined: boolean;
 }

@@ -14,4 +14,5 @@ export type {
 export type {
   StompClientConfiguration,
   UseVoiceChatWebSocketReturn,
+  UseParticipantManagementParams,
 } from "./stomp";

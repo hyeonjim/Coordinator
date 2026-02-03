@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
-import type { UseParticipantManagementParams } from "@/types/room/types";
+import type { UseParticipantManagementParams } from "@/types/voicechat";
 
 /**
  * 참여자 관리 및 실시간 동기화 훅
