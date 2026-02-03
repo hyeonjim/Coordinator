@@ -11,8 +11,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -28,6 +30,8 @@ public class GitService {
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
 
+    @Value("${file.path}")
+    private String filePath;
 
     @Transactional
     public void saveAndGitAdd(Long roomId, List<ChangeFileDto> changeFiles) throws IOException, GitAPIException {
@@ -48,8 +52,8 @@ public class GitService {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
 
-        String filePath = "/codinnator/data/uploads/"+ roomId;
-        Git git = Git.open(new File(filePath));
+        String fullPath = String.format("%s/%d", filePath, roomId);
+        Git git = Git.open(new File(fullPath));
         git.add().addFilepattern(".").call();
     }
 
@@ -62,14 +66,14 @@ public class GitService {
     public void commitMessage(Long roomId, String message) throws Exception {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
-        User user = userRepository.findById(room.getUserId())
+        User user = userRepository.findByGitId(String.valueOf(room.getUserId()))
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
-        String filePath = "/codinnator/data/uploads/"+ roomId;
-        Git git = Git.open(new File(filePath)); // 위에 로직으로 바꿀 예정
+        String fullPath = String.format("%s/%d", filePath, roomId);
+        Git git = Git.open(new File(fullPath));// 위에 로직으로 바꿀 예정
         git.commit()
                 .setMessage(message)
-                .setAuthor(user.getGitId(), user.getEmail())
+                .setAuthor(user.getGitId(), user.getEmail() == null ? "user@codinnator.com" : user.getEmail())
                 .call();
     }
 
@@ -82,10 +86,10 @@ public class GitService {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
 
-        String filePath = "/codinnator/data/uploads/"+ roomId;
-        Git git = Git.open(new File(filePath));
+        String fullPath = String.format("%s/%d", filePath, roomId);
+        Git git = Git.open(new File(fullPath));
 
-        User user = userRepository.findById(room.getUserId())
+        User user = userRepository.findByGitId(String.valueOf(room.getUserId()))
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
         // 토큰이 Oauth 토큰인지 확인 필요 or PAT 토큰인지
         git.push()
