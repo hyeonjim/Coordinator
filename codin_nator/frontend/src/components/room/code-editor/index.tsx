@@ -30,8 +30,6 @@ interface CodeEditorProps {
 const WS_BASE_URL =
   import.meta.env.VITE_CODE_WS_URL ?? "ws://localhost:8080/ws/code";
 
-// ⭐ 파일 단위 시딩 기록
-const seededFileMap = new Map<string, boolean>();
 export default function CodeEditor({
   roomId,
   fileId,
@@ -51,6 +49,7 @@ export default function CodeEditor({
 
   /* Yjs */
   const yDocument = useMemo(() => new Y.Doc(), []);
+  const metaMap = useMemo(() => yDocument.getMap<boolean>("meta"), [yDocument]);
   const provider = useMemo(
     () =>
       new WebsocketProvider(WS_BASE_URL, roomName, yDocument, {
@@ -199,12 +198,11 @@ export default function CodeEditor({
     const handleSync = async (isSynced: boolean) => {
       if (!isSynced) return;
 
-      // ⭐ 이미 이 파일은 시딩 완료
-      if (seededFileMap.get(seedKey)) return;
-
-      // ⭐ Yjs에 이미 데이터 있음
+      // ✅ 이미 시딩된 파일이면 종료
+      if (metaMap.get("seeded") === true) return;
+      // ✅ 다른 사용자가 이미 시딩해둔 경우
       if (yjsSharedXmlText.length > 0) {
-        seededFileMap.set(seedKey, true);
+        metaMap.set("seeded", true);
         return;
       }
 
@@ -225,8 +223,8 @@ export default function CodeEditor({
         Transforms.insertNodes(editor, nodes, { at: [0] });
       });
 
-      // ⭐ 이 파일은 이제 다시 API 호출 안 함
-      seededFileMap.set(seedKey, true);
+      // ✅ 협업 전체 기준으로 시딩 완료
+      metaMap.set("seeded", true);
     };
 
     provider.once("sync", handleSync);
