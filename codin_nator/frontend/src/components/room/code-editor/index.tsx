@@ -30,6 +30,8 @@ interface CodeEditorProps {
 const WS_BASE_URL =
   import.meta.env.VITE_CODE_WS_URL ?? "ws://localhost:8080/ws/code";
 
+// ⭐ 파일 단위 시딩 기록
+const seededFileMap = new Map<string, boolean>();
 export default function CodeEditor({
   roomId,
   fileId,
@@ -37,8 +39,6 @@ export default function CodeEditor({
   onChange,
   onTestGenerated,
 }: CodeEditorProps) {
-  // ⭐ 파일 단위 시딩 기록
-  const seededFileMap = new Map<number, boolean>();
   const roomName = useMemo(() => `${roomId}/${fileId}`, [roomId, fileId]);
 
   const initialValue: Descendant[] = useMemo(
@@ -194,15 +194,17 @@ export default function CodeEditor({
   useEffect(() => {
     if (!provider) return;
 
+    const seedKey = `${roomId}/${fileId}`;
+
     const handleSync = async (isSynced: boolean) => {
       if (!isSynced) return;
 
       // ⭐ 이미 이 파일은 시딩 완료
-      if (seededFileMap.get(fileId)) return;
+      if (seededFileMap.get(seedKey)) return;
 
       // ⭐ Yjs에 이미 데이터 있음
       if (yjsSharedXmlText.length > 0) {
-        seededFileMap.set(fileId, true);
+        seededFileMap.set(seedKey, true);
         return;
       }
 
@@ -224,7 +226,7 @@ export default function CodeEditor({
       });
 
       // ⭐ 이 파일은 이제 다시 API 호출 안 함
-      seededFileMap.set(fileId, true);
+      seededFileMap.set(seedKey, true);
     };
 
     provider.once("sync", handleSync);
