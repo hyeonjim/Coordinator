@@ -1,22 +1,21 @@
 import * as Y from "yjs";
 import { createEditor, Editor, Node, Transforms, Text } from "slate";
-import type { Descendant } from "slate";
-import type { NodeEntry } from "slate";
+import type { Descendant, NodeEntry } from "slate";
 import { useEffect, useMemo, useCallback, useState } from "react";
 import { WebsocketProvider } from "y-websocket";
-import { Slate, Editable, withReact } from "slate-react";
-import { useSlateStatic, ReactEditor } from "slate-react";
+import { Slate, Editable, withReact, ReactEditor } from "slate-react";
 import type { RenderElementProps, RenderLeafProps } from "slate-react";
 import { withYjs, withYHistory, withCursors, YjsEditor } from "@slate-yjs/core";
-import { VscBeaker, VscPlay, VscGraph } from "react-icons/vsc";
-import { aiService } from "@/services/ai/aiService";
 import Prism from "prismjs";
+import axios from "axios";
 
 /* Prism 언어 & 테마 */
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-java";
 import "prismjs/themes/prism-tomorrow.css";
-import axios from "axios";
+
+// ✅ 상단 액션바 분리 컴포넌트
+import Codeeditoractions from "@/components/ai/Codeeditoractions";
 
 interface CodeEditorProps {
   roomId: number;
@@ -25,6 +24,9 @@ interface CodeEditorProps {
   fileName?: string;
   onChange?: (code: string) => void;
   onTestGenerated?: (testCode: string) => void;
+
+  /** ✅ 터미널 누적 출력용(선택) */
+  onAppendTerminal?: (title: string, text: string) => void;
 }
 
 const WS_BASE_URL =
@@ -33,9 +35,11 @@ const WS_BASE_URL =
 export default function CodeEditor({
   roomId,
   fileId,
+  fileContent,
   fileName,
   onChange,
   onTestGenerated,
+  onAppendTerminal,
 }: CodeEditorProps) {
   const roomName = useMemo(() => `${roomId}/${fileId}`, [roomId, fileId]);
 
@@ -44,12 +48,12 @@ export default function CodeEditor({
     [],
   );
 
-  const [isGenerating, setIsGenerating] = useState(false);
   const [currentCode, setCurrentCode] = useState("");
 
   /* Yjs */
   const yDocument = useMemo(() => new Y.Doc(), []);
   const metaMap = useMemo(() => yDocument.getMap<boolean>("meta"), [yDocument]);
+
   const provider = useMemo(
     () =>
       new WebsocketProvider(WS_BASE_URL, roomName, yDocument, {
@@ -91,9 +95,8 @@ export default function CodeEditor({
   }, [yDocument]);
 
   /* =========================
-     Prism Highlight 핵심
+     Prism Highlight
      ========================= */
-
   const decorate = useCallback(([node, path]: NodeEntry) => {
     if (!Text.isText(node)) return [];
 
@@ -138,121 +141,147 @@ export default function CodeEditor({
     );
   }, []);
 
-  const renderElement = useCallback((props: RenderElementProps) => {
-    const { attributes, children, element } = props;
-    const editor = useSlateStatic();
+  /**
+   * ✅ FIX: useSlateStatic() 같은 Hook을 render 콜백 내부에서 쓰면
+   * 훅 규칙 위반으로 런타임 오류가 날 수 있음.
+   * -> 바깥 editor(ReactEditor 적용된)를 클로저로 사용.
+   */
+  const renderElement = useCallback(
+    (props: RenderElementProps) => {
+      const { attributes, children, element } = props;
 
-    // 현재 줄의 path 구하기
-    const path = ReactEditor.findPath(editor, element);
-    const lineNumber = path[0] + 1;
+      const path = ReactEditor.findPath(editor as ReactEditor, element);
+      const lineNumber = path[0] + 1;
 
-    return (
-      <div {...attributes} className="flex code-line">
-        <span
-          contentEditable={false}
-          className="
-          select-none text-[#858585] text-right pr-4
-          min-w-[40px] font-mono text-sm leading-relaxed
-        "
-        >
-          {lineNumber}
-        </span>
-        <span className="flex-1 whitespace-pre">{children}</span>
-      </div>
-    );
-  }, []);
-
-  /* 테스트 생성 */
-  const handleGenerateTest = async () => {
-    if (!fileName || !currentCode.trim()) return;
-    if (!fileName.endsWith(".java")) {
-      alert("Java 파일만 가능합니다.");
-      return;
-    }
-
-    try {
-      setIsGenerating(true);
-
-      const response = await aiService.generateTestCode(
-        roomId,
-        fileName,
-        currentCode,
+      return (
+        <div {...attributes} className="flex code-line">
+          <span
+            contentEditable={false}
+            className="
+              select-none text-[#858585] text-right pr-4
+              min-w-[40px] font-mono text-sm leading-relaxed
+            "
+          >
+            {lineNumber}
+          </span>
+          <span className="flex-1 whitespace-pre">{children}</span>
+        </div>
       );
+    },
+    [editor],
+  );
 
-      if (!response.testCode) {
-        throw new Error("테스트 코드 생성 실패");
-      }
-
-      onTestGenerated?.(response.testCode);
-      alert("테스트 코드 생성 완료!");
-    } catch (e: any) {
-      alert(e.message ?? "오류 발생");
-    }
-  };
-
-  useEffect(() => {
-    if (!provider) return;
-
-    const handleSync = async (isSynced: boolean) => {
-      if (!isSynced) return;
-
-      // ✅ 이미 시딩된 파일이면 종료
-      if (metaMap.get("seeded") === true) return;
-      // ✅ 다른 사용자가 이미 시딩해둔 경우
-      if (yjsSharedXmlText.length > 0) {
-        metaMap.set("seeded", true);
-        return;
-      }
-
-      // ⭐ 진짜 최초 1회만 API 호출
-      const accessToken = localStorage.getItem("access_token");
-      const res = await axios.get(`/api/v1/room/${roomId}/${fileId}`, {
-        responseType: "text",
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-
-      const lines = String(res.data ?? "").split(/\r?\n/);
-      const nodes = lines.map((line) => ({
+  /* =========================
+     Seed Helper
+     ========================= */
+  const seedFromText = useCallback(
+    (text: string) => {
+      const lines = String(text ?? "").split(/\r?\n/);
+      const nodes = (lines.length ? lines : [""]).map((line) => ({
         type: "paragraph" as const,
         children: [{ text: line }],
       }));
 
       Editor.withoutNormalizing(editor, () => {
-        Transforms.insertNodes(editor, nodes, { at: [0] });
-      });
+        try {
+          // 기존 노드들 싹 제거 (뒤에서 앞으로 제거하는게 안정적)
+          for (let i = editor.children.length - 1; i >= 0; i -= 1) {
+            Transforms.removeNodes(editor, { at: [i] });
+          }
+        } catch (e) {
+          console.debug("[CodeEditor] 기존 노드 제거 중 예외:", e);
+        }
 
-      // ✅ 협업 전체 기준으로 시딩 완료
+        Transforms.insertNodes(editor, nodes, { at: [0] });
+
+        // 커서 맨 위로
+        try {
+          Transforms.select(editor, { path: [0, 0], offset: 0 });
+        } catch (e) {
+          // 무시
+        }
+      });
+    },
+    [editor],
+  );
+
+  /* =========================
+     ✅ 1) fileContent가 있으면 sync 기다리지 말고 즉시 시딩
+     (WS 죽어도 화면에 내용 보이게)
+     ========================= */
+  useEffect(() => {
+    if (typeof fileContent !== "string") return;
+
+    // 이미 seeded면 중복 금지
+    if (metaMap.get("seeded") === true) return;
+
+    // 이미 yjs에 내용 있으면(다른 사람이 seed) 덮어쓰지 않음
+    if (yjsSharedXmlText.length > 0) {
       metaMap.set("seeded", true);
+      return;
+    }
+
+    seedFromText(fileContent);
+    metaMap.set("seeded", true);
+  }, [fileContent, metaMap, seedFromText, yjsSharedXmlText]);
+
+  /* =========================
+     ✅ 2) fileContent가 없을 때만: 기존 master처럼 sync 시점에 API fetch seed
+     ========================= */
+  useEffect(() => {
+    if (typeof fileContent === "string") return; // content 있으면 위에서 처리
+    if (!provider) return;
+
+    const handleSync = async (isSynced: boolean) => {
+      if (!isSynced) return;
+
+      if (metaMap.get("seeded") === true) return;
+
+      if (yjsSharedXmlText.length > 0) {
+        metaMap.set("seeded", true);
+        return;
+      }
+
+      try {
+        const accessToken = localStorage.getItem("access_token");
+        const headers = accessToken
+          ? { Authorization: `Bearer ${accessToken}` }
+          : undefined;
+
+        const res = await axios.get(`/api/v1/room/${roomId}/${fileId}`, {
+          responseType: "text",
+          headers,
+        });
+
+        seedFromText(String(res.data ?? ""));
+        metaMap.set("seeded", true);
+      } catch (error) {
+        console.error("[CodeEditor] seed(API) 실패:", error);
+      }
     };
 
     provider.once("sync", handleSync);
     return () => provider.off("sync", handleSync);
-  }, [provider, fileId, roomId]);
+  }, [
+    provider,
+    roomId,
+    fileId,
+    fileContent,
+    metaMap,
+    yjsSharedXmlText,
+    seedFromText,
+  ]);
 
   return (
     <div className="h-full w-full flex flex-col bg-[#1e1e1e]">
-      {/* 상단 바 */}
-      <div className="flex items-center px-4 h-[35px] border-b border-[#2d2d30]">
-        <span className="text-sm text-[#ccc] flex-1">
-          {fileName ?? "파일을 선택하세요"}
-        </span>
-
-        <button
-          onClick={handleGenerateTest}
-          disabled={isGenerating}
-          className="flex items-center gap-2 px-3 py-1.5 bg-[#0e639c] text-white text-xs rounded"
-        >
-          <VscBeaker />
-          {isGenerating ? "생성 중..." : "테스트 생성"}
-        </button>
-
-        <button disabled className="ml-2 text-xs text-gray-500">
-          <VscPlay /> 실행
-        </button>
-        <button disabled className="ml-2 text-xs text-gray-500">
-          <VscGraph /> 분석
-        </button>
-      </div>
+      {/* ✅ 상단 액션바: 분리된 컴포넌트 사용 */}
+      <Codeeditoractions
+        roomId={roomId}
+        fileName={fileName}
+        code={currentCode}
+        onTestGenerated={onTestGenerated}
+        onAppendTerminal={onAppendTerminal}
+      />
 
       {/* 에디터 */}
       <div className="flex-1 overflow-auto font-mono text-sm text-[#d4d4d4]">

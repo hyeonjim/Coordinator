@@ -58,6 +58,7 @@ public class CodeService {
      */
     public void newFile(Long roomId, FileRequestDto requestDto) throws IOException {
         FileNode parent = null;
+
         if (requestDto.getParentId() != null) {
             parent = fileRepository.findById(requestDto.getParentId())
                     .orElseThrow(() -> new IllegalArgumentException(
@@ -80,13 +81,17 @@ public class CodeService {
             newFilePath = basePath + File.separator + requestDto.getFileName();
         }
 
-        Path newPath = Paths.get(newFilePath);
-
+        Path newPath;
+        String newFileName;
         if ("DIR".equals(requestDto.getType())) {
+            newPath = Paths.get(newFilePath);
+            newFileName = requestDto.getFileName();
             // 폴더 생성
             Files.createDirectories(newPath);
         } else {
             // 파일 생성
+            newPath = Paths.get(newFilePath+".java");
+            newFileName = requestDto.getFileName()+".java";
             Files.createDirectories(newPath.getParent());  // 부모 디렉토리 먼저 생성
             Files.createFile(newPath);
 
@@ -97,7 +102,7 @@ public class CodeService {
         }
 
         FileNode newNode = FileNode.builder()
-                .fileName(requestDto.getFileName())
+                .fileName(newFileName)
                 .filePath(newFilePath)
                 .type(requestDto.getType())
                 .roomId(roomId)

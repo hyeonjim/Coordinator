@@ -6,6 +6,8 @@ interface HeaderProps {
   isJoined: boolean;
   onJoin: () => void;
   onLeave: () => void;
+  selectedFileId: number | null;
+  editorContent: string;
 }
 
 const gitActions = [
@@ -14,8 +16,13 @@ const gitActions = [
   { id: "push", label: "Push" },
 ];
 
-export default function Header({ isJoined, onJoin, onLeave }: HeaderProps) {
-  const { roomId } = useParams<{ roomId: string }>();
+export default function Header({
+  isJoined,
+  onJoin,
+  onLeave,
+  selectedFileId,
+  editorContent,
+}: HeaderProps) {
   const [showShare, setShowShare] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -29,27 +36,34 @@ export default function Header({ isJoined, onJoin, onLeave }: HeaderProps) {
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
+  const { roomId } = useParams<{ roomId: string }>();
   const accessToken = localStorage.getItem("access_token");
   const handleGitAction = (action: string) => {
-    const changeFiles = [
-      {
-        fileId: 1331,
-        content: "updatedContent",
-      },
-    ];
-
+    if (!selectedFileId) {
+      alert("파일을 먼저 선택해주세요.");
+      return;
+    }
     if (action === "add") {
       axios
-        .post(`/api/v1/room/git/${roomId}/add`, changeFiles, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
+        .post(
+          `/api/v1/room/git/${roomId}/add`,
+          [
+            {
+              fileId: selectedFileId,
+              content: editorContent,
+            },
+          ],
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
           },
-        })
+        )
         .then(() => {
-          console.log("Git: Added changes");
+          console.log("Files added to staging area.");
         })
-        .catch(() => {
-          console.log("Git: Add failed");
+        .catch((error) => {
+          console.error("Error adding files:", error);
         });
       return;
     }
@@ -60,16 +74,21 @@ export default function Header({ isJoined, onJoin, onLeave }: HeaderProps) {
     }
     if (action === "push") {
       axios
-        .post(`/api/v1/room/git/${roomId}/push`, {
+        .get(`/api/v1/room/git/${roomId}/push`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         })
+
         .then(() => {
-          console.log("Git: Pushed changes");
+          console.log("Pushed to remote repository.");
+        })
+        .catch((error) => {
+          console.error("Error during push:", error);
         });
       return;
     }
+
     console.log("Git:", action);
   };
 
@@ -78,19 +97,17 @@ export default function Header({ isJoined, onJoin, onLeave }: HeaderProps) {
     axios
       .post(
         `/api/v1/room/git/${roomId}/commit`,
+        { message: commitMsg },
         {
-          message: commitMsg,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+          headers: { Authorization: `Bearer ${accessToken}` },
         },
       )
       .then(() => {
-        console.log("Git: Pushed changes");
+        console.log("Commit successful.");
+      })
+      .catch((error) => {
+        console.error("Error during commit:", error);
       });
-    console.log("Commit message:", commitMsg);
 
     setCommitMsg("");
     setShowCommit(false);

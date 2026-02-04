@@ -27,6 +27,7 @@ public class CodeHandler extends BinaryWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         URI uri = session.getUri();
+
         String path = uri.getPath();
         String[] segments = path.split("/");
 
@@ -38,12 +39,12 @@ public class CodeHandler extends BinaryWebSocketHandler {
 
         String roomId = segments[3];
         String fileId = segments[4];
-        String roomKey = roomId + ":" + fileId;
+        String roomKey = roomId+":"+fileId;
 
         session.getAttributes().put("roomKey", roomKey);
         roomAttendees.computeIfAbsent(roomKey, k -> ConcurrentHashMap.newKeySet()).add(session);
 
-        log.info("Client Connected: RoomKey={}, SessionID={}", roomKey, session.getId());
+        log.info("Client Connected: RoomKey={}, SessionID={}, 현재 총인원 : {}명", roomKey, session.getId(), roomAttendees.get(roomKey).size());
 
         // 새 클라이언트에게 기존 상태 전송
         byte[] savedState = roomStates.get(roomKey);
@@ -77,6 +78,12 @@ public class CodeHandler extends BinaryWebSocketHandler {
             if (attendee.isOpen()) {
                 try {
                     synchronized (attendee) {
+                        if (attendee.getId().equals(session.getId())) {
+                            continue; // 메시지를 보낸 본인에게는 다시 보내지 않음
+                        }
+                        log.info("메시지 전송: RoomKey={}, FromSessionID={}, ToSessionID={}",
+                                roomKey, session.getId(), attendee.getId());
+
                         attendee.sendMessage(new BinaryMessage(bytes));
                     }
                 } catch (IOException e) {
@@ -89,14 +96,18 @@ public class CodeHandler extends BinaryWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         String roomKey = (String) session.getAttributes().get("roomKey");
-        if (roomKey != null) {
-            Set<WebSocketSession> attendees = roomAttendees.get(roomKey);
-            if (attendees != null) {
-                attendees.remove(session);
-                if (attendees.isEmpty()) {
-                    roomAttendees.remove(roomKey);
-                    roomStates.remove(roomKey);  // 방이 비면 상태도 삭제
+        byte[] saveState = roomStates.get(roomKey);
+
+        if(saveState != null){
+            String content = new String(saveState);
+            log.info("이제까지 작성된 코드 :{}, 길이 : {}", content, saveState.length);
+            try{
+                synchronized (session) {
+                    session.sendMessage(new BinaryMessage(saveState));
                 }
+            } catch (IOException e) {
+                log.error("전송 실패");
+                throw new RuntimeException(e);
             }
         }
         log.info("Client Disconnected: RoomKey={}, SessionID={}", roomKey, session.getId());

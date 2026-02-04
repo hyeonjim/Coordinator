@@ -26,5 +26,4 @@ public class CodeController {
         codeService.deleteFile(roomId, fileId);
         return ResponseEntity.ok().build();
     }
-
 }
