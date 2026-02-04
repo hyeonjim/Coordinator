@@ -1,9 +1,13 @@
+import axios from "axios";
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 
 interface HeaderProps {
   isJoined: boolean;
   onJoin: () => void;
   onLeave: () => void;
+  selectedFileId: number | null;
+  editorContent: string;
 }
 
 const gitActions = [
@@ -12,7 +16,13 @@ const gitActions = [
   { id: "push", label: "Push" },
 ];
 
-export default function Header({ isJoined, onJoin, onLeave }: HeaderProps) {
+export default function Header({
+  isJoined,
+  onJoin,
+  onLeave,
+  selectedFileId,
+  editorContent,
+}: HeaderProps) {
   const [showShare, setShowShare] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -26,22 +36,78 @@ export default function Header({ isJoined, onJoin, onLeave }: HeaderProps) {
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
-
+  const { roomId } = useParams<{ roomId: string }>();
+  const accessToken = localStorage.getItem("access_token");
   const handleGitAction = (action: string) => {
+    if (!selectedFileId) {
+      alert("파일을 먼저 선택해주세요.");
+      return;
+    }
+    if (action === "add") {
+      axios
+        .post(
+          `/api/v1/room/git/${roomId}/add`,
+          [
+            {
+              fileId: selectedFileId,
+              content: editorContent,
+            },
+          ],
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          },
+        )
+        .then(() => {
+          console.log("Files added to staging area.");
+        })
+        .catch((error) => {
+          console.error("Error adding files:", error);
+        });
+      return;
+    }
     if (action === "commit") {
       setShowCommit((v) => !v);
       setShowShare(false);
       return;
     }
+    if (action === "push") {
+      axios
+        .get(`/api/v1/room/git/${roomId}/push`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+
+        .then(() => {
+          console.log("Pushed to remote repository.");
+        })
+        .catch((error) => {
+          console.error("Error during push:", error);
+        });
+      return;
+    }
 
     console.log("Git:", action);
-    // TODO: WS / API 연동
   };
 
   const handleCommitSend = () => {
     if (!commitMsg.trim()) return;
-
-    console.log("Commit message:", commitMsg);
+    axios
+      .post(
+        `/api/v1/room/git/${roomId}/commit`,
+        { message: commitMsg },
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        },
+      )
+      .then(() => {
+        console.log("Commit successful.");
+      })
+      .catch((error) => {
+        console.error("Error during commit:", error);
+      });
 
     setCommitMsg("");
     setShowCommit(false);

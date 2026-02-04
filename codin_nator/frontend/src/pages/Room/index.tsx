@@ -23,6 +23,7 @@ import { createTestHelpers } from "./utils/testHelpers";
 import { getSocketBaseUrl } from "@/utils/socketUtils";
 
 export default function RoomPage() {
+  const [currentEditorCode, setCurrentEditorCode] = useState<string>("");
   const { roomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
 
@@ -34,12 +35,12 @@ export default function RoomPage() {
   } | null>(null);
 
   // (기존 유지) 테스트 코드 상태 (나중에 저장/AI분석 등에 쓸 수 있음)
-  const [generatedTestCode, setGeneratedTestCode] = useState<string | null>(
-    null,
-  );
+  // const [generatedTestCode, setGeneratedTestCode] = useState<string | null>(
+  //   null,
+  // );
 
   // ✅ 누적 저장용(원하는 형태 그대로 유지)
-  const [terminalText, setTerminalText] = useState<string>("");
+  // const [terminalText, setTerminalText] = useState<string>("");
 
   // ✅ xterm에 "이번에 추가할 chunk"만 내려주기 위한 상태
   const [terminalChunk, setTerminalChunk] = useState<string>("");
@@ -52,10 +53,10 @@ export default function RoomPage() {
   const appendTerminal = useCallback((title: string, text: string) => {
     const block = `===== ${title} =====\n${text}\n`;
 
-    setTerminalText((prev) => {
-      const base = prev.trimEnd();
-      return base ? `${base}\n\n${block}` : block;
-    });
+    // setTerminalText((prev) => {
+    //   const base = prev.trimEnd();
+    //   return base ? `${base}\n\n${block}` : block;
+    // });
 
     // ✅ xterm에는 새로 추가된 block만 흘려보냄
     setTerminalChunk(block);
@@ -170,7 +171,13 @@ export default function RoomPage() {
 
   return (
     <div className="h-screen flex flex-col">
-      <Header isJoined={isJoined} onJoin={handleJoin} onLeave={handleLeave} />
+      <Header
+        isJoined={isJoined}
+        onJoin={handleJoin}
+        onLeave={handleLeave}
+        selectedFileId={selectedFile?.id ?? null}
+        editorContent={currentEditorCode}
+      />
 
       <div className="flex-1 flex overflow-hidden">
         <aside className="w-64 flex flex-col">
@@ -210,7 +217,8 @@ export default function RoomPage() {
                 roomId={Number(currentRoomId)}
                 fileContent={selectedFile.content}
                 fileName={selectedFile.name}
-                onTestGenerated={setGeneratedTestCode} // ✅ 기존 유지
+                onChange={setCurrentEditorCode}
+                // onTestGenerated={setGeneratedTestCode} // ✅ 기존 유지
                 onAppendTerminal={appendTerminal} // ✅ 네 기능
               />
             ) : (
