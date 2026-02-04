@@ -1,10 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, X } from "lucide-react";
 
-// 에러 로그 데모
 interface ErrorLog {
   id: string;
-  time: string;
+  time: string; // "08:20" 같은 형태라고 가정
   display_name: string;
   error: string;
   stacktrace: string;
@@ -20,28 +19,65 @@ type ContributionData = Record<
 >;
 
 interface ContributionGraphProps {
-  data?: ContributionData;
+  data?: ContributionData; // ✅ MyPage에서 주입
 }
-
-/* ================= 유틸 ================= */
 
 const formatDate = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
     d.getDate(),
   ).padStart(2, "0")}`;
 
-const mockErrorLog = (): ErrorLog => ({
-  id: crypto.randomUUID(),
-  time: `14:${Math.floor(Math.random() * 60)
-    .toString()
-    .padStart(2, "0")}`,
-  display_name: "Database Connection Error",
-  error: "Connection timeout",
-  stacktrace: "at connect(db.ts:42)\nat retry(db.ts:30)",
-  resolution: "DB 상태 확인 후 재시작",
-});
+/** ✅ "HH:mm" 문자열에 hours만 더해서 다시 "HH:mm"로 반환 (24시간 순환) */
+function addHoursToTimeString(time: string, addHours: number): string {
+  // 기대 포맷: "HH:mm"
+  const m = /^(\d{1,2}):(\d{2})$/.exec((time ?? "").trim());
+  if (!m) return time; // 포맷이 다르면 그냥 원본 표시
 
-/* ================= 컴포넌트 ================= */
+  const hh = Number(m[1]);
+  const mm = Number(m[2]);
+  if (!Number.isFinite(hh) || !Number.isFinite(mm)) return time;
+
+  const total = (hh * 60 + mm + addHours * 60) % (24 * 60);
+  const normalized = total < 0 ? total + 24 * 60 : total;
+
+  const newH = Math.floor(normalized / 60);
+  const newM = normalized % 60;
+
+  return `${String(newH).padStart(2, "0")}:${String(newM).padStart(2, "0")}`;
+}
+
+/** ✅ 해결 방법을 글머리표로 예쁘게 만들기 */
+function splitResolutionToBullets(text: string): string[] {
+  const t = (text ?? "").replace(/\r\n/g, "\n").trim();
+  if (!t) return [];
+
+  // 1) 줄바꿈이 있으면 줄 단위로
+  let parts: string[] = t.includes("\n") ? t.split("\n") : [t];
+
+  // 2) 만약 한 줄인데 • 로 이어붙인 형태면 분리
+  if (parts.length === 1 && parts[0].includes("•")) {
+    parts = parts[0].split("•");
+  }
+
+  // 3) 만약 한 줄인데 "1) ... 2) ..." 같은 형태면 대충 쪼개기
+  if (parts.length === 1) {
+    const maybe = parts[0]
+      .split(/(?=\s*\d+[\.\)]\s+)/g)
+      .map((x) => x.trim())
+      .filter(Boolean);
+    if (maybe.length > 1) parts = maybe;
+  }
+
+  return (
+    parts
+      .map((p) => p.trim())
+      .filter(Boolean)
+      // 앞에 붙은 번호/기호 제거
+      .map((p) => p.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, ""))
+      .map((p) => p.trim())
+      .filter(Boolean)
+  );
+}
 
 export function ContributionGraph({ data }: ContributionGraphProps) {
   const today = new Date();
@@ -50,18 +86,31 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedLogs, setSelectedLogs] = useState<ErrorLog[]>([]);
   const [isLogOpen, setIsLogOpen] = useState(false);
+
   const [activeLog, setActiveLog] = useState<ErrorLog | null>(null);
 
-  /* ===== 데이터 생성 ===== */
-  const contributionData = useMemo<ContributionData>(() => {
-    if (data) return data;
+  // ✅ 긴 출력 때문에 모달이 터지는 것 방지: 원본 출력 접기/펴기
+  const [showRaw, setShowRaw] = useState(false);
 
-    const mock: ContributionData = {};
+  useEffect(() => {
+    // activeLog 바뀔 때마다 원본 출력 접힘 상태로 리셋
+    setShowRaw(false);
+  }, [activeLog?.id]);
+
+  useEffect(() => {
+    // ESC로 모달 닫기
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setActiveLog(null);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  const contributionData = useMemo<ContributionData>(() => {
+    const result: ContributionData = {};
+
     const startDate = new Date(selectedYear, 0, 1);
     const endDate = new Date(selectedYear, 11, 31);
-    // selectedYear === 2026
-    //   ? new Date(2026, 0, 31)
-    //   : new Date(selectedYear, 11, 31);
 
     for (
       let d = new Date(startDate);
@@ -70,20 +119,19 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
     ) {
       const dateStr = formatDate(d);
 
-      if (d > today && selectedYear === today.getFullYear()) {
-        mock[dateStr] = { count: 0, logs: [] };
+      // 미래 날짜(올해 기준)는 0 처리
+      if (selectedYear === today.getFullYear() && d > today) {
+        result[dateStr] = { count: 0, logs: [] };
         continue;
       }
 
-      const logCount = Math.floor(Math.random() * 10); // 0~7
-      const logs = Array.from({ length: logCount }).map(mockErrorLog);
-
-      mock[dateStr] = { count: logs.length, logs };
+      const logs = data?.[dateStr]?.logs ?? [];
+      result[dateStr] = { count: logs.length, logs };
     }
-    return mock;
-  }, [data, selectedYear]);
 
-  /* ===== 주 단위 변환 ===== */
+    return result;
+  }, [data, selectedYear, today]);
+
   const weeks = useMemo(() => {
     const result: { date: string; count: number }[][] = [];
     const dates = Object.keys(contributionData).sort();
@@ -111,7 +159,6 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
     return result;
   }, [contributionData]);
 
-  /* ===== 색상 (오류 개수 기준) ===== */
   const getContribClass = (count: number) => {
     if (count < 0) return "bg-transparent";
     if (count === 0) return "contrib-level-0";
@@ -141,7 +188,15 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
     "Dec",
   ];
 
-  /* ================= 렌더 ================= */
+  const rawText = activeLog?.stacktrace ?? "";
+  const rawPreview =
+    rawText.length > 2000
+      ? rawText.slice(0, 2000) + "\n... (더보기로 전체 확인)"
+      : rawText;
+
+  const resolutionBullets = splitResolutionToBullets(
+    activeLog?.resolution ?? "",
+  );
 
   return (
     <div className="space-y-4">
@@ -154,6 +209,8 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
               setSelectedYear(year);
               setSelectedDate(null);
               setSelectedLogs([]);
+              setIsLogOpen(false);
+              setActiveLog(null);
             }}
             className={`px-3 py-1 rounded-md text-sm ${
               year === selectedYear
@@ -201,13 +258,13 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
                   onClick={() => {
                     if (!day.date) return;
                     setSelectedDate(day.date);
-                    // setSelectedLogs(contributionData[day.date].logs);
                     setSelectedLogs(
-                      [...contributionData[day.date].logs].sort((a, b) =>
-                        b.time.localeCompare(a.time),
+                      [...(contributionData[day.date]?.logs ?? [])].sort(
+                        (a, b) => b.time.localeCompare(a.time),
                       ),
                     );
-                    setIsLogOpen(false);
+                    setIsLogOpen(true);
+                    setActiveLog(null);
                   }}
                 />
               ))}
@@ -256,7 +313,8 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
                     >
                       <div className="flex justify-between text-sm">
                         <span>{log.display_name}</span>
-                        <span>{log.time}</span>
+                        {/* ✅ 여기에서만 +9 */}
+                        <span>{addHoursToTimeString(log.time, 9)}</span>
                       </div>
                     </li>
                   ))}
@@ -269,32 +327,82 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
 
       {/* ===== 상세 모달 ===== */}
       {activeLog && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="relative bg-background rounded-lg p-6 w-[520px] space-y-4">
-            <button
-              onClick={() => setActiveLog(null)}
-              className="absolute top-3 right-3 text-muted-foreground hover:text-foreground"
-            >
-              <X className="h-4 w-4" />
-            </button>
+        <div
+          className="fixed inset-0 z-50 bg-black/50 p-4 overflow-y-auto"
+          onMouseDown={(e) => {
+            // ✅ 바깥 클릭하면 닫기
+            if (e.target === e.currentTarget) setActiveLog(null);
+          }}
+        >
+          <div className="mx-auto w-full max-w-2xl bg-background rounded-lg shadow-lg border flex flex-col max-h-[85vh]">
+            {/* 헤더(고정) */}
+            <div className="flex items-start justify-between gap-3 p-4 border-b">
+              <div>
+                <h3 className="text-lg font-semibold">
+                  {activeLog.display_name}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {selectedDate} · {/* ✅ 여기에서도 +9 */}
+                  {addHoursToTimeString(activeLog.time, 9)}
+                </p>
+              </div>
 
-            <h3 className="text-lg font-semibold">{activeLog.display_name}</h3>
-
-            <div>
-              <b>오류 내용</b>
-              <p className="mt-1 text-sm">{activeLog.error}</p>
+              <button
+                onClick={() => setActiveLog(null)}
+                className="shrink-0 text-muted-foreground hover:text-foreground"
+                aria-label="close"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
 
-            <div>
-              <b>Stacktrace</b>
-              <pre className="mt-1 bg-muted p-2 text-xs rounded">
-                {activeLog.stacktrace}
-              </pre>
-            </div>
+            {/* 본문(스크롤) */}
+            <div className="p-4 overflow-y-auto space-y-4">
+              <div>
+                <b>오류 내용</b>
+                <p className="mt-1 text-sm whitespace-pre-wrap">
+                  {activeLog.error}
+                </p>
+              </div>
 
-            <div>
-              <b>해결 방법</b>
-              <p className="mt-1 text-sm">{activeLog.resolution}</p>
+              <div>
+                <div className="flex items-center justify-between">
+                  <b>원본 출력/Stacktrace</b>
+                  <button
+                    onClick={() => setShowRaw((v) => !v)}
+                    className="text-xs px-2 py-1 rounded border hover:bg-muted"
+                  >
+                    {showRaw ? "접기" : "펼치기"}
+                  </button>
+                </div>
+
+                {showRaw ? (
+                  <pre className="mt-2 bg-muted p-3 text-xs rounded overflow-auto max-h-[40vh] whitespace-pre">
+                    {rawText}
+                  </pre>
+                ) : (
+                  <pre className="mt-2 bg-muted p-3 text-xs rounded overflow-auto max-h-[18vh] whitespace-pre">
+                    {rawPreview}
+                  </pre>
+                )}
+              </div>
+
+              <div>
+                <b>해결 방법</b>
+                {resolutionBullets.length > 1 ? (
+                  <ul className="mt-2 list-disc pl-5 space-y-1 text-sm">
+                    {resolutionBullets.map((b, i) => (
+                      <li key={i} className="whitespace-pre-wrap">
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-1 text-sm whitespace-pre-wrap">
+                    {activeLog.resolution}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>

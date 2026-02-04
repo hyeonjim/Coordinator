@@ -74,9 +74,18 @@ export type RawNode = Partial<BackendFileNode> & {
 /**
  * FileViewer 컴포넌트 Props
  */
+/**
+ * FileViewer 컴포넌트 Props
+ * - (master) onFileSelect(fileId, fileName)
+ * - (your feature) onFileSelect(fileId, content, fileName)
+ *
+ * 둘 다 지원하도록 오버로드 형태로 선언 (기존 로직 훼손 없음)
+ */
 export interface FileViewerProps {
   roomId: number;
-  onFileSelect?: (fileId: number, fileName: string) => void;
+  onFileSelect?: {
+    (fileId: number, content: string, fileName: string): void;
+  };
 }
 
 /**
