@@ -70,11 +70,25 @@ export default function CodeEditor({
     );
   }, [provider, yjsSharedXmlText]);
 
+  /* 랜덤 색상 생성 */
+  const userColor = useMemo(() => {
+    const colors = [
+      "#f87171",
+      "#fbbf24",
+      "#34d399",
+      "#60a5fa",
+      "#818cf8",
+      "#c084fc",
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }, []);
+
   /* 연결 */
   useEffect(() => {
+    // 로컬 사용자 정보 설정 (Awareness)
     provider.awareness.setLocalStateField("user", {
-      name: "tester",
-      color: "#6366f1",
+      name: "User " + Math.floor(Math.random() * 1000), // TODO: 실제 로그인 유저 이름 사용
+      color: userColor,
     });
 
     YjsEditor.connect(editor);
@@ -82,18 +96,14 @@ export default function CodeEditor({
       YjsEditor.disconnect(editor);
       provider.disconnect();
     };
-  }, [editor, provider]);
+  }, [editor, provider, userColor]);
 
-  useEffect(() => {
-    return () => {
-      yDocument.destroy();
-    };
-  }, [yDocument]);
+  // ... (중략: useEffect for yDocument.destroy removed per previous changes) ...
 
   /* =========================
      Prism Highlight 핵심
      ========================= */
-
+  // ... (decorate function kept as is) ...
   const decorate = useCallback(([node, path]: NodeEntry) => {
     if (!Text.isText(node)) return [];
 
@@ -127,6 +137,55 @@ export default function CodeEditor({
 
   const renderLeaf = useCallback((props: RenderLeafProps) => {
     const { attributes, children, leaf } = props;
+
+    // slate-yjs withCursors가 주입하는 속성들
+    const { alphaColor, data, isCaret } = leaf as any;
+
+    if (data) {
+      return (
+        <span
+          {...attributes}
+          style={{
+            position: "relative",
+            backgroundColor: alphaColor,
+          }}
+          className={leaf.tokenType ? `token ${leaf.tokenType}` : undefined}
+        >
+          {isCaret && (
+            <span
+              contentEditable={false}
+              style={{
+                position: "absolute",
+                top: 0,
+                bottom: 0,
+                right: 0,
+                width: "2px",
+                backgroundColor: data.color,
+                zIndex: 10,
+              }}
+            >
+              <span
+                style={{
+                  position: "absolute",
+                  top: -20,
+                  left: 0,
+                  whiteSpace: "nowrap",
+                  backgroundColor: data.color,
+                  color: "white",
+                  fontSize: "10px",
+                  padding: "2px 4px",
+                  borderRadius: "2px",
+                  pointerEvents: "none",
+                }}
+              >
+                {data.name}
+              </span>
+            </span>
+          )}
+          {children}
+        </span>
+      );
+    }
 
     return (
       <span
