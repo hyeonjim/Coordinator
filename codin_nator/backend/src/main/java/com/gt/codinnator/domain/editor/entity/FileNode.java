@@ -15,6 +15,7 @@ public class FileNode {
     private Long fileId;
 
     @Column(nullable = false)
+    @Setter
     private String fileName;
 
     @Column(nullable = false)

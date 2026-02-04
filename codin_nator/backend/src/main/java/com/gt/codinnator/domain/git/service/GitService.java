@@ -93,7 +93,7 @@ public class GitService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
         // 토큰이 Oauth 토큰인지 확인 필요 or PAT 토큰인지
         git.push()
-                .setCredentialsProvider(new UsernamePasswordCredentialsProvider(user.getGitId(), user.getGitToken()))
+                .setCredentialsProvider(new UsernamePasswordCredentialsProvider(user.getGitId(), room.getGitToken()))
                 .setRemote("origin")
                 .setRefSpecs(new RefSpec("HEAD:refs/heads/"+room.getBranch()))
                 .call();
