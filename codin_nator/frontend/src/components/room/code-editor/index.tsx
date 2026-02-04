@@ -37,6 +37,8 @@ export default function CodeEditor({
   onChange,
   onTestGenerated,
 }: CodeEditorProps) {
+  // ⭐ 파일 단위 시딩 기록
+  const seededFileMap = new Map<number, boolean>();
   const roomName = useMemo(() => `${roomId}/${fileId}`, [roomId, fileId]);
 
   const initialValue: Descendant[] = useMemo(
@@ -204,31 +206,29 @@ export default function CodeEditor({
     }
   };
 
-  const hasSeededRef = useRef(false);
-
   useEffect(() => {
-    if (!isSynced) return;
-    if (hasSeededRef.current) return;
+    if (!provider) return;
 
-    // 🔥 이미 Yjs에 데이터 있음 → API 호출 ❌
-    if (yjsSharedXmlText.length > 0) {
-      hasSeededRef.current = true;
-      return;
-    }
+    const handleSync = async (isSynced: boolean) => {
+      if (!isSynced) return;
 
-    // 🔥 진짜 첫 사용자만 여기 도착
-    (async () => {
+      // ⭐ 이미 이 파일은 시딩 완료
+      if (seededFileMap.get(fileId)) return;
+
+      // ⭐ Yjs에 이미 데이터 있음
+      if (yjsSharedXmlText.length > 0) {
+        seededFileMap.set(fileId, true);
+        return;
+      }
+
+      // ⭐ 진짜 최초 1회만 API 호출
       const accessToken = localStorage.getItem("access_token");
-
       const res = await axios.get(`/api/v1/room/${roomId}/${fileId}`, {
         responseType: "text",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
 
       const lines = String(res.data ?? "").split(/\r?\n/);
-
       const nodes = lines.map((line) => ({
         type: "paragraph" as const,
         children: [{ text: line }],
@@ -238,9 +238,13 @@ export default function CodeEditor({
         Transforms.insertNodes(editor, nodes, { at: [0] });
       });
 
-      hasSeededRef.current = true;
-    })();
-  }, [isSynced, fileId]);
+      // ⭐ 이 파일은 이제 다시 API 호출 안 함
+      seededFileMap.set(fileId, true);
+    };
+
+    provider.once("sync", handleSync);
+    return () => provider.off("sync", handleSync);
+  }, [provider, fileId, roomId]);
 
   return (
     <div className="h-full w-full flex flex-col bg-[#1e1e1e]">
