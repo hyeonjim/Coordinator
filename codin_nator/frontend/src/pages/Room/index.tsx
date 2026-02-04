@@ -23,6 +23,7 @@ import { createTestHelpers } from "./utils/testHelpers";
 import { getSocketBaseUrl } from "@/utils/socketUtils";
 
 export default function RoomPage() {
+  const [currentEditorCode, setCurrentEditorCode] = useState<string>("");
   const { roomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
 
@@ -170,7 +171,13 @@ export default function RoomPage() {
 
   return (
     <div className="h-screen flex flex-col">
-      <Header isJoined={isJoined} onJoin={handleJoin} onLeave={handleLeave} />
+      <Header
+        isJoined={isJoined}
+        onJoin={handleJoin}
+        onLeave={handleLeave}
+        selectedFileId={selectedFile?.id ?? null}
+        editorContent={currentEditorCode}
+      />
 
       <div className="flex-1 flex overflow-hidden">
         <aside className="w-64 flex flex-col">
@@ -210,6 +217,7 @@ export default function RoomPage() {
                 roomId={Number(currentRoomId)}
                 fileContent={selectedFile.content}
                 fileName={selectedFile.name}
+                onChange={setCurrentEditorCode}
                 onTestGenerated={setGeneratedTestCode} // ✅ 기존 유지
                 onAppendTerminal={appendTerminal} // ✅ 네 기능
               />
