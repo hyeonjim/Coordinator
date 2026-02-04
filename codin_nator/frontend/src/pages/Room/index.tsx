@@ -85,18 +85,15 @@ export default function RoomPage() {
   const webRTC = useWebRTC(handleIceCandidate);
 
   // 참여자 관리 및 동기화
-  const {
-    addParticipant,
-    removeParticipant,
-    updateParticipantMicStatus,
-  } = useParticipantManagement({
-    setParticipants,
-    userId,
-    userName,
-    userImageUrl,
-    webRTC,
-    isJoined,
-  });
+  const { addParticipant, removeParticipant, updateParticipantMicStatus } =
+    useParticipantManagement({
+      setParticipants,
+      userId,
+      userName,
+      userImageUrl,
+      webRTC,
+      isJoined,
+    });
 
   // 1. 텍스트 채팅 메시지 수신 처리 (STOMP)
   useTextChatMessageHandler({
@@ -194,6 +191,7 @@ export default function RoomPage() {
           <div className="flex-1 min-h-0 overflow-hidden">
             {selectedFile ? (
               <CodeEditor
+                key={selectedFile.id}
                 fileId={selectedFile.id}
                 roomId={Number(currentRoomId)}
                 fileName={selectedFile.name}
