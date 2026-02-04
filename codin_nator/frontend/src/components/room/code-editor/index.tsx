@@ -2,7 +2,7 @@ import * as Y from "yjs";
 import { createEditor, Editor, Node, Transforms, Text } from "slate";
 import type { Descendant } from "slate";
 import type { NodeEntry } from "slate";
-import { useEffect, useMemo, useCallback, useState } from "react";
+import { useEffect, useMemo, useCallback, useState, useRef } from "react";
 import { WebsocketProvider } from "y-websocket";
 import { Slate, Editable, withReact } from "slate-react";
 import { useSlateStatic, ReactEditor } from "slate-react";
@@ -16,6 +16,7 @@ import Prism from "prismjs";
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-java";
 import "prismjs/themes/prism-tomorrow.css";
+import axios from "axios";
 
 interface CodeEditorProps {
   roomId: number;
@@ -32,7 +33,6 @@ const WS_BASE_URL =
 export default function CodeEditor({
   roomId,
   fileId,
-  fileContent,
   fileName,
   onChange,
   onTestGenerated,
@@ -89,24 +89,6 @@ export default function CodeEditor({
     };
   }, [yDocument]);
 
-  /* 파일 내용 주입 */
-  useEffect(() => {
-    if (fileContent === undefined) return;
-
-    const lines = String(fileContent).split(/\r?\n/);
-    const nodes = (lines.length ? lines : [""]).map((line) => ({
-      type: "paragraph" as const,
-      children: [{ text: line }],
-    }));
-
-    Editor.withoutNormalizing(editor, () => {
-      while (editor.children.length > 0) {
-        Transforms.removeNodes(editor, { at: [0] });
-      }
-      Transforms.insertNodes(editor, nodes, { at: [0] });
-    });
-  }, [editor, fileContent]);
-
   const [isSynced, setIsSynced] = useState(false);
   useEffect(() => {
     const handleSync = (isSynced: boolean) => {
@@ -121,28 +103,6 @@ export default function CodeEditor({
       provider.off("sync", handleSync);
     };
   }, [provider]);
-
-  useEffect(() => {
-    if (!isSynced) return;
-    if (fileContent === undefined) return;
-
-    // ⭐ 이 체크는 sync 이후에만 의미가 있음
-    if (yjsSharedXmlText.length > 0) return;
-
-    const lines = String(fileContent).split(/\r?\n/);
-    const nodes = (lines.length ? lines : [""]).map((line) => ({
-      type: "paragraph" as const,
-      children: [{ text: line }],
-    }));
-
-    Editor.withoutNormalizing(editor, () => {
-      Transforms.removeNodes(editor, {
-        at: [],
-        match: () => true,
-      });
-      Transforms.insertNodes(editor, nodes, { at: [0] });
-    });
-  }, [isSynced, fileContent, editor, yjsSharedXmlText]);
 
   /* =========================
      Prism Highlight 핵심
@@ -243,6 +203,44 @@ export default function CodeEditor({
       alert(e.message ?? "오류 발생");
     }
   };
+
+  const hasSeededRef = useRef(false);
+
+  useEffect(() => {
+    if (!isSynced) return;
+    if (hasSeededRef.current) return;
+
+    // 🔥 이미 Yjs에 데이터 있음 → API 호출 ❌
+    if (yjsSharedXmlText.length > 0) {
+      hasSeededRef.current = true;
+      return;
+    }
+
+    // 🔥 진짜 첫 사용자만 여기 도착
+    (async () => {
+      const accessToken = localStorage.getItem("access_token");
+
+      const res = await axios.get(`/api/v1/room/${roomId}/${fileId}`, {
+        responseType: "text",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const lines = String(res.data ?? "").split(/\r?\n/);
+
+      const nodes = lines.map((line) => ({
+        type: "paragraph" as const,
+        children: [{ text: line }],
+      }));
+
+      Editor.withoutNormalizing(editor, () => {
+        Transforms.insertNodes(editor, nodes, { at: [0] });
+      });
+
+      hasSeededRef.current = true;
+    })();
+  }, [isSynced, fileId]);
 
   return (
     <div className="h-full w-full flex flex-col bg-[#1e1e1e]">
