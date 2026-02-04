@@ -39,6 +39,9 @@ stage('Deploy (Zero Downtime)') {
         sh '''
           set -e
 
+          mkdir -p ~/.ssh
+          ssh-keyscan -H i14e205.p.ssafy.io >> ~/.ssh/known_hosts
+
           TIMESTAMP=$(date +%Y%m%d_%H%M%S)
           RELEASE_DIR=/usr/share/nginx/html/releases/$TIMESTAMP
 
@@ -56,6 +59,7 @@ stage('Deploy (Zero Downtime)') {
     }
   }
 }
+
 
 
 

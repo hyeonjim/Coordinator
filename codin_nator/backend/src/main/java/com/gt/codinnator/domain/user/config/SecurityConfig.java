@@ -45,6 +45,14 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         .logoutSuccessUrl("/") // 로그아웃 성공 시 이동할 페이지
                 )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            // API 요청은 401 반환 (OAuth2 리다이렉트 아님)
+                            response.setStatus(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"error\":\"Unauthorized\"}");
+                        })
+                )
                 .oauth2Login(oauth2 -> oauth2
                                 .defaultSuccessUrl("/") // 로그인 성공 후 이동할 페이지
                          .userInfoEndpoint(userInfo -> userInfo

@@ -3,7 +3,6 @@ package com.gt.codinnator.domain.editor.dto;
 import com.gt.codinnator.domain.editor.entity.FileNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import java.util.List;
 import java.util.stream.Collectors;
 

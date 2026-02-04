@@ -1,21 +1,10 @@
-// import LoginButton from "../../components/landing/LoginButton";
-
-// export default function LandingPage() {
-//   return (
-//     <>
-//       <h1>Landing Page</h1>
-//       <LoginButton />
-//     </>
-//   );
-// }
-
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useRef } from "react";
 import logo from "@/assets/images/logo_wh.png";
 
 // GitHub OAuth 인증 시작 URL (백엔드에서 처리)
-const GITHUB_OAUTH_URL = `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/github`;
+const GITHUB_OAUTH_URL = "/oauth2/authorization/github";
 
 export default function LandingPage() {
   const previewRef = useRef<HTMLDivElement | null>(null);

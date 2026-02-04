@@ -121,8 +121,13 @@ export default function RoomTerminal({
     // 두 번째 RAF: 다음 프레임까지 대기하여 dimensions 계산 완료
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        if (terminalContainerRef.current) {
-          fitAddon.fit();
+        try {
+          if (terminalContainerRef.current && fitAddon) {
+            fitAddon.fit();
+          }
+        } catch (error) {
+          // dimensions 초기화 에러 무시 (다음 resize 시 자동 복구)
+          console.warn("Terminal fit 실패 (초기화 중):", error);
         }
       });
     });
@@ -139,7 +144,13 @@ export default function RoomTerminal({
 
     // 5. 윈도우 리사이즈 이벤트 처리
     const handleWindowResize = () => {
-      fitAddon.fit(); // 새로운 크기에 맞게 터미널 조절
+      try {
+        if (fitAddon) {
+          fitAddon.fit(); // 새로운 크기에 맞게 터미널 조절
+        }
+      } catch (error) {
+        console.warn("Terminal resize 실패:", error);
+      }
     };
     window.addEventListener("resize", handleWindowResize);
 

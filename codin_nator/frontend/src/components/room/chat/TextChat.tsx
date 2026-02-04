@@ -1,8 +1,5 @@
 /**
  * 텍스트 채팅 및 AI 기능 컴포넌트
- * - 탭 전환 (AI/채팅)
- * - 사이드바 토글
- * - 폼 제출 처리 (onSubmit)
  * - 스크롤 자동 이동 (useRef + scrollIntoView)
  */
 

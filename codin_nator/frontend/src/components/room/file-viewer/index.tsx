@@ -100,7 +100,6 @@ const FileViewer = ({ roomId, onFileSelect }: FileViewerProps) => {
       ? numericRoomId
       : null;
   }, [roomId]);
-  const accessToken = localStorage.getItem("access_token");
   // 1. 파일 목록 조회 함수
   const fetchFileTree = useCallback(async () => {
     if (!roomIdSafe) {
@@ -110,6 +109,7 @@ const FileViewer = ({ roomId, onFileSelect }: FileViewerProps) => {
 
     try {
       setLoading(true);
+      const accessToken = localStorage.getItem("access_token");
       const response = await axios.get(`/api/v1/room/${roomIdSafe}/files`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
