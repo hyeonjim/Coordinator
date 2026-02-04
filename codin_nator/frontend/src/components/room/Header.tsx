@@ -1,4 +1,6 @@
+import axios from "axios";
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 
 interface HeaderProps {
   isJoined: boolean;
@@ -13,6 +15,7 @@ const gitActions = [
 ];
 
 export default function Header({ isJoined, onJoin, onLeave }: HeaderProps) {
+  const { roomId } = useParams<{ roomId: string }>();
   const [showShare, setShowShare] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -26,21 +29,67 @@ export default function Header({ isJoined, onJoin, onLeave }: HeaderProps) {
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
-
+  const accessToken = localStorage.getItem("access_token");
   const handleGitAction = (action: string) => {
+    const changeFiles = [
+      {
+        fileId: 1331,
+        content: "updatedContent",
+      },
+    ];
+
+    if (action === "add") {
+      axios
+        .post(`/api/v1/room/git/${roomId}/add`, changeFiles, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+        .then(() => {
+          console.log("Git: Added changes");
+        })
+        .catch(() => {
+          console.log("Git: Add failed");
+        });
+      return;
+    }
     if (action === "commit") {
       setShowCommit((v) => !v);
       setShowShare(false);
       return;
     }
-
+    if (action === "push") {
+      axios
+        .post(`/api/v1/room/git/${roomId}/push`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+        .then(() => {
+          console.log("Git: Pushed changes");
+        });
+      return;
+    }
     console.log("Git:", action);
-    // TODO: WS / API 연동
   };
 
   const handleCommitSend = () => {
     if (!commitMsg.trim()) return;
-
+    axios
+      .post(
+        `/api/v1/room/git/${roomId}/commit`,
+        {
+          message: commitMsg,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      )
+      .then(() => {
+        console.log("Git: Pushed changes");
+      });
     console.log("Commit message:", commitMsg);
 
     setCommitMsg("");
