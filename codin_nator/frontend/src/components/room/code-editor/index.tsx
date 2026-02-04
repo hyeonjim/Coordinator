@@ -2,7 +2,7 @@ import * as Y from "yjs";
 import { createEditor, Editor, Node, Transforms, Text } from "slate";
 import type { Descendant } from "slate";
 import type { NodeEntry } from "slate";
-import { useEffect, useMemo, useCallback, useState, useRef } from "react";
+import { useEffect, useMemo, useCallback, useState } from "react";
 import { WebsocketProvider } from "y-websocket";
 import { Slate, Editable, withReact } from "slate-react";
 import { useSlateStatic, ReactEditor } from "slate-react";
@@ -90,21 +90,6 @@ export default function CodeEditor({
       yDocument.destroy();
     };
   }, [yDocument]);
-
-  const [isSynced, setIsSynced] = useState(false);
-  useEffect(() => {
-    const handleSync = (isSynced: boolean) => {
-      if (isSynced) {
-        setIsSynced(true);
-      }
-    };
-
-    provider.on("sync", handleSync);
-
-    return () => {
-      provider.off("sync", handleSync);
-    };
-  }, [provider]);
 
   /* =========================
      Prism Highlight 핵심
