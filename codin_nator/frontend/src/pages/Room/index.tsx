@@ -33,7 +33,6 @@ export default function RoomPage() {
   const [selectedFile, setSelectedFile] = useState<{
     id: number;
     name: string;
-    content: string;
   } | null>(null);
 
   // 테스트 코드 상태
@@ -86,18 +85,15 @@ export default function RoomPage() {
   const webRTC = useWebRTC(handleIceCandidate);
 
   // 참여자 관리 및 동기화
-  const {
-    addParticipant,
-    removeParticipant,
-    updateParticipantMicStatus,
-  } = useParticipantManagement({
-    setParticipants,
-    userId,
-    userName,
-    userImageUrl,
-    webRTC,
-    isJoined,
-  });
+  const { addParticipant, removeParticipant, updateParticipantMicStatus } =
+    useParticipantManagement({
+      setParticipants,
+      userId,
+      userName,
+      userImageUrl,
+      webRTC,
+      isJoined,
+    });
 
   // 1. 텍스트 채팅 메시지 수신 처리 (STOMP)
   useTextChatMessageHandler({
@@ -166,8 +162,11 @@ export default function RoomPage() {
           <div className="flex-1 overflow-auto">
             <FileViewer
               roomId={Number(currentRoomId)}
-              onFileSelect={(fileId, content, fileName) => {
-                setSelectedFile({ id: fileId, content, name: fileName });
+              onFileSelect={(fileId, fileName) => {
+                setSelectedFile({
+                  id: fileId,
+                  name: fileName,
+                });
               }}
             />
           </div>
@@ -192,9 +191,9 @@ export default function RoomPage() {
           <div className="flex-1 min-h-0 overflow-hidden">
             {selectedFile ? (
               <CodeEditor
+                key={selectedFile.id}
                 fileId={selectedFile.id}
                 roomId={Number(currentRoomId)}
-                fileContent={selectedFile.content}
                 fileName={selectedFile.name}
                 onTestGenerated={setGeneratedTestCode}
               />

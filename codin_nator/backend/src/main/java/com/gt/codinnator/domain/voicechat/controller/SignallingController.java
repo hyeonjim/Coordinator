@@ -46,7 +46,7 @@ public class SignallingController {
 
                 messagingTemplate.convertAndSend("/sub/voice/room/"+roomId, listMessage);
             }
-            case OFFER, ANSWER, ICE, MIC -> { messagingTemplate.convertAndSend("/sub/voice/room/"+ roomId, message);}
+            case OFFER, ANSWER, ICE, MIC, IDENTITY -> { messagingTemplate.convertAndSend("/sub/voice/room/"+ roomId, message);}
             default -> {
                 break;
             }

@@ -38,3 +38,6 @@ out/
 
 # 로컬 전용 설정 파일 제외
 application-local.properties
+
+# 업로드파일(로컬 테스트용)
+uploads/

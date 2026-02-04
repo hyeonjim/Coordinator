@@ -76,7 +76,7 @@ export type RawNode = Partial<BackendFileNode> & {
  */
 export interface FileViewerProps {
   roomId: number;
-  onFileSelect?: (fileId: number, content: string, fileName: string) => void;
+  onFileSelect?: (fileId: number, fileName: string) => void;
 }
 
 /**

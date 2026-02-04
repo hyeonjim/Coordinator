@@ -16,6 +16,7 @@ import Prism from "prismjs";
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-java";
 import "prismjs/themes/prism-tomorrow.css";
+import axios from "axios";
 
 interface CodeEditorProps {
   roomId: number;
@@ -32,7 +33,6 @@ const WS_BASE_URL =
 export default function CodeEditor({
   roomId,
   fileId,
-  fileContent,
   fileName,
   onChange,
   onTestGenerated,
@@ -49,6 +49,7 @@ export default function CodeEditor({
 
   /* Yjs */
   const yDocument = useMemo(() => new Y.Doc(), []);
+  const metaMap = useMemo(() => yDocument.getMap<boolean>("meta"), [yDocument]);
   const provider = useMemo(
     () =>
       new WebsocketProvider(WS_BASE_URL, roomName, yDocument, {
@@ -88,61 +89,6 @@ export default function CodeEditor({
       yDocument.destroy();
     };
   }, [yDocument]);
-
-  /* 파일 내용 주입 */
-  useEffect(() => {
-    if (fileContent === undefined) return;
-
-    const lines = String(fileContent).split(/\r?\n/);
-    const nodes = (lines.length ? lines : [""]).map((line) => ({
-      type: "paragraph" as const,
-      children: [{ text: line }],
-    }));
-
-    Editor.withoutNormalizing(editor, () => {
-      while (editor.children.length > 0) {
-        Transforms.removeNodes(editor, { at: [0] });
-      }
-      Transforms.insertNodes(editor, nodes, { at: [0] });
-    });
-  }, [editor, fileContent]);
-
-  const [isSynced, setIsSynced] = useState(false);
-  useEffect(() => {
-    const handleSync = (isSynced: boolean) => {
-      if (isSynced) {
-        setIsSynced(true);
-      }
-    };
-
-    provider.on("sync", handleSync);
-
-    return () => {
-      provider.off("sync", handleSync);
-    };
-  }, [provider]);
-
-  useEffect(() => {
-    if (!isSynced) return;
-    if (fileContent === undefined) return;
-
-    // ⭐ 이 체크는 sync 이후에만 의미가 있음
-    if (yjsSharedXmlText.length > 0) return;
-
-    const lines = String(fileContent).split(/\r?\n/);
-    const nodes = (lines.length ? lines : [""]).map((line) => ({
-      type: "paragraph" as const,
-      children: [{ text: line }],
-    }));
-
-    Editor.withoutNormalizing(editor, () => {
-      Transforms.removeNodes(editor, {
-        at: [],
-        match: () => true,
-      });
-      Transforms.insertNodes(editor, nodes, { at: [0] });
-    });
-  }, [isSynced, fileContent, editor, yjsSharedXmlText]);
 
   /* =========================
      Prism Highlight 핵심
@@ -243,6 +189,45 @@ export default function CodeEditor({
       alert(e.message ?? "오류 발생");
     }
   };
+
+  useEffect(() => {
+    if (!provider) return;
+
+    const handleSync = async (isSynced: boolean) => {
+      if (!isSynced) return;
+
+      // ✅ 이미 시딩된 파일이면 종료
+      if (metaMap.get("seeded") === true) return;
+      // ✅ 다른 사용자가 이미 시딩해둔 경우
+      if (yjsSharedXmlText.length > 0) {
+        metaMap.set("seeded", true);
+        return;
+      }
+
+      // ⭐ 진짜 최초 1회만 API 호출
+      const accessToken = localStorage.getItem("access_token");
+      const res = await axios.get(`/api/v1/room/${roomId}/${fileId}`, {
+        responseType: "text",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      const lines = String(res.data ?? "").split(/\r?\n/);
+      const nodes = lines.map((line) => ({
+        type: "paragraph" as const,
+        children: [{ text: line }],
+      }));
+
+      Editor.withoutNormalizing(editor, () => {
+        Transforms.insertNodes(editor, nodes, { at: [0] });
+      });
+
+      // ✅ 협업 전체 기준으로 시딩 완료
+      metaMap.set("seeded", true);
+    };
+
+    provider.once("sync", handleSync);
+    return () => provider.off("sync", handleSync);
+  }, [provider, fileId, roomId]);
 
   return (
     <div className="h-full w-full flex flex-col bg-[#1e1e1e]">
