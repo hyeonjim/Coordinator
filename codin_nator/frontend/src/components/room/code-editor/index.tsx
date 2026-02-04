@@ -2,7 +2,7 @@ import * as Y from "yjs";
 import { createEditor, Editor, Node, Transforms, Text } from "slate";
 import type { Descendant } from "slate";
 import type { NodeEntry } from "slate";
-import { useEffect, useMemo, useCallback, useState, useRef } from "react";
+import { useEffect, useMemo, useCallback, useState } from "react";
 import { WebsocketProvider } from "y-websocket";
 import { Slate, Editable, withReact } from "slate-react";
 import { useSlateStatic, ReactEditor } from "slate-react";
@@ -49,6 +49,7 @@ export default function CodeEditor({
 
   /* Yjs */
   const yDocument = useMemo(() => new Y.Doc(), []);
+  const metaMap = useMemo(() => yDocument.getMap<boolean>("meta"), [yDocument]);
   const provider = useMemo(
     () =>
       new WebsocketProvider(WS_BASE_URL, roomName, yDocument, {
@@ -98,21 +99,6 @@ export default function CodeEditor({
   }, [editor, provider, userColor]);
 
   // ... (중략: useEffect for yDocument.destroy removed per previous changes) ...
-
-  const [isSynced, setIsSynced] = useState(false);
-  useEffect(() => {
-    const handleSync = (isSynced: boolean) => {
-      if (isSynced) {
-        setIsSynced(true);
-      }
-    };
-
-    provider.on("sync", handleSync);
-
-    return () => {
-      provider.off("sync", handleSync);
-    };
-  }, [provider]);
 
   /* =========================
      Prism Highlight 핵심
@@ -263,31 +249,28 @@ export default function CodeEditor({
     }
   };
 
-  const hasSeededRef = useRef(false);
-
   useEffect(() => {
-    if (!isSynced) return;
-    if (hasSeededRef.current) return;
+    if (!provider) return;
 
-    // 🔥 이미 Yjs에 데이터 있음 → API 호출 ❌
-    if (yjsSharedXmlText.length > 0) {
-      hasSeededRef.current = true;
-      return;
-    }
+    const handleSync = async (isSynced: boolean) => {
+      if (!isSynced) return;
 
-    // 🔥 진짜 첫 사용자만 여기 도착
-    (async () => {
+      // ✅ 이미 시딩된 파일이면 종료
+      if (metaMap.get("seeded") === true) return;
+      // ✅ 다른 사용자가 이미 시딩해둔 경우
+      if (yjsSharedXmlText.length > 0) {
+        metaMap.set("seeded", true);
+        return;
+      }
+
+      // ⭐ 진짜 최초 1회만 API 호출
       const accessToken = localStorage.getItem("access_token");
-
       const res = await axios.get(`/api/v1/room/${roomId}/${fileId}`, {
         responseType: "text",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
 
       const lines = String(res.data ?? "").split(/\r?\n/);
-
       const nodes = lines.map((line) => ({
         type: "paragraph" as const,
         children: [{ text: line }],
@@ -297,9 +280,13 @@ export default function CodeEditor({
         Transforms.insertNodes(editor, nodes, { at: [0] });
       });
 
-      hasSeededRef.current = true;
-    })();
-  }, [isSynced, fileId]);
+      // ✅ 협업 전체 기준으로 시딩 완료
+      metaMap.set("seeded", true);
+    };
+
+    provider.once("sync", handleSync);
+    return () => provider.off("sync", handleSync);
+  }, [provider, fileId, roomId]);
 
   return (
     <div className="h-full w-full flex flex-col bg-[#1e1e1e]">
