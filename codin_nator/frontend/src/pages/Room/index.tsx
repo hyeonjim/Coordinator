@@ -32,7 +32,6 @@ export default function RoomPage() {
   const [selectedFile, setSelectedFile] = useState<{
     id: number;
     name: string;
-    content: string;
   } | null>(null);
 
   // 테스트 코드 상태
@@ -135,8 +134,11 @@ export default function RoomPage() {
           <div className="flex-1 overflow-auto">
             <FileViewer
               roomId={Number(currentRoomId)}
-              onFileSelect={(fileId, content, fileName) => {
-                setSelectedFile({ id: fileId, content, name: fileName });
+              onFileSelect={(fileId, fileName) => {
+                setSelectedFile({
+                  id: fileId,
+                  name: fileName,
+                });
               }}
             />
           </div>
@@ -163,7 +165,6 @@ export default function RoomPage() {
               <CodeEditor
                 fileId={selectedFile.id}
                 roomId={Number(currentRoomId)}
-                fileContent={selectedFile.content}
                 fileName={selectedFile.name}
                 onTestGenerated={setGeneratedTestCode}
               />

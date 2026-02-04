@@ -1,6 +1,7 @@
 // 규성코드 전면수정함(리팩토링 예정)
 
 import axios from "axios";
+import type { FileViewerProps } from "@/types/file/types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { DragEvent } from "react";
 import {
@@ -82,11 +83,6 @@ const normalizeFileTree = (data: unknown): RawNode[] => {
 
 // Main Component
 
-interface FileViewerProps {
-  roomId: number;
-  onFileSelect?: (fileId: number, content: string, fileName: string) => void;
-}
-
 /**
  * 프로젝트 파일 탐색기 메인 컴포넌트
  * - 파일 목록 조회, 선택, 업로드(Drag & Drop) 기능을 통합하여 관리합니다.
@@ -140,29 +136,7 @@ const FileViewer = ({ roomId, onFileSelect }: FileViewerProps) => {
 
     setSelectedId(node.fileId);
 
-    try {
-      // 파일 내용을 서버에서 가져옵니다.
-      const response = await axios.get(
-        `/api/v1/room/${roomIdSafe}/${node.fileId}`,
-        {
-          responseType: "text",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-      );
-      console.log(response);
-
-      const content =
-        typeof response.data === "string"
-          ? response.data
-          : JSON.stringify(response.data ?? "", null, 2);
-
-      // 상위 컴포넌트로 선택된 파일 정보와 내용을 전달합니다.
-      onFileSelect?.(node.fileId, content, node.name);
-    } catch (error) {
-      console.error("파일 내용 로드 실패:", error);
-    }
+    onFileSelect?.(node.fileId, node.name);
   };
 
   // 3. 파일 업로드 로직 (단일 파일)
