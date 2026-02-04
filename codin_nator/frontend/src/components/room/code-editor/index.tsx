@@ -193,8 +193,6 @@ export default function CodeEditor({
   useEffect(() => {
     if (!provider) return;
 
-    const seedKey = `${roomId}/${fileId}`;
-
     const handleSync = async (isSynced: boolean) => {
       if (!isSynced) return;
 
