@@ -1,5 +1,5 @@
 import * as Y from "yjs";
-import { createEditor, Editor, Node, Transforms, Text } from "slate";
+import { createEditor, Editor, Node, Transforms, Text, Range } from "slate";
 import type { Descendant, NodeEntry } from "slate";
 import { useEffect, useMemo, useCallback, useState } from "react";
 import { WebsocketProvider } from "y-websocket";
@@ -15,6 +15,9 @@ import "prismjs/components/prism-java";
 import "prismjs/themes/prism-tomorrow.css";
 
 import Codeeditoractions from "@/components/ai/Codeeditoractions";
+import RemoteCursorOverlay from "./RemoteCursorOverlay";
+import useRemoteCursors from "./useRemoteCursors";
+import { getUserColor } from "./colorAssignment";
 
 interface CodeEditorProps {
   roomId: number;
@@ -24,6 +27,9 @@ interface CodeEditorProps {
   onChange?: (code: string) => void;
   onTestGenerated?: (testCode: string) => void;
   onAppendTerminal?: (title: string, text: string) => void;
+  userId?: string;
+  userName?: string;
+  userImageUrl?: string;
 }
 
 const WS_BASE_URL =
@@ -36,6 +42,9 @@ export default function CodeEditor({
   onChange,
   onTestGenerated,
   onAppendTerminal,
+  userId,
+  userName,
+  userImageUrl,
 }: CodeEditorProps) {
   /* =========================
      🔑 file 단위 room
@@ -83,15 +92,37 @@ export default function CodeEditor({
   );
 
   const [currentCode, setCurrentCode] = useState("");
+  const [localSelection, setLocalSelection] = useState<Range | null>(null);
+
+  const localUserData =
+    userId && userName
+      ? {
+          userId,
+          name: userName,
+          color: getUserColor(userId),
+          imageUrl: userImageUrl,
+        }
+      : undefined;
+  const remoteCursors = useRemoteCursors(
+    editor as any,
+    localUserData,
+    localSelection,
+  );
 
   /* =========================
      🔌 Yjs connect / cleanup
      ========================= */
   useEffect(() => {
-    provider.awareness.setLocalStateField("user", {
-      name: "tester",
-      color: "#6366f1",
-    });
+    try {
+      provider.awareness.setLocalStateField("user", {
+        userId: userId ?? "local",
+        name: userName ?? "You",
+        color: userId ? getUserColor(userId) : "#6366f1",
+        imageUrl: userImageUrl,
+      });
+    } catch (e) {
+      console.debug("[CodeEditor] setLocalStateField failed", e);
+    }
 
     YjsEditor.connect(editor);
 
@@ -101,6 +132,18 @@ export default function CodeEditor({
       yDocument.destroy();
     };
   }, [editor, provider, yDocument]);
+
+  useEffect(() => {
+    // update awareness data if user info changes
+    try {
+      provider.awareness.setLocalStateField("user", {
+        userId: userId ?? "local",
+        name: userName ?? "You",
+        color: userId ? getUserColor(userId) : "#6366f1",
+        imageUrl: userImageUrl,
+      });
+    } catch (e) {}
+  }, [provider, userId, userName, userImageUrl]);
 
   /* =========================
      ✨ Prism Highlight
@@ -233,7 +276,7 @@ export default function CodeEditor({
         onAppendTerminal={onAppendTerminal}
       />
 
-      <div className="flex-1 overflow-auto font-mono text-sm text-[#d4d4d4]">
+      <div className="flex-1 overflow-auto font-mono text-sm text-[#d4d4d4] relative">
         <Slate
           editor={editor}
           initialValue={initialValue}
@@ -241,6 +284,9 @@ export default function CodeEditor({
             const text = value.map((n) => Node.string(n)).join("\n");
             setCurrentCode(text);
             onChange?.(text);
+            try {
+              setLocalSelection(editor.selection as Range | null);
+            } catch {}
           }}
         >
           <Editable
@@ -251,6 +297,7 @@ export default function CodeEditor({
             className="min-h-full px-2 py-4 focus:outline-none"
           />
         </Slate>
+        <RemoteCursorOverlay cursors={remoteCursors} editor={editor} />
       </div>
     </div>
   );

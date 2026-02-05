@@ -241,7 +241,10 @@ export default function RoomPage() {
                 fileName={selectedFile.name}
                 onChange={setCurrentEditorCode}
                 onTestGenerated={(code) => setGeneratedTestCode(code)}
-                onAppendTerminal={appendTerminal}
+                onAppendTerminal={appendTerminal} // ✅ 네 기능
+                userId={userId}
+                userName={userName}
+                userImageUrl={userImageUrl}
               />
             ) : (
               <div className="flex items-center justify-center h-full text-[#858585]">
