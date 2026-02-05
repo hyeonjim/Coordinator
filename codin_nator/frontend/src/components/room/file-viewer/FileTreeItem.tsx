@@ -55,6 +55,8 @@ export const FileTreeItem = ({
   selectedId,
   onSelect,
 }: FileTreeItemProps) => {
+  const markClicked = useFileClickStore((state) => state.markClicked);
+
   // 폴더의 열림/닫힘 상태를 관리합니다.
   const [isOpen, setIsOpen] = useState(false);
 
@@ -66,7 +68,6 @@ export const FileTreeItem = ({
 
   // 클릭 이벤트 핸들러입니다.
   const handleClick = (e: MouseEvent<HTMLDivElement>) => {
-    const markClicked = useFileClickStore((state) => state.markClicked);
     e.stopPropagation(); // 이벤트 버블링을 방지합니다.
 
     if (node.type === "DIR") {
@@ -75,7 +76,7 @@ export const FileTreeItem = ({
     } else {
       // 파일이면 선택 이벤트를 상위로 전달합니다.
       onSelect(node);
-      markClicked("AiTestReport.java"); // 예시: "AiTestReport.java" 파일 클릭 횟수 기록
+      markClicked(node.name); // 예시: "AiTestReport.java" 파일 클릭 횟수 기록
     }
   };
 
