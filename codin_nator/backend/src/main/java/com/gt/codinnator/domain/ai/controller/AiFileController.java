@@ -200,7 +200,8 @@ public class AiFileController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
             }
 
-            java.util.List<AiTestReport> reports = aiTestReportService.getMyReports(principal.getId());
+            // ✅ 본인이 참여한 방들의 report까지 모두 조회 (같은 방의 다른 유저 report도 포함)
+            java.util.List<AiTestReport> reports = aiTestReportService.getMyRoomReports(principal.getId());
 
             java.util.List<TestReportResponse> response = reports.stream()
                     .map(r -> {

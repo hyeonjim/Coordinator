@@ -8,6 +8,7 @@
  * - ✅ 시간은 무조건 KST(Asia/Seoul)로 표시
  * - ✅ 테스트 성공(예: "테스트 성공", "No Failure", "BUILD SUCCESSFUL")은 잔디에서 제외
  * - ✅ 실패일 때만 잔디에 심기 (기존 DB에 남아있는 성공 로그도 화면에서는 제거)
+ * - ✅ (추가) logs에 roomId 포함해서, 상세 리스트에서 방별로 그룹핑 가능하게 함
  */
 
 import { useEffect, useMemo, useState } from "react";
@@ -24,6 +25,7 @@ import { aiService, type TestReportResponse } from "@/services/ai/aiService";
 /** contribution-graph.tsx와 동일한 형태로 맞춤 */
 interface ErrorLog {
   id: string;
+  roomId: string;
   time: string;
   display_name: string;
   error: string;
@@ -97,6 +99,9 @@ export default function MyPage() {
   // ✅ tick이 바뀔 때마다 백엔드에서 최신 보고서를 다시 읽어옴
   const [reports, setReports] = useState<TestReportResponse[]>([]);
 
+  // ✅ 방별 필터 ("all"이면 내가 참여한 모든 방의 report를 합쳐서 보여줌)
+  const [selectedRoomId, setSelectedRoomId] = useState<string>("all");
+
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -113,10 +118,25 @@ export default function MyPage() {
     };
   }, [refreshTick]);
 
+  // ✅ report 목록에서 roomId 옵션 뽑기
+  const roomOptions = useMemo(() => {
+    const ids = Array.from(
+      new Set(reports.map((r) => String(r.roomId)).filter(Boolean)),
+    );
+    ids.sort((a, b) => Number(a) - Number(b));
+    return ids;
+  }, [reports]);
+
   const contributionData = useMemo<ContributionData>(() => {
     const map: ContributionData = {};
 
-    for (const r of reports) {
+    // ✅ 방 필터 적용
+    const filteredReports =
+      selectedRoomId === "all"
+        ? reports
+        : reports.filter((r) => String(r.roomId) === selectedRoomId);
+
+    for (const r of filteredReports) {
       // ✅ 성공 로그는 잔디에서 제외 (기존에 저장된 성공도 숨김)
       if (isSuccessLog(r.display_name, r.error)) continue;
 
@@ -126,6 +146,7 @@ export default function MyPage() {
       if (!map[date]) map[date] = { count: 0, logs: [] };
       map[date].logs.push({
         id: String(r.id),
+        roomId: String(r.roomId),
         time,
         display_name: r.display_name,
         error: r.error,
@@ -140,7 +161,7 @@ export default function MyPage() {
     });
 
     return map;
-  }, [reports]);
+  }, [reports, selectedRoomId]);
 
   useEffect(() => {
     const bump = () => setRefreshTick((v) => v + 1);
@@ -192,6 +213,26 @@ export default function MyPage() {
 
       {/* 기여 그래프 섹션 */}
       <div className="bg-card rounded-xl border p-6">
+        {/* ✅ 방별 보기 */}
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <div className="text-sm text-muted-foreground">
+            방별로 보고 싶으면 선택하세요
+          </div>
+
+          <select
+            value={selectedRoomId}
+            onChange={(e) => setSelectedRoomId(e.target.value)}
+            className="h-9 px-3 rounded-md border bg-background text-sm"
+          >
+            <option value="all">전체 (참여한 모든 방)</option>
+            {roomOptions.map((id) => (
+              <option key={id} value={id}>
+                Room #{id}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* ✅ mock 대신 실제 data 주입 */}
         <ContributionGraph data={contributionData} />
       </div>
