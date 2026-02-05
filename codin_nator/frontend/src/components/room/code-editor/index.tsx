@@ -197,7 +197,7 @@ export default function CodeEditor({
         // 커서 맨 위로
         try {
           Transforms.select(editor, { path: [0, 0], offset: 0 });
-        } catch (e) {
+        } catch {
           // 무시
         }
       });
