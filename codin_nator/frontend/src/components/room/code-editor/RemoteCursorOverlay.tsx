@@ -4,7 +4,6 @@ import type {
   RemoteCursorOverlayProps,
   CursorCaretProps,
 } from "@/types/editor/cursor/types";
-import type { BaseRange } from "slate/dist/interfaces/range";
 
 /**
  * 원격 커서 오버레이
@@ -34,10 +33,7 @@ function CursorCaret({ cursor, editor }: CursorCaretProps) {
   const position = useMemo(() => {
     if (!cursor.selection) return null;
     try {
-      const domRange = ReactEditor.toDOMRange(
-        editor,
-        cursor.selection as BaseRange,
-      );
+      const domRange = ReactEditor.toDOMRange(editor, cursor.selection);
       const rect = domRange.getBoundingClientRect();
       const editorEl = ReactEditor.toDOMNode(
         editor,
@@ -58,16 +54,19 @@ function CursorCaret({ cursor, editor }: CursorCaretProps) {
 
   return (
     <div
-      className="absolute"
+      className="absolute transition-all duration-100"
       style={{ top: position.top, left: position.left }}
     >
+      {/* 사용자 이름 라벨 */}
       <div
-        className="absolute -top-6 left-0 px-2 py-0.5 rounded text-xs font-medium text-white whitespace-nowrap shadow-sm transform -translate-y-full"
+        className="absolute -top-6 left-0 px-2 py-0.5 rounded text-xs font-medium text-white whitespace-nowrap shadow-lg transform -translate-y-full"
         style={{ backgroundColor: cursor.color ?? "#111" }}
       >
         {cursor.name}
       </div>
+      {/* 커서 캐럿 */}
       <div
+        className="animate-pulse"
         style={{
           width: 2,
           height: 20,
@@ -84,19 +83,16 @@ function CursorCaret({ cursor, editor }: CursorCaretProps) {
 function SelectionHighlight({ cursor, editor }: CursorCaretProps) {
   const rects = useMemo(() => {
     if (!cursor.selection) return [];
+
+    const selection = cursor.selection;
+
     // collapsed selection(=캐럿만 있는 경우)은 하이라이트하지 않음
-    if (
-      (cursor.selection as import("slate").Range).anchor &&
-      (cursor.selection as import("slate").Range).focus &&
-      (cursor.selection as import("slate").Range).anchor ===
-        (cursor.selection as import("slate").Range).focus
-    )
+    if (selection.anchor && selection.focus && selection.anchor === selection.focus) {
       return [];
+    }
+
     try {
-      const domRange = ReactEditor.toDOMRange(
-        editor,
-        cursor.selection as import("slate").Range,
-      );
+      const domRange = ReactEditor.toDOMRange(editor, selection);
       const clientRects = Array.from(domRange.getClientRects());
       const editorEl = ReactEditor.toDOMNode(
         editor,

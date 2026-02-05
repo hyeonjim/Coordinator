@@ -18,6 +18,7 @@ import Codeeditoractions from "@/components/ai/Codeeditoractions";
 import RemoteCursorOverlay from "./RemoteCursorOverlay";
 import useRemoteCursors from "./useRemoteCursors";
 import { getUserColor } from "./colorAssignment";
+import type { SlateYjsEditor } from "@/types/editor/cursor/types";
 
 interface CodeEditorProps {
   roomId: number;
@@ -83,7 +84,7 @@ export default function CodeEditor({
     return withCursors(
       withYHistory(withYjs(withReact(createEditor()), yjsSharedXmlText)),
       provider.awareness,
-    );
+    ) as SlateYjsEditor;
   }, [provider, yjsSharedXmlText]);
 
   const initialValue: Descendant[] = useMemo(
@@ -92,7 +93,6 @@ export default function CodeEditor({
   );
 
   const [currentCode, setCurrentCode] = useState("");
-  const [localSelection, setLocalSelection] = useState<Range | null>(null);
 
   const localUserData =
     userId && userName
@@ -103,11 +103,9 @@ export default function CodeEditor({
           imageUrl: userImageUrl,
         }
       : undefined;
-  const remoteCursors = useRemoteCursors(
-    editor as any,
-    localUserData,
-    localSelection,
-  );
+
+  // 본인을 포함한 모든 사용자 커서 표시
+  const remoteCursors = useRemoteCursors(editor, localUserData, true);
 
   /* =========================
      🔌 Yjs connect / cleanup
@@ -284,9 +282,23 @@ export default function CodeEditor({
             const text = value.map((n) => Node.string(n)).join("\n");
             setCurrentCode(text);
             onChange?.(text);
+
+            // selection 변경을 awareness에 실시간 업데이트
             try {
-              setLocalSelection(editor.selection as Range | null);
-            } catch {}
+              const sel = editor.selection;
+              if (sel) {
+                // @slate-yjs/core가 자동으로 awareness에 selection을 동기화
+                // 추가적인 awareness 업데이트 트리거
+                provider.awareness.setLocalStateField("user", {
+                  userId: userId ?? "local",
+                  name: userName ?? "You",
+                  color: userId ? getUserColor(userId) : "#6366f1",
+                  imageUrl: userImageUrl,
+                });
+              }
+            } catch (e) {
+              console.debug("[CodeEditor] selection update failed", e);
+            }
           }}
         >
           <Editable

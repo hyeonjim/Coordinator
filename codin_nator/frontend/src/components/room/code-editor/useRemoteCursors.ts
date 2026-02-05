@@ -1,42 +1,63 @@
 /**
  * 원격 커서 Hook
  * - Yjs awareness에서 다른 사용자의 커서 상태를 읽어 React 상태로 변환합니다.
- * - @slate-yjs/core의 CursorEditor API를 사용합니다.
+ * - @slate-yjs/core의 CursorEditor API와 Awareness 이벤트를 사용합니다.
  */
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { CursorEditor, relativeRangeToSlateRange } from "@slate-yjs/core";
 import type { Node } from "slate";
-import type { CursorUserData, RemoteCursor } from "@/types/editor/cursor/types";
+import type {
+  CursorUserData,
+  RemoteCursor,
+  SlateYjsEditor,
+  AwarenessCursorState,
+} from "@/types/editor/cursor/types";
+import type { Awareness } from "y-protocols/awareness";
 
+/**
+ * 원격 커서 훅
+ * @param editor - Slate+Yjs 에디터 인스턴스
+ * @param localUserData - 로컬 사용자 정보
+ * @param includeLocal - 본인 커서를 포함할지 여부 (기본값: false)
+ */
 export function useRemoteCursors(
-  editor: CursorEditor,
+  editor: SlateYjsEditor,
   localUserData?: CursorUserData,
-  localSelection?: import("slate").Range | null,
+  includeLocal = false,
 ) {
   const [cursors, setCursors] = useState<RemoteCursor[]>([]);
 
-  const localSelectionRef = useRef(localSelection);
-  const localUserDataRef = useRef(localUserData);
-
   useEffect(() => {
-    localSelectionRef.current = localSelection;
-    localUserDataRef.current = localUserData;
-  }, [localSelection, localUserData]);
+    const awareness = (editor as SlateYjsEditor & { awareness?: Awareness })
+      .awareness;
+    if (!awareness) {
+      console.warn("[useRemoteCursors] awareness not available");
+      return;
+    }
 
-  useEffect(() => {
-    const handle = () => {
+    const updateCursors = () => {
       // CursorEditor.cursorStates()로부터 모든 클라이언트 상태를 읽어옵니다.
-      let states: Record<string, any> = {};
+      let states: Record<string, AwarenessCursorState> = {};
       try {
-        states = CursorEditor.cursorStates(editor) as any;
+        states = CursorEditor.cursorStates(
+          editor,
+        ) as unknown as Record<string, AwarenessCursorState>;
       } catch (e) {
         console.debug("[useRemoteCursors] cursorStates failed", e);
+        return;
       }
 
+      const localClientId = awareness.clientID;
       const remote: RemoteCursor[] = [];
 
       for (const [clientIdStr, state] of Object.entries(states)) {
         if (!state || !state.data) continue;
+
+        const clientId = state.clientId ?? parseInt(clientIdStr, 10);
+
+        // 로컬 사용자 제외 (includeLocal이 true가 아닌 경우)
+        if (!includeLocal && clientId === localClientId) continue;
+
         // awareness에 저장된 user data (CursorUserData 구조)를 사용
         const data = state.data as CursorUserData;
 
@@ -57,7 +78,7 @@ export function useRemoteCursors(
         }
 
         remote.push({
-          clientId: state.clientId ?? parseInt(clientIdStr, 10),
+          clientId,
           userId: data.userId,
           name: data.name,
           color: data.color,
@@ -66,33 +87,32 @@ export function useRemoteCursors(
         });
       }
 
-      // 로컬 커서도 목록에 포함시켜서 본인도 오버레이로 볼 수 있게 함
-      const local = localUserDataRef.current;
-      const localSel = localSelectionRef.current;
-      if (local && localSel) {
-        remote.push({
-          clientId: -1,
-          userId: local.userId,
-          name: local.name,
-          color: local.color,
-          imageUrl: local.imageUrl,
-          selection: localSel,
-        });
-      }
-
       setCursors(remote);
     };
 
-    CursorEditor.on(editor, "change", handle);
-    // initial load
-    handle();
+    // Awareness 이벤트 구독 - 실시간 업데이트 감지
+    const handleAwarenessChange = () => {
+      updateCursors();
+    };
+
+    // CursorEditor 변경 이벤트
+    CursorEditor.on(editor, "change", updateCursors);
+
+    // Awareness 업데이트 이벤트
+    awareness.on("change", handleAwarenessChange);
+
+    // 초기 로드
+    updateCursors();
 
     return () => {
       try {
-        CursorEditor.off(editor, "change", handle);
-      } catch {}
+        CursorEditor.off(editor, "change", updateCursors);
+        awareness.off("change", handleAwarenessChange);
+      } catch (e) {
+        console.debug("[useRemoteCursors] cleanup failed", e);
+      }
     };
-  }, [editor]);
+  }, [editor, includeLocal]);
 
   return cursors;
 }
