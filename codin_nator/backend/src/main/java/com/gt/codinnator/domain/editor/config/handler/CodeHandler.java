@@ -1,5 +1,7 @@
 package com.gt.codinnator.domain.editor.config.handler;
 
+import com.gt.codinnator.domain.editor.service.CodeService;
+import com.gt.codinnator.domain.git.dto.ChangeFileDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -11,6 +13,8 @@ import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,6 +27,7 @@ public class CodeHandler extends BinaryWebSocketHandler {
     private final Map<String, Set<WebSocketSession>> roomAttendees = new ConcurrentHashMap<>();
     // 각 room의 마지막 상태 저장
     private final Map<String, byte[]> roomStates = new ConcurrentHashMap<>();
+    private final CodeService codeService;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -48,10 +53,11 @@ public class CodeHandler extends BinaryWebSocketHandler {
 
         // 새 클라이언트에게 기존 상태 전송
         byte[] savedState = roomStates.get(roomKey);
-        if (savedState != null && savedState.length > 0) {
+        if (savedState != null && savedState.length > 0 && !session.getAttributes().containsKey("sentState")) {
             try {
                 synchronized (session) {
                     session.sendMessage(new BinaryMessage(savedState));
+                    session.getAttributes().put("sentState", true); // 상태 전송
                 }
             } catch (IOException e) {
                 log.warn("기존 상태 전송 실패: {}", session.getId());
@@ -93,23 +99,60 @@ public class CodeHandler extends BinaryWebSocketHandler {
         }
     }
 
-    @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        String roomKey = (String) session.getAttributes().get("roomKey");
-        byte[] saveState = roomStates.get(roomKey);
+//    @Override
+//    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+//        String roomKey = (String) session.getAttributes().get("roomKey");
+//        byte[] saveState = roomStates.get(roomKey);
+//
+//        if(saveState != null){
+//            String content = new String(saveState);
+//            log.info("이제까지 작성된 코드 :{}, 길이 : {}", content, saveState.length);
+//            try{
+//                synchronized (session) {
+//                    session.sendMessage(new BinaryMessage(saveState));
+//                }
+//            } catch (IOException e) {
+//                log.error("전송 실패");
+//                throw new RuntimeException(e);
+//            }
+//        }
+//        log.info("Client Disconnected: RoomKey={}, SessionID={}", roomKey, session.getId());
+//    }
+@Override
+public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+    String roomKey = (String) session.getAttributes().get("roomKey");
+    if (roomKey == null) return;
 
-        if(saveState != null){
-            String content = new String(saveState);
-            log.info("이제까지 작성된 코드 :{}, 길이 : {}", content, saveState.length);
-            try{
-                synchronized (session) {
-                    session.sendMessage(new BinaryMessage(saveState));
+    Set<WebSocketSession> attendees = roomAttendees.get(roomKey);
+    if (attendees != null) {
+        attendees.remove(session); // 현재 세션 제거
+
+        // 방에 남은 사람이 없을 때만 하드디스크 저장 실행
+        if (attendees.isEmpty()) {
+            byte[] lastState = roomStates.get(roomKey);
+            if (lastState != null && lastState.length > 0) {
+                try {
+                    // 1. roomKey(roomId:fileId) 분리
+                    String[] parts = roomKey.split(":");
+                    Long roomId = Long.parseLong(parts[0]);
+                    Long fileId = Long.parseLong(parts[1]);
+                    String content = new String(lastState, StandardCharsets.UTF_8);
+
+                    // 2. DTO 생성 및 저장 메서드 호출
+                    ChangeFileDto dto = new ChangeFileDto(fileId, content);
+                    codeService.saveChangeFiles(roomId, List.of(dto));
+
+                    log.info("파일 자동 저장 완료: RoomKey={}", roomKey);
+
+                    // 3. 메모리 정리 (선택)
+                    roomStates.remove(roomKey);
+                    roomAttendees.remove(roomKey);
+                } catch (Exception e) {
+                    log.error("자동 저장 중 오류 발생: {}", e.getMessage());
                 }
-            } catch (IOException e) {
-                log.error("전송 실패");
-                throw new RuntimeException(e);
             }
         }
-        log.info("Client Disconnected: RoomKey={}, SessionID={}", roomKey, session.getId());
     }
+    log.info("Client Disconnected: SessionID={}", session.getId());
+}
 }
