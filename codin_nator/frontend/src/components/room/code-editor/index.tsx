@@ -104,8 +104,8 @@ export default function CodeEditor({
         }
       : undefined;
 
-  // 다른 사용자의 커서만 표시 (본인 제외)
-  const remoteCursors = useRemoteCursors(editor, localUserData, false);
+  // 본인을 포함한 모든 사용자 커서 표시
+  const remoteCursors = useRemoteCursors(editor, localUserData, true);
 
   /* =========================
      🔌 Yjs connect / cleanup
@@ -279,22 +279,26 @@ export default function CodeEditor({
           editor={editor}
           initialValue={initialValue}
           onChange={(value) => {
+            const text = value.map((n) => Node.string(n)).join("\n");
+            setCurrentCode(text);
+            onChange?.(text);
+
+            // selection 변경을 awareness에 실시간 업데이트
             try {
-              const text = value
-                .map((n) => {
-                  try {
-                    return Node.string(n);
-                  } catch (e) {
-                    return "";
-                  }
-                })
-                .join("\n");
-              setCurrentCode(text);
-              onChange?.(text);
+              const sel = editor.selection;
+              if (sel) {
+                // @slate-yjs/core가 자동으로 awareness에 selection을 동기화
+                // 추가적인 awareness 업데이트 트리거
+                provider.awareness.setLocalStateField("user", {
+                  userId: userId ?? "local",
+                  name: userName ?? "You",
+                  color: userId ? getUserColor(userId) : "#6366f1",
+                  imageUrl: userImageUrl,
+                });
+              }
             } catch (e) {
-              console.debug("[CodeEditor] onChange failed", e);
+              console.debug("[CodeEditor] selection update failed", e);
             }
-            // withCursors가 자동으로 selection을 awareness에 동기화합니다
           }}
         >
           <Editable
