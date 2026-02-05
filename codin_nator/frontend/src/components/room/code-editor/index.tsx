@@ -38,7 +38,6 @@ export default function CodeEditor({
   onTestGenerated,
   onAppendTerminal,
 }: CodeEditorProps) {
-  const getClickCount = useFileClickStore((state) => state.getClickCount);
   /* =========================
      🔑 file 단위 room
      ========================= */
@@ -202,8 +201,6 @@ export default function CodeEditor({
         return;
       }
 
-      const count = getClickCount(fileName ?? "");
-      if (count > 0) return; // 이미 클릭된 파일이면 API 호출 안 함
       try {
         console.log("[CodeEditor] API seed 1회 실행", fileId);
 
