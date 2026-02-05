@@ -93,7 +93,6 @@ function ParticipantRow({
   imageUrl,
   micOn,
   isSpeaking,
-  isMe,
   isRemoteMuted,
   onToggle,
 }: ParticipantRowProps) {
@@ -115,16 +114,9 @@ function ParticipantRow({
           <Avatar name={name} imageUrl={imageUrl} />
         </div>
         <div className="flex flex-col min-w-0">
-          <div className="flex items-center gap-1">
-            <span className="truncate text-[14px] font-semibold text-slate-800 leading-tight">
-              {name}
-            </span>
-            {isMe && (
-              <span className="shrink-0 rounded-md bg-slate-100 px-1 py-0.5 text-[10px] font-bold text-slate-500 border border-slate-200">
-                host
-              </span>
-            )}
-          </div>
+          <span className="truncate text-[14px] font-semibold text-slate-800 leading-tight">
+            {name}
+          </span>
         </div>
       </div>
 

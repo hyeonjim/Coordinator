@@ -286,23 +286,16 @@ const FileViewer = ({
           </div>
         ) : (
           <div className="py-1">
-            {files.map((node) => {
-              // 이 파일을 보고 있는 사용자 찾기
-              const usersOnFile =
-                fileLocations.find((loc) => loc.fileId === node.fileId)
-                  ?.users || [];
-
-              return (
-                <FileTreeItem
-                  key={node.fileId}
-                  node={node}
-                  depth={0}
-                  selectedId={selectedId}
-                  onSelect={handleSelectFile}
-                  usersOnFile={usersOnFile}
-                />
-              );
-            })}
+            {files.map((node) => (
+              <FileTreeItem
+                key={node.fileId}
+                node={node}
+                depth={0}
+                selectedId={selectedId}
+                onSelect={handleSelectFile}
+                fileLocations={fileLocations}
+              />
+            ))}
           </div>
         )}
       </div>

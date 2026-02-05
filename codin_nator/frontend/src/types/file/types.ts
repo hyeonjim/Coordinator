@@ -124,5 +124,5 @@ export interface FileTreeItemProps {
   depth: number;
   selectedId: number | null;
   onSelect: (node: FileNode) => void;
-  usersOnFile?: FileViewerUser[]; // 이 파일을 보고 있는 사용자들
+  fileLocations: FileLocationState[]; // 모든 파일의 사용자 위치 정보
 }

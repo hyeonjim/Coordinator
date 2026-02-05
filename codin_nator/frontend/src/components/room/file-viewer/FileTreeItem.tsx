@@ -46,10 +46,14 @@ export const FileTreeItem = ({
   depth,
   selectedId,
   onSelect,
-  usersOnFile = [],
+  fileLocations,
 }: FileTreeItemPropsType) => {
   // 폴더의 열림/닫힘 상태를 관리합니다.
   const [isOpen, setIsOpen] = useState(false);
+
+  // 현재 노드의 fileId로 사용자 위치 정보를 찾습니다.
+  const usersOnFile = fileLocations.find((loc) => loc.fileId === node.fileId)
+    ?.users || [];
 
   // 깊이(depth)에 따라 왼쪽 여백을 계산하여 계층 구조를 시각적으로 표현합니다.
   const paddingLeft = depth * 12 + 10;
@@ -92,7 +96,7 @@ export const FileTreeItem = ({
             {usersOnFile.slice(0, 3).map((user, idx) => (
               <div
                 key={user.userId}
-                className="relative"
+                className="relative shrink-0"
                 style={{ marginLeft: idx > 0 ? "-2px" : "0" }}
                 title={user.userName}
               >
@@ -100,12 +104,17 @@ export const FileTreeItem = ({
                   <img
                     src={user.imageUrl}
                     alt={user.userName}
-                    className="w-6.5 h-6.5 rounded-full border border-[#1e1e1e] object-cover"
+                    className="rounded-full border border-[#1e1e1e] object-cover shrink-0"
+                    style={{ width: "26px", height: "26px" }}
                   />
                 ) : (
                   <div
-                    className="w-4 h-4 rounded-full border border-[#1e1e1e] flex items-center justify-center text-[8px] font-bold text-white"
-                    style={{ backgroundColor: user.color ?? "#6366f1" }}
+                    className="rounded-full border border-[#1e1e1e] flex items-center justify-center text-[8px] font-bold text-white shrink-0"
+                    style={{
+                      width: "16px",
+                      height: "16px",
+                      backgroundColor: user.color ?? "#6366f1",
+                    }}
                   >
                     {user.userName.charAt(0).toUpperCase()}
                   </div>
@@ -114,8 +123,8 @@ export const FileTreeItem = ({
             ))}
             {usersOnFile.length > 3 && (
               <div
-                className="w-4 h-4 rounded-full bg-[#3c3c3c] border border-[#1e1e1e] flex items-center justify-center text-[7px] text-[#cccccc]"
-                style={{ marginLeft: "-4px" }}
+                className="rounded-full bg-[#3c3c3c] border border-[#1e1e1e] flex items-center justify-center text-[7px] text-[#cccccc] shrink-0"
+                style={{ width: "16px", height: "16px", marginLeft: "-4px" }}
               >
                 +{usersOnFile.length - 3}
               </div>
@@ -161,7 +170,7 @@ export const FileTreeItem = ({
               depth={depth + 1}
               selectedId={selectedId}
               onSelect={onSelect}
-              usersOnFile={[]} // 하위 항목은 부모에서 전달받음
+              fileLocations={fileLocations}
             />
           ))}
         </div>
