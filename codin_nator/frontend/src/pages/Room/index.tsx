@@ -35,12 +35,10 @@ export default function RoomPage() {
   } | null>(null);
 
   // (기존 유지) 테스트 코드 상태 (나중에 저장/AI분석 등에 쓸 수 있음)
-  // const [generatedTestCode, setGeneratedTestCode] = useState<string | null>(
-  //   null,
-  // );
+  const [, setGeneratedTestCode] = useState<string | null>(null);
 
   // ✅ 누적 저장용(원하는 형태 그대로 유지)
-  // const [terminalText, setTerminalText] = useState<string>("");
+  const [, setTerminalText] = useState<string>("");
 
   // ✅ xterm에 "이번에 추가할 chunk"만 내려주기 위한 상태
   const [terminalChunk, setTerminalChunk] = useState<string>("");
@@ -219,6 +217,7 @@ export default function RoomPage() {
                 fileName={selectedFile.name}
                 onChange={setCurrentEditorCode}
                 // onTestGenerated={setGeneratedTestCode} // ✅ 기존 유지
+                onTestGenerated={(code) => setGeneratedTestCode(code)}
                 onAppendTerminal={appendTerminal} // ✅ 네 기능
               />
             ) : (

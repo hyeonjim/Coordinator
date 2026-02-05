@@ -46,7 +46,7 @@ function addHoursToTimeString(time: string, addHours: number): string {
   return `${String(newH).padStart(2, "0")}:${String(newM).padStart(2, "0")}`;
 }
 
-/** ✅ 해결 방법을 글머리표로 예쁘게 만들기 */
+/** ✅ 해결 방법을 글머리표로 예쁘게 만들기 (안전 버전) */
 function splitResolutionToBullets(text: string): string[] {
   const t = (text ?? "").replace(/\r\n/g, "\n").trim();
   if (!t) return [];
@@ -54,29 +54,42 @@ function splitResolutionToBullets(text: string): string[] {
   // 1) 줄바꿈이 있으면 줄 단위로
   let parts: string[] = t.includes("\n") ? t.split("\n") : [t];
 
-  // 2) 만약 한 줄인데 • 로 이어붙인 형태면 분리
+  // 2) 한 줄인데 • 로 이어붙인 형태면 분리
   if (parts.length === 1 && parts[0].includes("•")) {
     parts = parts[0].split("•");
   }
 
-  // 3) 만약 한 줄인데 "1) ... 2) ..." 같은 형태면 대충 쪼개기
-  if (parts.length === 1) {
+  // 3) 한 줄인데 "1) ... 2) ..." / "1. ... 2. ..." 형태면 분리
+  // ✅ 단, 문장이 '번호로 시작'할 때만 분리 (수식의 90) 같은 걸 번호로 오해하지 않게)
+  if (parts.length === 1 && /^\s*\d+[.)]\s+/.test(parts[0])) {
     const maybe = parts[0]
-      .split(/(?=\s*\d+[\.\)]\s+)/g)
-      .map((x) => x.trim())
+      .split(/\s*(?=\d+[.)]\s+)/g)
+      .map((x) => x.replace(/^\d+[.)]\s+/, "").trim())
       .filter(Boolean);
+
     if (maybe.length > 1) parts = maybe;
   }
 
-  return (
-    parts
-      .map((p) => p.trim())
-      .filter(Boolean)
-      // 앞에 붙은 번호/기호 제거
-      .map((p) => p.replace(/^(\d+[\.\)]\s*|[-*•]\s*)/, ""))
-      .map((p) => p.trim())
-      .filter(Boolean)
-  );
+  // 4) (fallback) 그래도 한 줄이면, "한국어 문장형"일 때만 마침표 기준 분리
+  // - OrderService.calculateFinalPrice 같은 식별자 '.'는 앞이 영문이라 잘 안 잘리게 함
+  if (parts.length === 1) {
+    const one = parts[0].trim();
+
+    // "한글(또는 ) ] ) + 마침표 + 공백" 패턴이 있을 때만 시도
+    const splitByPeriod = one
+      .split(/(?<=[가-힣)\]])\.\s+/g)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    if (splitByPeriod.length > 1) parts = splitByPeriod;
+  }
+
+  // 5) 정리: 공백 제거 + 앞에 붙은 번호/불릿 제거
+  return parts
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map((p) => p.replace(/^(?:\d+[.)]\s*|[-*•]\s*)/, "").trim())
+    .filter(Boolean);
 }
 
 export function ContributionGraph({ data }: ContributionGraphProps) {
@@ -389,7 +402,7 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
 
               <div>
                 <b>해결 방법</b>
-                {resolutionBullets.length > 1 ? (
+                {resolutionBullets.length > 0 ? (
                   <ul className="mt-2 list-disc pl-5 space-y-1 text-sm">
                     {resolutionBullets.map((b, i) => (
                       <li key={i} className="whitespace-pre-wrap">

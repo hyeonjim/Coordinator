@@ -445,9 +445,16 @@ def build_result_system_prompt() -> str:
         '  "resolution": string\n'
         "}\n"
         "Rules:\n"
-        "- display_name: 아주 짧은 제목(예: 'Database Connection Error', 'NullPointerException').\n"
+       "- display_name: 아주 짧은 제목(예: 'NullPointerException').\n"
         "- error: 핵심 원인 한 줄.\n"
         "- resolution: 바로 실행 가능한 해결 방법을 2~5문장으로.\n"
+        "- resolution: 반드시 2~5개의 불릿으로만 작성.\n"
+        "  * 각 줄은 정확히 '- ' 로 시작하고, 줄바꿈은 \\n만 사용.\n"
+        "  * 번호(예: '1.', '1)') 사용 금지.\n"
+        "  * '•', '*', '>' 같은 다른 불릿 기호도 금지. 오직 '- '만.\n"
+        "  * 숫자만 있는 줄(예: '0', '1') 절대 출력 금지.\n"
+        "  * 여러 문단/빈 줄 금지.\n"
+        "  * 멀티라인 코드블록 금지. 필요하면 한 줄짜리 예시만 포함.\n"
         "- If unknown, use 'UNKNOWN'.\n"
     )
 
@@ -468,6 +475,13 @@ def build_result_user_prompt(run_output: str) -> str:
     """
     return (
         "Analyze the following test run output and return the JSON.\n"
+        "IMPORTANT: 'resolution' must be ONLY bullet lines starting with '- ' (2~5 lines).\n"
+        "Example:\n"
+        "{\n"
+        '  "display_name": "NullPointerException",\n'
+        '  "error": "xxx에서 null을 처리하지 않아 예외 발생",\n'
+        '  "resolution": "- 입력값 null 체크를 추가하세요.\\n- 예외 메시지를 명확히 하세요.\\n- 해당 케이스 테스트를 추가하세요."\n'
+        "}\n"
         "----- RUN OUTPUT START -----\n"
         f"{run_output}\n"
         "----- RUN OUTPUT END -----\n"
@@ -495,6 +509,8 @@ async def retry_json_parsing(invalid_json: str) -> dict:
     fix_system = (
         "Fix the following into VALID JSON ONLY. "
         "No markdown. No extra text. Follow the schema exactly."
+        "In 'resolution', use ONLY '- ' bullet lines (2~5 lines) separated by \\n. "
+        "Do NOT use numbering or other bullet symbols."
     )
     
     # LLM에게 보정 요청
