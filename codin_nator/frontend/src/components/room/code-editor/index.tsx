@@ -15,6 +15,7 @@ import "prismjs/components/prism-java";
 import "prismjs/themes/prism-tomorrow.css";
 
 import Codeeditoractions from "@/components/ai/Codeeditoractions";
+import { useFileClickStore } from "@/stores/fileClick";
 
 interface CodeEditorProps {
   roomId: number;
@@ -190,6 +191,7 @@ export default function CodeEditor({
 
       // 🔒 이미 seed 했으면 종료
       if (metaMap.get("seeded")) return;
+      const getClickCount = useFileClickStore((state) => state.getClickCount);
 
       // 🔒 이미 Yjs에 내용 있으면 seed 금지
       const hasContent =
@@ -201,6 +203,8 @@ export default function CodeEditor({
         return;
       }
 
+      const count = getClickCount("AiTestReport.java"); // 예시: "AiTestReport.java" 파일 클릭 횟수 조회
+      if (count > 0) return; // 이미 클릭된 파일이면 API 호출 안 함
       try {
         console.log("[CodeEditor] API seed 1회 실행", fileId);
 
