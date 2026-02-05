@@ -99,60 +99,60 @@ public class CodeHandler extends BinaryWebSocketHandler {
         }
     }
 
-//    @Override
-//    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-//        String roomKey = (String) session.getAttributes().get("roomKey");
-//        byte[] saveState = roomStates.get(roomKey);
-//
-//        if(saveState != null){
-//            String content = new String(saveState);
-//            log.info("이제까지 작성된 코드 :{}, 길이 : {}", content, saveState.length);
-//            try{
-//                synchronized (session) {
-//                    session.sendMessage(new BinaryMessage(saveState));
-//                }
-//            } catch (IOException e) {
-//                log.error("전송 실패");
-//                throw new RuntimeException(e);
-//            }
-//        }
-//        log.info("Client Disconnected: RoomKey={}, SessionID={}", roomKey, session.getId());
-//    }
-@Override
-public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-    String roomKey = (String) session.getAttributes().get("roomKey");
-    if (roomKey == null) return;
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+        String roomKey = (String) session.getAttributes().get("roomKey");
+        byte[] saveState = roomStates.get(roomKey);
 
-    Set<WebSocketSession> attendees = roomAttendees.get(roomKey);
-    if (attendees != null) {
-        attendees.remove(session); // 현재 세션 제거
-
-        // 방에 남은 사람이 없을 때만 하드디스크 저장 실행
-        if (attendees.isEmpty()) {
-            byte[] lastState = roomStates.get(roomKey);
-            if (lastState != null && lastState.length > 0) {
-                try {
-                    // 1. roomKey(roomId:fileId) 분리
-                    String[] parts = roomKey.split(":");
-                    Long roomId = Long.parseLong(parts[0]);
-                    Long fileId = Long.parseLong(parts[1]);
-                    String content = new String(lastState, StandardCharsets.UTF_8);
-
-                    // 2. DTO 생성 및 저장 메서드 호출
-                    ChangeFileDto dto = new ChangeFileDto(fileId, content);
-                    codeService.saveChangeFiles(roomId, List.of(dto));
-
-                    log.info("파일 자동 저장 완료: RoomKey={}", roomKey);
-
-                    // 3. 메모리 정리 (선택)
-                    roomStates.remove(roomKey);
-                    roomAttendees.remove(roomKey);
-                } catch (Exception e) {
-                    log.error("자동 저장 중 오류 발생: {}", e.getMessage());
+        if(saveState != null){
+            String content = new String(saveState);
+            log.info("이제까지 작성된 코드 :{}, 길이 : {}", content, saveState.length);
+            try{
+                synchronized (session) {
+                    session.sendMessage(new BinaryMessage(saveState));
                 }
+            } catch (IOException e) {
+                log.error("전송 실패");
+                throw new RuntimeException(e);
             }
         }
+        log.info("Client Disconnected: RoomKey={}, SessionID={}", roomKey, session.getId());
     }
-    log.info("Client Disconnected: SessionID={}", session.getId());
-}
+//@Override
+//public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+//    String roomKey = (String) session.getAttributes().get("roomKey");
+//    if (roomKey == null) return;
+//
+//    Set<WebSocketSession> attendees = roomAttendees.get(roomKey);
+//    if (attendees != null) {
+//        attendees.remove(session); // 현재 세션 제거
+//
+//        // 방에 남은 사람이 없을 때만 하드디스크 저장 실행
+//        if (attendees.isEmpty()) {
+//            byte[] lastState = roomStates.get(roomKey);
+//            if (lastState != null && lastState.length > 0) {
+//                try {
+//                    // 1. roomKey(roomId:fileId) 분리
+//                    String[] parts = roomKey.split(":");
+//                    Long roomId = Long.parseLong(parts[0]);
+//                    Long fileId = Long.parseLong(parts[1]);
+//                    String content = new String(lastState, StandardCharsets.UTF_8);
+//
+//                    // 2. DTO 생성 및 저장 메서드 호출
+//                    ChangeFileDto dto = new ChangeFileDto(fileId, content);
+//                    codeService.saveChangeFiles(roomId, List.of(dto));
+//
+//                    log.info("파일 자동 저장 완료: RoomKey={}", roomKey);
+//
+//                    // 3. 메모리 정리 (선택)
+//                    roomStates.remove(roomKey);
+//                    roomAttendees.remove(roomKey);
+//                } catch (Exception e) {
+//                    log.error("자동 저장 중 오류 발생: {}", e.getMessage());
+//                }
+//            }
+//        }
+//    }
+//    log.info("Client Disconnected: SessionID={}", session.getId());
+//}
 }
