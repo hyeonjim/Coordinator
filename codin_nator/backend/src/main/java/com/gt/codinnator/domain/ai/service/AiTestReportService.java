@@ -2,6 +2,7 @@ package com.gt.codinnator.domain.ai.service;
 
 import com.gt.codinnator.domain.ai.entity.AiTestReport;
 import com.gt.codinnator.domain.ai.repository.AiTestReportRepository;
+import com.gt.codinnator.domain.room.repository.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import java.util.List;
 public class AiTestReportService {
 
     private final AiTestReportRepository aiTestReportRepository;
+    private final ParticipantRepository participantRepository;
 
     /**
      * 스택트레이스/로그가 너무 길면 DB 용량이 급격히 늘 수 있어서 제한.
@@ -48,9 +50,31 @@ public class AiTestReportService {
         return aiTestReportRepository.save(entity);
     }
 
+    /**
+     * (레거시) 본인이 생성한 report만 조회
+     */
     @Transactional(readOnly = true)
     public List<AiTestReport> getMyReports(Long userId) {
         return aiTestReportRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    }
+
+    /**
+     * ✅ 내가 "참여한 방" 기준으로 report 조회
+     * - 같은 방에서 다른 사람이 만든 report도 내 마이페이지에서 보이게 함
+     * - Participant 테이블에 등록된 roomId 목록을 기반으로 한번에 조회한다
+     */
+    @Transactional(readOnly = true)
+    public List<AiTestReport> getMyRoomReports(Long userId) {
+        List<Long> roomIds = participantRepository.findByUserId(userId).stream()
+                .map(p -> p.getRoomId())
+                .distinct()
+                .toList();
+
+        if (roomIds.isEmpty()) {
+            return List.of();
+        }
+
+        return aiTestReportRepository.findByRoomIdInOrderByCreatedAtDesc(roomIds);
     }
 
     private String trimStacktrace(String stacktrace) {

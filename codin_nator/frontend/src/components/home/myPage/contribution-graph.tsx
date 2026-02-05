@@ -3,6 +3,7 @@ import { ChevronDown, X } from "lucide-react";
 
 interface ErrorLog {
   id: string;
+  roomId?: string; // ✅ 방 번호(없으면 unknown)
   time: string; // "08:20" 같은 형태라고 가정
   display_name: string;
   error: string;
@@ -211,6 +212,37 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
     activeLog?.resolution ?? "",
   );
 
+  /**
+   * ✅ 선택된 날짜의 로그를 방(roomId)별로 묶어서 보여주기
+   * - "전체"일 때는 여기서 roomId 기준으로 구분해서 보여준다.
+   */
+  const roomGroupedLogs = useMemo(() => {
+    const buckets: Record<string, ErrorLog[]> = {};
+    for (const log of selectedLogs) {
+      const key = (log.roomId ?? "").trim() || "unknown";
+      if (!buckets[key]) buckets[key] = [];
+      buckets[key].push(log);
+    }
+
+    const entries = Object.entries(buckets).sort(([a], [b]) => {
+      if (a === "unknown" && b === "unknown") return 0;
+      if (a === "unknown") return 1;
+      if (b === "unknown") return -1;
+      return Number(a) - Number(b);
+    });
+
+    // 방 내부는 시간 내림차순
+    for (const [, logs] of entries) {
+      logs.sort((x, y) => y.time.localeCompare(x.time));
+    }
+
+    return entries;
+  }, [selectedLogs]);
+
+  // ✅ 방이 2개 이상 섞여 있을 때만 헤더(ROOM 섹션)를 보여주기
+  const shouldShowRoomHeader = true;
+  // const shouldShowRoomHeader = roomGroupedLogs.length > 1;
+
   return (
     <div className="space-y-4">
       {/* ===== 연도 탭 ===== */}
@@ -317,21 +349,37 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
                   해당 날짜에는 발생한 오류가 없습니다.
                 </div>
               ) : (
-                <ul className="space-y-2">
-                  {selectedLogs.map((log) => (
-                    <li
-                      key={log.id}
-                      onClick={() => setActiveLog(log)}
-                      className="cursor-pointer rounded border p-2 hover:bg-muted"
-                    >
-                      <div className="flex justify-between text-sm">
-                        <span>{log.display_name}</span>
-                        {/* ✅ 여기에서만 +9 */}
-                        <span>{addHoursToTimeString(log.time, 9)}</span>
-                      </div>
-                    </li>
+                <div className="space-y-4">
+                  {roomGroupedLogs.map(([roomId, logs]) => (
+                    <div key={roomId}>
+                      {shouldShowRoomHeader && (
+                        <div className="flex items-center justify-between px-1 text-sm font-medium text-muted-foreground">
+                          <span>
+                            🏠 Room #{roomId === "unknown" ? "?" : roomId}
+                          </span>
+                          <span>{logs.length}건</span>
+                        </div>
+                      )}
+
+                      <ul
+                        className={`${shouldShowRoomHeader ? "mt-2 " : ""}space-y-2`}
+                      >
+                        {logs.map((log) => (
+                          <li
+                            key={log.id}
+                            onClick={() => setActiveLog(log)}
+                            className="cursor-pointer rounded border p-2 hover:bg-muted"
+                          >
+                            <div className="flex justify-between text-sm">
+                              <span>{log.display_name}</span>
+                              <span>{addHoursToTimeString(log.time, 9)}</span>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
             </div>
           )}
@@ -343,7 +391,6 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
         <div
           className="fixed inset-0 z-50 bg-black/50 p-4 overflow-y-auto"
           onMouseDown={(e) => {
-            // ✅ 바깥 클릭하면 닫기
             if (e.target === e.currentTarget) setActiveLog(null);
           }}
         >
@@ -355,8 +402,8 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
                   {activeLog.display_name}
                 </h3>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {selectedDate} · {/* ✅ 여기에서도 +9 */}
-                  {addHoursToTimeString(activeLog.time, 9)}
+                  {selectedDate} · {addHoursToTimeString(activeLog.time, 9)}
+                  {activeLog.roomId ? ` · Room #${activeLog.roomId}` : ""}
                 </p>
               </div>
 
