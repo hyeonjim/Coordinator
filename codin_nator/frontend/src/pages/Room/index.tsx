@@ -220,6 +220,9 @@ export default function RoomPage() {
                 // onTestGenerated={setGeneratedTestCode} // ✅ 기존 유지
                 onTestGenerated={(code) => setGeneratedTestCode(code)}
                 onAppendTerminal={appendTerminal} // ✅ 네 기능
+                userId={userId}
+                userName={userName}
+                userImageUrl={userImageUrl}
               />
             ) : (
               <div className="flex items-center justify-center h-full text-[#858585]">
