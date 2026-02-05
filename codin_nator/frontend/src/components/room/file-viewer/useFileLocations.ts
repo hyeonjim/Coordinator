@@ -20,14 +20,6 @@ interface FileAwarenessData {
   currentFileId?: number; // 현재 보고 있는 파일 ID
 }
 
-/**
- * 파일 위치 추적 훅
- * @param roomId - 룸 ID
- * @param userId - 사용자 ID
- * @param userName - 사용자 이름
- * @param userImageUrl - 사용자 아바타 URL
- * @param userColor - 사용자 색상
- */
 export function useFileLocations(
   roomId: number,
   userId?: string,
@@ -36,7 +28,6 @@ export function useFileLocations(
   userColor?: string,
 ) {
   const [fileLocations, setFileLocations] = useState<FileLocationState[]>([]);
-  const [provider, setProvider] = useState<WebsocketProvider | null>(null);
   const [awareness, setAwareness] = useState<Awareness | null>(null);
 
   // Yjs provider 초기화
@@ -50,7 +41,6 @@ export function useFileLocations(
       connect: true,
     });
 
-    setProvider(wsProvider);
     setAwareness(wsProvider.awareness);
 
     // 로컬 사용자 정보 설정
