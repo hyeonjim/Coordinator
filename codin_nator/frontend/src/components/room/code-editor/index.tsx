@@ -183,41 +183,43 @@ export default function CodeEditor({
     [editor],
   );
   const metaMap = useMemo(() => yDocument.getMap<boolean>("meta"), [yDocument]);
-  /* =========================
-     ✅ 1) fileContent 우선
-     ========================= */
-  useEffect(() => {
-    if (typeof fileContent !== "string") return;
-    if (metaMap.get("seeded")) return;
-    seedFromText(fileContent);
-    metaMap.set("seeded", true);
-  }, [fileContent, seedFromText, metaMap]);
 
-  /* =========================
-     ✅ 2) Yjs 비어있을 때만 API seed
-     ========================= */
   useEffect(() => {
     const handleSync = async (synced: boolean) => {
       if (!synced) return;
+
+      // 🔒 이미 seed 했으면 종료
       if (metaMap.get("seeded")) return;
 
+      // 🔒 이미 Yjs에 내용 있으면 seed 금지
+      const hasContent =
+        yjsSharedXmlText.length > 0 &&
+        yjsSharedXmlText.toString().trim().length > 0;
+
+      if (hasContent) {
+        metaMap.set("seeded", true);
+        return;
+      }
+
       try {
+        console.log("[CodeEditor] API seed 1회 실행", fileId);
+
         const token = localStorage.getItem("access_token");
         const res = await axios.get(`/api/v1/room/${roomId}/${fileId}`, {
           responseType: "text",
           headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         });
 
-        seedFromText(String(res.data ?? ""));
+        seedFromText(res.data ?? "");
         metaMap.set("seeded", true);
       } catch (e) {
-        console.error("[CodeEditor] API seed 실패", e);
+        console.error("[CodeEditor] seed 실패", e);
       }
     };
 
     provider.once("sync", handleSync);
     return () => provider.off("sync", handleSync);
-  }, [provider, roomId, fileId, fileContent, seedFromText, metaMap]);
+  }, [provider, roomId, fileId, metaMap, seedFromText, yjsSharedXmlText]);
 
   /* =========================
      🖥 Render
