@@ -172,14 +172,16 @@ export default function CodeEditor({
     },
     [editor],
   );
-
+  const metaMap = useMemo(() => yDocument.getMap<boolean>("meta"), [yDocument]);
   /* =========================
      ✅ 1) fileContent 우선
      ========================= */
   useEffect(() => {
     if (typeof fileContent !== "string") return;
+    if (metaMap.get("seeded")) return;
     seedFromText(fileContent);
-  }, [fileContent, seedFromText]);
+    metaMap.set("seeded", true);
+  }, [fileContent, seedFromText, metaMap]);
 
   /* =========================
      ✅ 2) Yjs 비어있을 때만 API seed
@@ -189,7 +191,7 @@ export default function CodeEditor({
 
     const handleSync = async (synced: boolean) => {
       if (!synced) return;
-      if (yjsSharedXmlText.length > 0) return;
+      if (metaMap.get("seeded")) return;
 
       try {
         const token = localStorage.getItem("access_token");
@@ -199,6 +201,7 @@ export default function CodeEditor({
         });
 
         seedFromText(String(res.data ?? ""));
+        metaMap.set("seeded", true);
       } catch (e) {
         console.error("[CodeEditor] API seed 실패", e);
       }
@@ -206,7 +209,7 @@ export default function CodeEditor({
 
     provider.once("sync", handleSync);
     return () => provider.off("sync", handleSync);
-  }, [provider, roomId, fileId, fileContent, seedFromText, yjsSharedXmlText]);
+  }, [provider, roomId, fileId, fileContent, seedFromText, metaMap]);
 
   /* =========================
      🖥 Render
