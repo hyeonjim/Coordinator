@@ -48,10 +48,11 @@ public class CodeHandler extends BinaryWebSocketHandler {
 
         // 새 클라이언트에게 기존 상태 전송
         byte[] savedState = roomStates.get(roomKey);
-        if (savedState != null && savedState.length > 0) {
+        if (savedState != null && savedState.length > 0 && !session.getAttributes().containsKey("sentState")) {
             try {
                 synchronized (session) {
                     session.sendMessage(new BinaryMessage(savedState));
+                    session.getAttributes().put("sentState", true); // 상태 전송
                 }
             } catch (IOException e) {
                 log.warn("기존 상태 전송 실패: {}", session.getId());
