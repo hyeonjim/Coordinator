@@ -8,7 +8,7 @@ import FileViewer from "@/components/room/file-viewer";
 import { VoiceChat } from "@/components/room/chat/VoiceChat";
 import { TextChat } from "@/components/room/chat/TextChat";
 
-// 커스텀 훅 (✅ master 로직 유지)
+// 커스텀 훅
 import { useTextChatWebSocket } from "./hooks/useTextChatWebSocket";
 import { useVoiceChatWebSocket } from "./hooks/useVoiceChatWebSocket";
 import { useWebRTC } from "./hooks/useWebRTC";
@@ -19,7 +19,6 @@ import { useTextChatMessageHandler } from "./hooks/useTextChatMessageHandler";
 import { useVoiceChatMessageHandler } from "./hooks/useVoiceChatMessageHandler";
 
 // 연결 테스트용
-import { createTestHelpers } from "./utils/testHelpers";
 import { getSocketBaseUrl } from "@/utils/socketUtils";
 
 export default function RoomPage() {
@@ -175,12 +174,8 @@ export default function RoomPage() {
     navigate,
   });
 
-  // 테스트 헬퍼 (개발 환경만)
-  const testHelpers = import.meta.env.DEV
-    ? createTestHelpers({ addParticipant, setChatMessages, webRTC })
-    : undefined;
 
-  // 마이크 토글 (✅ master 유지)
+  // 마이크 토글
   const handleToggleMic = useCallback(async () => {
     await webRTC.toggleMic();
     voiceChatWebSocket.sendMessage({
@@ -204,7 +199,7 @@ export default function RoomPage() {
       <div className="flex-1 flex overflow-hidden">
         <aside className="w-64 flex flex-col">
           <div className="flex-1 overflow-auto">
-            {/* ✅ 사용자 정보 전달하여 실시간 위치 추적 */}
+            {/* 사용자 정보 전달하여 실시간 위치 추적 */}
             <FileViewer
               roomId={Number(currentRoomId)}
               onFileSelect={(fileId, content, fileName) => {
@@ -226,7 +221,6 @@ export default function RoomPage() {
                 onToggleMic={handleToggleMic}
                 onTogglePeerMute={webRTC.togglePeerMute}
                 isPeerMuted={webRTC.isPeerMuted}
-                testHelpers={testHelpers}
                 isWebSocketConnected={voiceChatWebSocket.isConnected}
               />
             </div>

@@ -4,7 +4,6 @@ import type {
   AvatarProps,
   ParticipantRowProps,
 } from "@/types/chat/voicetypes";
-import { DebugPanel } from "@/components/room/DebugPanel";
 
 /**
  * 마이크 아이콘 컴포넌트
@@ -174,8 +173,6 @@ export function VoiceChat({
   onToggleMic,
   onTogglePeerMute,
   isPeerMuted,
-  testHelpers,
-  isWebSocketConnected,
 }: VoiceChatProps) {
   return (
     <div className="rounded-xl flex flex-col h-full bg-white shadow-sm border border-slate-100">
@@ -212,17 +209,6 @@ export function VoiceChat({
           </div>
         )}
       </div>
-
-      {import.meta.env.DEV && testHelpers && (
-        <div className="border-t border-slate-100 p-2">
-          <DebugPanel
-            onTestUserJoin={testHelpers.simulateTestUserJoin}
-            onTestUserMessage={testHelpers.simulateTestUserMessage}
-            onSimulateAudio={testHelpers.simulateIncomingAudio}
-            isWebSocketConnected={isWebSocketConnected}
-          />
-        </div>
-      )}
     </div>
   );
 }

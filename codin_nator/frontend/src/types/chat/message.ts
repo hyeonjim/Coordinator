@@ -21,7 +21,7 @@ export interface ChatMessage {
 /**
  * 사이드바 탭 타입
  */
-export type TabType = "ai" | "chat";
+export type TabType = "chat";
 
 /**
  * 오른쪽 사이드바 상태

@@ -1,5 +1,5 @@
 /**
- * 텍스트 채팅 및 AI 기능 컴포넌트
+ * 텍스트 채팅 컴포넌트
  * - 스크롤 자동 이동 (useRef + scrollIntoView)
  */
 
@@ -77,14 +77,12 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 
 /**
  * 텍스트 채팅 컴포넌트
- * AI 기능 탭과 채팅 탭을 포함하며, 사이드바 토글 기능을 제공합니다.
+ * 사이드바 토글 기능을 제공합니다.
  */
 export function TextChat({
   messages,
   onSendMessage,
   disabled,
-  activeTab,
-  setActiveTab,
   isSidebarCollapsed,
   setIsSidebarCollapsed,
 }: TextChatProps) {
@@ -133,48 +131,10 @@ export function TextChat({
         `}
       >
         <aside className="h-full w-80 border-l border-slate-200 bg-white flex flex-col">
-          {/* 탭 헤더 */}
-          <div className="h-10 flex border-b border-slate-200">
-            <button
-              onClick={() => setActiveTab("ai")}
-              className={`flex-1 text-sm font-medium transition-colors ${
-                activeTab === "ai"
-                  ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50/20"
-                  : "text-slate-500 hover:bg-slate-50"
-              }`}
-            >
-              AI 기능
-            </button>
-            <button
-              onClick={() => setActiveTab("chat")}
-              className={`flex-1 text-sm font-medium transition-colors ${
-                activeTab === "chat"
-                  ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50/20"
-                  : "text-slate-500 hover:bg-slate-50"
-              }`}
-            >
-              채팅방
-            </button>
-          </div>
-
-          {/* 탭 컨텐츠 */}
+          {/* 텍스트 채팅 */}
           <div className="flex-1 overflow-hidden flex flex-col relative">
-            {activeTab === "ai" ? (
-              /* AI 어시스턴트 탭 */
-              <div className="absolute inset-0 p-4 bg-slate-50 flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4">
-                  <span className="text-3xl">✨</span>
-                </div>
-                <h3 className="text-slate-900 font-bold mb-1">AI Assistant</h3>
-                <p className="text-slate-500 text-sm">
-                  안녕하세요! 코드에 대해 질문하거나,
-                  <br />
-                  테스트 코드 생성을 요청해주세요.
-                </p>
-              </div>
-            ) : (
-              /* 텍스트 채팅 탭 */
-              <div className="absolute inset-0 flex flex-col bg-white">
+            {/* 텍스트 채팅 탭 */}
+            <div className="absolute inset-0 flex flex-col bg-white">
                 {/* 메시지 목록 */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-3">
                   {messages.map((msg) => (
@@ -220,7 +180,6 @@ export function TextChat({
                   </div>
                 </form>
               </div>
-            )}
           </div>
         </aside>
       </div>
