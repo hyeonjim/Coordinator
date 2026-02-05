@@ -197,8 +197,6 @@ export default function CodeEditor({
      ✅ 2) Yjs 비어있을 때만 API seed
      ========================= */
   useEffect(() => {
-    if (typeof fileContent === "string") return;
-
     const handleSync = async (synced: boolean) => {
       if (!synced) return;
       if (metaMap.get("seeded")) return;
