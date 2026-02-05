@@ -33,7 +33,6 @@ export default function CodeEditor({
   roomId,
   fileId,
   fileName,
-  fileContent,
   onChange,
   onTestGenerated,
   onAppendTerminal,
