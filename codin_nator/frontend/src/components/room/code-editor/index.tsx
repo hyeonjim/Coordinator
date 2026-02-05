@@ -15,7 +15,6 @@ import "prismjs/components/prism-java";
 import "prismjs/themes/prism-tomorrow.css";
 
 import Codeeditoractions from "@/components/ai/Codeeditoractions";
-import { useFileClickStore } from "@/stores/fileClick";
 
 interface CodeEditorProps {
   roomId: number;

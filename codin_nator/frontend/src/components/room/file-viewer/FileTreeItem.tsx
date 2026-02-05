@@ -17,7 +17,6 @@ import {
   VscFolderOpened,
 } from "react-icons/vsc";
 import type { FileNode } from "@/types/file/types";
-import { useFileClickStore } from "@/stores/fileClick";
 
 // 파일 확장자에 맞는 아이콘을 반환하는 헬퍼 함수입니다.
 // 별도의 유틸 파일로 분리하지 않고 직관적으로 찾을 수 있도록 여기에 배치했습니다.
