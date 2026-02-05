@@ -166,16 +166,20 @@ export default function CodeEditor({
      ========================= */
   const seedFromText = useCallback(
     (text: string) => {
+      // 텍스트가 비어있을 경우 빈 노드를 추가하지 않도록 합니다.
       const lines = String(text ?? "").split(/\r?\n/);
       const nodes = (lines.length ? lines : [""]).map((line) => ({
         type: "paragraph" as const,
         children: [{ text: line }],
       }));
 
+      // 편집기의 상태가 정리된 후에만 노드를 삽입
       Editor.withoutNormalizing(editor, () => {
         for (let i = editor.children.length - 1; i >= 0; i--) {
+          // 기존 노드 삭제
           Transforms.removeNodes(editor, { at: [i] });
         }
+        // 새로운 노드 삽입
         Transforms.insertNodes(editor, nodes, { at: [0] });
       });
     },
