@@ -32,6 +32,10 @@ export default function RemoteCursorOverlay({
 function CursorCaret({ cursor, editor }: CursorCaretProps) {
   const position = useMemo(() => {
     if (!cursor.selection) return null;
+
+    // 에디터가 비어있는지 확인
+    if (!editor.children || editor.children.length === 0) return null;
+
     try {
       const domRange = ReactEditor.toDOMRange(editor, cursor.selection);
       const rect = domRange.getBoundingClientRect();
@@ -46,6 +50,7 @@ function CursorCaret({ cursor, editor }: CursorCaretProps) {
         left: rect.left - editorRect.left,
       };
     } catch (e) {
+      console.debug("[CursorCaret] Failed to calculate position", e);
       return null;
     }
   }, [cursor.selection, editor]);
@@ -84,6 +89,9 @@ function SelectionHighlight({ cursor, editor }: CursorCaretProps) {
   const rects = useMemo(() => {
     if (!cursor.selection) return [];
 
+    // 에디터가 비어있는지 확인
+    if (!editor.children || editor.children.length === 0) return [];
+
     const selection = cursor.selection;
 
     // collapsed selection(=캐럿만 있는 경우)은 하이라이트하지 않음
@@ -107,6 +115,7 @@ function SelectionHighlight({ cursor, editor }: CursorCaretProps) {
         height: rect.height,
       }));
     } catch (e) {
+      console.debug("[SelectionHighlight] Failed to calculate rects", e);
       return [];
     }
   }, [cursor.selection, editor]);
