@@ -48,13 +48,23 @@ export default function CodeEditor({
      ========================= */
   const yDocument = useMemo(() => new Y.Doc(), [fileId]);
 
-  const provider = useMemo(
-    () =>
-      new WebsocketProvider(WS_BASE_URL, roomName, yDocument, {
-        connect: true,
-      }),
-    [roomName, yDocument],
-  );
+  const provider = useMemo(() => {
+    return new WebsocketProvider(WS_BASE_URL, roomName, yDocument, {
+      connect: true,
+    });
+  }, [roomName, yDocument]);
+  useEffect(() => {
+    const handleStatus = (event: any) => {
+      if (event.status === "connected") {
+        console.log("WebSocket 연결됨");
+      }
+    };
+
+    provider.on("status", handleStatus);
+    return () => {
+      provider.off("status", handleStatus);
+    };
+  }, [provider]);
 
   const yjsSharedXmlText = useMemo(
     () => yDocument.get("slate", Y.XmlText),
