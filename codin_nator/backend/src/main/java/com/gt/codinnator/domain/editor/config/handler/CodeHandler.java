@@ -27,12 +27,16 @@ public class CodeHandler extends BinaryWebSocketHandler {
     private final Map<String, Set<WebSocketSession>> roomAttendees = new ConcurrentHashMap<>();
     // 각 room의 마지막 상태 저장
     private final Map<String, byte[]> roomStates = new ConcurrentHashMap<>();
+    // ✅ NEW: 각 room의 초기 동기화 완료 여부 추적
+    private final Map<String, Boolean> roomInitialized = new ConcurrentHashMap<>();
+    // ✅ NEW: 세션별 초기 상태 전송 여부 추적
+    private final Map<String, Boolean> sessionStateReceived = new ConcurrentHashMap<>();
+
     private final CodeService codeService;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         URI uri = session.getUri();
-
         String path = uri.getPath();
         String[] segments = path.split("/");
 
@@ -44,23 +48,30 @@ public class CodeHandler extends BinaryWebSocketHandler {
 
         String roomId = segments[3];
         String fileId = segments[4];
-        String roomKey = roomId+":"+fileId;
+        String roomKey = roomId + ":" + fileId;
+        String sessionKey = roomKey + ":" + session.getId();
 
         session.getAttributes().put("roomKey", roomKey);
         roomAttendees.computeIfAbsent(roomKey, k -> ConcurrentHashMap.newKeySet()).add(session);
 
-        log.info("Client Connected: RoomKey={}, SessionID={}, 현재 총인원 : {}명", roomKey, session.getId(), roomAttendees.get(roomKey).size());
+        log.info("Client Connected: RoomKey={}, SessionID={}, 현재 총인원: {}명",
+                roomKey, session.getId(), roomAttendees.get(roomKey).size());
 
-        // 새 클라이언트에게 기존 상태 전송
+        // ✅ CHANGED: 초기화된 방에만 상태 전송 (Yjs 동기화 담당)
+        // 백엔드는 마지막 저장 상태만 보관하고,
+        // 신규 클라이언트의 상태 초기화는 API 또는 프론트엔드의 seedFromText()에 맡김
         byte[] savedState = roomStates.get(roomKey);
-        if (savedState != null && savedState.length > 0 && !session.getAttributes().containsKey("sentState")) {
-            try {
-                synchronized (session) {
-                    session.sendMessage(new BinaryMessage(savedState));
-                    session.getAttributes().put("sentState", true); // 상태 전송
+        if (savedState != null && savedState.length > 0) {
+            if (!sessionStateReceived.containsKey(sessionKey)) {
+                try {
+                    synchronized (session) {
+                        session.sendMessage(new BinaryMessage(savedState));
+                        sessionStateReceived.put(sessionKey, true);
+                        log.info("초기 상태 전송: RoomKey={}, SessionID={}", roomKey, session.getId());
+                    }
+                } catch (IOException e) {
+                    log.warn("초기 상태 전송 실패: {}", session.getId());
                 }
-            } catch (IOException e) {
-                log.warn("기존 상태 전송 실패: {}", session.getId());
             }
         }
     }
@@ -76,20 +87,22 @@ public class CodeHandler extends BinaryWebSocketHandler {
         byte[] bytes = new byte[payload.remaining()];
         payload.get(bytes);
 
-        // 상태 저장
+        // ✅ CHANGED: 상태 저장 (Yjs에서 온 모든 변경사항 반영)
         roomStates.put(roomKey, bytes);
+        roomInitialized.put(roomKey, true);
 
-        // 모든 클라이언트에게 브로드캐스트
+        // ✅ CHANGED: 자신을 제외한 다른 클라이언트에게만 전송
         for (WebSocketSession attendee : attendees) {
+            // 자신을 제외
+            if (attendee.getId().equals(session.getId())) {
+                continue;
+            }
+
             if (attendee.isOpen()) {
                 try {
                     synchronized (attendee) {
-                        if (attendee.getId().equals(session.getId())) {
-                            continue; // 메시지를 보낸 본인에게는 다시 보내지 않음
-                        }
-                        log.info("메시지 전송: RoomKey={}, FromSessionID={}, ToSessionID={}",
+                        log.info("메시지 전송: RoomKey={}, From={}, To={}",
                                 roomKey, session.getId(), attendee.getId());
-
                         attendee.sendMessage(new BinaryMessage(bytes));
                     }
                 } catch (IOException e) {
@@ -102,57 +115,45 @@ public class CodeHandler extends BinaryWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         String roomKey = (String) session.getAttributes().get("roomKey");
-        byte[] saveState = roomStates.get(roomKey);
+        String sessionKey = roomKey + ":" + session.getId();
 
-        if(saveState != null){
-            String content = new String(saveState);
-            log.info("이제까지 작성된 코드 :{}, 길이 : {}", content, saveState.length);
-            try{
-                synchronized (session) {
-                    session.sendMessage(new BinaryMessage(saveState));
+        if (roomKey == null) return;
+
+        Set<WebSocketSession> attendees = roomAttendees.get(roomKey);
+        if (attendees != null) {
+            attendees.remove(session);
+
+            log.info("Client Disconnected: RoomKey={}, SessionID={}, 남은 인원: {}명",
+                    roomKey, session.getId(), attendees.size());
+
+            // ✅ CHANGED: 모든 사용자가 떠날 때만 저장
+            // 이렇게 하면 모든 사용자가 편집을 완료했을 때만 DB에 저장
+            if (attendees.isEmpty()) {
+                byte[] lastState = roomStates.get(roomKey);
+                if (lastState != null && lastState.length > 0) {
+                    try {
+                        String[] parts = roomKey.split(":");
+                        Long roomId = Long.parseLong(parts[0]);
+                        Long fileId = Long.parseLong(parts[1]);
+                        String content = new String(lastState, StandardCharsets.UTF_8);
+
+                        ChangeFileDto dto = new ChangeFileDto(fileId, content);
+                        codeService.saveChangeFiles(roomId, List.of(dto));
+
+                        log.info("파일 자동 저장 완료: RoomKey={}", roomKey);
+
+                        // 메모리 정리
+                        roomStates.remove(roomKey);
+                        roomAttendees.remove(roomKey);
+                        roomInitialized.remove(roomKey);
+                    } catch (Exception e) {
+                        log.error("자동 저장 중 오류 발생: {}", e.getMessage());
+                    }
                 }
-            } catch (IOException e) {
-                log.error("전송 실패");
-                throw new RuntimeException(e);
             }
         }
-        log.info("Client Disconnected: RoomKey={}, SessionID={}", roomKey, session.getId());
+
+        // 세션별 상태 정리
+        sessionStateReceived.remove(sessionKey);
     }
-//@Override
-//public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-//    String roomKey = (String) session.getAttributes().get("roomKey");
-//    if (roomKey == null) return;
-//
-//    Set<WebSocketSession> attendees = roomAttendees.get(roomKey);
-//    if (attendees != null) {
-//        attendees.remove(session); // 현재 세션 제거
-//
-//        // 방에 남은 사람이 없을 때만 하드디스크 저장 실행
-//        if (attendees.isEmpty()) {
-//            byte[] lastState = roomStates.get(roomKey);
-//            if (lastState != null && lastState.length > 0) {
-//                try {
-//                    // 1. roomKey(roomId:fileId) 분리
-//                    String[] parts = roomKey.split(":");
-//                    Long roomId = Long.parseLong(parts[0]);
-//                    Long fileId = Long.parseLong(parts[1]);
-//                    String content = new String(lastState, StandardCharsets.UTF_8);
-//
-//                    // 2. DTO 생성 및 저장 메서드 호출
-//                    ChangeFileDto dto = new ChangeFileDto(fileId, content);
-//                    codeService.saveChangeFiles(roomId, List.of(dto));
-//
-//                    log.info("파일 자동 저장 완료: RoomKey={}", roomKey);
-//
-//                    // 3. 메모리 정리 (선택)
-//                    roomStates.remove(roomKey);
-//                    roomAttendees.remove(roomKey);
-//                } catch (Exception e) {
-//                    log.error("자동 저장 중 오류 발생: {}", e.getMessage());
-//                }
-//            }
-//        }
-//    }
-//    log.info("Client Disconnected: SessionID={}", session.getId());
-//}
 }
