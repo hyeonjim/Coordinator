@@ -40,7 +40,8 @@ export default function RoomPage() {
   // ✅ 누적 저장용(원하는 형태 그대로 유지)
   const [, setTerminalText] = useState<string>("");
 
-  // ✅ xterm에 "이번에 추가할 chunk"만 내려주기 위한 상태
+  // ✅ xterm에 "이번에 추가할 chunk
+  // "만 내려주기 위한 상태
   const [terminalChunk, setTerminalChunk] = useState<string>("");
 
   /**
@@ -51,10 +52,10 @@ export default function RoomPage() {
   const appendTerminal = useCallback((title: string, text: string) => {
     const block = `===== ${title} =====\n${text}\n`;
 
-    // setTerminalText((prev) => {
-    //   const base = prev.trimEnd();
-    //   return base ? `${base}\n\n${block}` : block;
-    // });
+    setTerminalText((prev) => {
+      const base = prev.trimEnd();
+      return base ? `${base}\n\n${block}` : block;
+    });
 
     // ✅ xterm에는 새로 추가된 block만 흘려보냄
     setTerminalChunk(block);
@@ -186,7 +187,7 @@ export default function RoomPage() {
               onFileSelect={(fileId, content, fileName) => {
                 setSelectedFile({ id: fileId, content, name: fileName });
                 // 필요하면 여기서 terminalText 초기화도 가능
-                // setTerminalText("");
+                setTerminalText("");
               }}
             />
           </div>
