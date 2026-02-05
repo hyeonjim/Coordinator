@@ -16,7 +16,7 @@ import {
   VscFolder,
   VscFolderOpened,
 } from "react-icons/vsc";
-import type { FileNode } from "@/types/file/types";
+import type { FileNode, FileTreeItemProps as FileTreeItemPropsType } from "@/types/file/types";
 
 // 파일 확장자에 맞는 아이콘을 반환하는 헬퍼 함수입니다.
 // 별도의 유틸 파일로 분리하지 않고 직관적으로 찾을 수 있도록 여기에 배치했습니다.
@@ -39,13 +39,6 @@ const getFileIcon = (filename: string) => {
   return <VscFile className="text-gray-400" />;
 };
 
-interface FileTreeItemProps {
-  node: FileNode;
-  depth: number;
-  selectedId: number | null;
-  onSelect: (node: FileNode) => void;
-}
-
 // 개별 파일 또는 폴더를 렌더링하는 컴포넌트입니다.
 // 폴더일 경우 재귀적으로 자기 자신을 호출하여 하위 항목을 표시합니다.
 export const FileTreeItem = ({
@@ -53,7 +46,8 @@ export const FileTreeItem = ({
   depth,
   selectedId,
   onSelect,
-}: FileTreeItemProps) => {
+  usersOnFile = [],
+}: FileTreeItemPropsType) => {
   // 폴더의 열림/닫힘 상태를 관리합니다.
   const [isOpen, setIsOpen] = useState(false);
 
@@ -82,7 +76,7 @@ export const FileTreeItem = ({
       <div
         onClick={handleClick}
         className={`
-          group flex items-center py-[3px] cursor-pointer select-none text-[13px] h-[26px] 
+          group flex items-center py-[3px] cursor-pointer select-none text-[13px] h-[30px]
           transition-colors duration-100
           ${
             isSelected
@@ -92,6 +86,48 @@ export const FileTreeItem = ({
         `}
         style={{ paddingLeft: `${paddingLeft}px` }}
       >
+        {/* 파일을 보고 있는 사용자 아바타 표시 (파일일 때만, 왼쪽에 배치) */}
+        {node.type === "FILE" && usersOnFile.length > 0 && (
+          <div className="flex items-center" style={{ marginRight: "-10px" }}>
+            {usersOnFile.slice(0, 3).map((user, idx) => (
+              <div
+                key={user.userId}
+                className="relative"
+                style={{ marginLeft: idx > 0 ? "-2px" : "0" }}
+                title={user.userName}
+              >
+                {user.imageUrl ? (
+                  <img
+                    src={user.imageUrl}
+                    alt={user.userName}
+                    className="w-6.5 h-6.5 rounded-full border border-[#1e1e1e] object-cover"
+                  />
+                ) : (
+                  <div
+                    className="w-4 h-4 rounded-full border border-[#1e1e1e] flex items-center justify-center text-[8px] font-bold text-white"
+                    style={{ backgroundColor: user.color ?? "#6366f1" }}
+                  >
+                    {user.userName.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
+            ))}
+            {usersOnFile.length > 3 && (
+              <div
+                className="w-4 h-4 rounded-full bg-[#3c3c3c] border border-[#1e1e1e] flex items-center justify-center text-[7px] text-[#cccccc]"
+                style={{ marginLeft: "-4px" }}
+              >
+                +{usersOnFile.length - 3}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 파일에 아바타가 없을 때만 간격 추가 */}
+        {node.type === "FILE" && usersOnFile.length === 0 && (
+          <span className="w-1" />
+        )}
+
         {/* 폴더 화살표 아이콘 (폴더일 때만 표시) */}
         <span className="mr-1 w-4 flex justify-center opacity-80">
           {node.type === "DIR" &&
@@ -112,19 +148,20 @@ export const FileTreeItem = ({
         </span>
 
         {/* 파일명 표시 */}
-        <span className="truncate leading-6">{node.name}</span>
+        <span className="truncate leading-6 flex-1">{node.name}</span>
       </div>
 
       {/* 폴더가 열려있고 자식이 있다면 재귀적으로 렌더링합니다. */}
       {node.type === "DIR" && isOpen && node.children && (
         <div>
-          {node.children.map((child) => (
+          {node.children.map((child: FileNode) => (
             <FileTreeItem
               key={child.fileId}
               node={child}
               depth={depth + 1}
               selectedId={selectedId}
               onSelect={onSelect}
+              usersOnFile={[]} // 하위 항목은 부모에서 전달받음
             />
           ))}
         </div>

@@ -204,7 +204,7 @@ export default function RoomPage() {
       <div className="flex-1 flex overflow-hidden">
         <aside className="w-64 flex flex-col">
           <div className="flex-1 overflow-auto">
-            {/* ✅ 중요: 3인자 콜백으로 전달해야 FileViewer가 content를 fetch해서 준다 */}
+            {/* ✅ 사용자 정보 전달하여 실시간 위치 추적 */}
             <FileViewer
               roomId={Number(currentRoomId)}
               onFileSelect={(fileId, content, fileName) => {
@@ -212,6 +212,9 @@ export default function RoomPage() {
                 // 필요하면 여기서 terminalText 초기화도 가능
                 setTerminalText("");
               }}
+              userId={userId}
+              userName={userName}
+              userImageUrl={userImageUrl}
             />
           </div>
 
