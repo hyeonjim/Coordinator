@@ -215,15 +215,9 @@ export default function CodeEditor({
     // 이미 seeded면 중복 금지
     if (metaMap.get("seeded") === true) return;
 
-    // 이미 yjs에 내용 있으면(다른 사람이 seed) 덮어쓰지 않음
-    if (yjsSharedXmlText.length > 0) {
-      metaMap.set("seeded", true);
-      return;
-    }
-
     seedFromText(fileContent);
     metaMap.set("seeded", true);
-  }, [fileContent, metaMap, seedFromText, yjsSharedXmlText]);
+  }, [fileContent, metaMap, seedFromText]);
 
   /* =========================
      ✅ 2) fileContent가 없을 때만: 기존 master처럼 sync 시점에 API fetch seed
@@ -235,12 +229,8 @@ export default function CodeEditor({
     const handleSync = async (isSynced: boolean) => {
       if (!isSynced) return;
 
+      // ✅ 여기서도 seeded만 본다
       if (metaMap.get("seeded") === true) return;
-
-      if (yjsSharedXmlText.length > 0) {
-        metaMap.set("seeded", true);
-        return;
-      }
 
       try {
         const accessToken = localStorage.getItem("access_token");
@@ -255,8 +245,8 @@ export default function CodeEditor({
 
         seedFromText(String(res.data ?? ""));
         metaMap.set("seeded", true);
-      } catch (error) {
-        console.error("[CodeEditor] seed(API) 실패:", error);
+      } catch (e) {
+        console.error("[CodeEditor] seed(API) 실패:", e);
       }
     };
 
