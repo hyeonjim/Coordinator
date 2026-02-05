@@ -9,23 +9,20 @@ import { withYjs, withYHistory, withCursors, YjsEditor } from "@slate-yjs/core";
 import Prism from "prismjs";
 import axios from "axios";
 
-/* Prism 언어 & 테마 */
+/* Prism */
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-java";
 import "prismjs/themes/prism-tomorrow.css";
 
-// ✅ 상단 액션바 분리 컴포넌트
 import Codeeditoractions from "@/components/ai/Codeeditoractions";
 
 interface CodeEditorProps {
   roomId: number;
   fileId: number;
-  fileContent?: string;
   fileName?: string;
+  fileContent?: string;
   onChange?: (code: string) => void;
   onTestGenerated?: (testCode: string) => void;
-
-  /** ✅ 터미널 누적 출력용(선택) */
   onAppendTerminal?: (title: string, text: string) => void;
 }
 
@@ -35,24 +32,21 @@ const WS_BASE_URL =
 export default function CodeEditor({
   roomId,
   fileId,
-  fileContent,
   fileName,
+  fileContent,
   onChange,
   onTestGenerated,
   onAppendTerminal,
 }: CodeEditorProps) {
+  /* =========================
+     🔑 file 단위 room
+     ========================= */
   const roomName = useMemo(() => `${roomId}/${fileId}`, [roomId, fileId]);
 
-  const initialValue: Descendant[] = useMemo(
-    () => [{ type: "paragraph", children: [{ text: "" }] }],
-    [],
-  );
-
-  const [currentCode, setCurrentCode] = useState("");
-
-  /* Yjs */
-  const yDocument = useMemo(() => new Y.Doc(), []);
-  const metaMap = useMemo(() => yDocument.getMap<boolean>("meta"), [yDocument]);
+  /* =========================
+     🔑 fileId 기준 Y.Doc 분리
+     ========================= */
+  const yDocument = useMemo(() => new Y.Doc(), [fileId]);
 
   const provider = useMemo(
     () =>
@@ -74,7 +68,16 @@ export default function CodeEditor({
     );
   }, [provider, yjsSharedXmlText]);
 
-  /* 연결 */
+  const initialValue: Descendant[] = useMemo(
+    () => [{ type: "paragraph", children: [{ text: "" }] }],
+    [],
+  );
+
+  const [currentCode, setCurrentCode] = useState("");
+
+  /* =========================
+     🔌 Yjs connect / cleanup
+     ========================= */
   useEffect(() => {
     provider.awareness.setLocalStateField("user", {
       name: "tester",
@@ -82,20 +85,16 @@ export default function CodeEditor({
     });
 
     YjsEditor.connect(editor);
+
     return () => {
       YjsEditor.disconnect(editor);
       provider.disconnect();
-    };
-  }, [editor, provider]);
-
-  useEffect(() => {
-    return () => {
       yDocument.destroy();
     };
-  }, [yDocument]);
+  }, [editor, provider, yDocument]);
 
   /* =========================
-     Prism Highlight
+     ✨ Prism Highlight
      ========================= */
   const decorate = useCallback(([node, path]: NodeEntry) => {
     if (!Text.isText(node)) return [];
@@ -104,11 +103,7 @@ export default function CodeEditor({
     const tokens = Prism.tokenize(node.text, grammar);
 
     let start = 0;
-    const ranges: {
-      anchor: { path: number[]; offset: number };
-      focus: { path: number[]; offset: number };
-      tokenType: string;
-    }[] = [];
+    const ranges: any[] = [];
 
     for (const token of tokens) {
       const length =
@@ -121,16 +116,13 @@ export default function CodeEditor({
           tokenType: token.type,
         });
       }
-
       start += length;
     }
-
     return ranges;
   }, []);
 
   const renderLeaf = useCallback((props: RenderLeafProps) => {
     const { attributes, children, leaf } = props;
-
     return (
       <span
         {...attributes}
@@ -141,28 +133,17 @@ export default function CodeEditor({
     );
   }, []);
 
-  /**
-   * ✅ FIX: useSlateStatic() 같은 Hook을 render 콜백 내부에서 쓰면
-   * 훅 규칙 위반으로 런타임 오류가 날 수 있음.
-   * -> 바깥 editor(ReactEditor 적용된)를 클로저로 사용.
-   */
   const renderElement = useCallback(
     (props: RenderElementProps) => {
       const { attributes, children, element } = props;
-
       const path = ReactEditor.findPath(editor as ReactEditor, element);
-      const lineNumber = path[0] + 1;
-
       return (
         <div {...attributes} className="flex code-line">
           <span
             contentEditable={false}
-            className="
-              select-none text-[#858585] text-right pr-4
-              min-w-[40px] font-mono text-sm leading-relaxed
-            "
+            className="select-none text-[#858585] pr-4 min-w-[40px]"
           >
-            {lineNumber}
+            {path[0] + 1}
           </span>
           <span className="flex-1 whitespace-pre">{children}</span>
         </div>
@@ -172,7 +153,7 @@ export default function CodeEditor({
   );
 
   /* =========================
-     Seed Helper
+     🌱 Seed helper
      ========================= */
   const seedFromText = useCallback(
     (text: string) => {
@@ -183,88 +164,55 @@ export default function CodeEditor({
       }));
 
       Editor.withoutNormalizing(editor, () => {
-        try {
-          // 기존 노드들 싹 제거 (뒤에서 앞으로 제거하는게 안정적)
-          for (let i = editor.children.length - 1; i >= 0; i -= 1) {
-            Transforms.removeNodes(editor, { at: [i] });
-          }
-        } catch (e) {
-          console.debug("[CodeEditor] 기존 노드 제거 중 예외:", e);
+        for (let i = editor.children.length - 1; i >= 0; i--) {
+          Transforms.removeNodes(editor, { at: [i] });
         }
-
         Transforms.insertNodes(editor, nodes, { at: [0] });
-
-        // 커서 맨 위로
-        try {
-          Transforms.select(editor, { path: [0, 0], offset: 0 });
-        } catch {
-          // 무시
-        }
       });
     },
     [editor],
   );
 
   /* =========================
-     ✅ 1) fileContent가 있으면 sync 기다리지 말고 즉시 시딩
-     (WS 죽어도 화면에 내용 보이게)
+     ✅ 1) fileContent 우선
      ========================= */
   useEffect(() => {
     if (typeof fileContent !== "string") return;
-
-    // 이미 seeded면 중복 금지
-    if (metaMap.get("seeded") === true) return;
-
     seedFromText(fileContent);
-    metaMap.set("seeded", true);
-  }, [fileContent, metaMap, seedFromText]);
+  }, [fileContent, seedFromText]);
 
   /* =========================
-     ✅ 2) fileContent가 없을 때만: 기존 master처럼 sync 시점에 API fetch seed
+     ✅ 2) Yjs 비어있을 때만 API seed
      ========================= */
   useEffect(() => {
-    if (typeof fileContent === "string") return; // content 있으면 위에서 처리
-    if (!provider) return;
+    if (typeof fileContent === "string") return;
 
-    const handleSync = async (isSynced: boolean) => {
-      if (!isSynced) return;
-
-      // ✅ 여기서도 seeded만 본다
-      if (metaMap.get("seeded") === true) return;
+    const handleSync = async (synced: boolean) => {
+      if (!synced) return;
+      if (yjsSharedXmlText.length > 0) return;
 
       try {
-        const accessToken = localStorage.getItem("access_token");
-        const headers = accessToken
-          ? { Authorization: `Bearer ${accessToken}` }
-          : undefined;
-
+        const token = localStorage.getItem("access_token");
         const res = await axios.get(`/api/v1/room/${roomId}/${fileId}`, {
           responseType: "text",
-          headers,
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         });
 
         seedFromText(String(res.data ?? ""));
-        metaMap.set("seeded", true);
       } catch (e) {
-        console.error("[CodeEditor] seed(API) 실패:", e);
+        console.error("[CodeEditor] API seed 실패", e);
       }
     };
 
     provider.once("sync", handleSync);
     return () => provider.off("sync", handleSync);
-  }, [
-    provider,
-    roomId,
-    fileId,
-    fileContent,
-    metaMap,
-    yjsSharedXmlText,
-    seedFromText,
-  ]);
+  }, [provider, roomId, fileId, fileContent, seedFromText, yjsSharedXmlText]);
 
+  /* =========================
+     🖥 Render
+     ========================= */
   return (
     <div className="h-full w-full flex flex-col bg-[#1e1e1e]">
-      {/* ✅ 상단 액션바: 분리된 컴포넌트 사용 */}
       <Codeeditoractions
         roomId={roomId}
         fileName={fileName}
@@ -273,7 +221,6 @@ export default function CodeEditor({
         onAppendTerminal={onAppendTerminal}
       />
 
-      {/* 에디터 */}
       <div className="flex-1 overflow-auto font-mono text-sm text-[#d4d4d4]">
         <Slate
           editor={editor}
@@ -289,7 +236,7 @@ export default function CodeEditor({
             decorate={decorate}
             renderLeaf={renderLeaf}
             renderElement={renderElement}
-            className="min-h-full px-2 py-4 focus:outline-none caret-[#aeafad]"
+            className="min-h-full px-2 py-4 focus:outline-none"
           />
         </Slate>
       </div>
