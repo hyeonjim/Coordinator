@@ -199,35 +199,35 @@
 
 /* Contribution graph colors */
 .contrib-level-0 {
-  background-color: oklch(0.95 0.01 250);
+  background-color: #24292E;
 }
 .contrib-level-1 {
-  background-color: oklch(0.85 0.08 25);
+  background-color: oklch(0.88 0.08 25);
 }
 .contrib-level-2 {
-  background-color: oklch(0.7 0.14 25);
+  background-color: oklch(0.75 0.14 25);
 }
 .contrib-level-3 {
-  background-color: oklch(0.55 0.18 25);
+  background-color: oklch(0.60 0.18 25);
 }
 .contrib-level-4 {
-  background-color: oklch(0.4 0.18 25);
+  background-color: oklch(0.45 0.18 25);
 }
 
 /* ============================================
    Room 테마 - 색상 변수
    ============================================ */
 :root {
-  --room-darkest: #2c4156;
-  --room-dark: #39586d;
-  --room-accent: #7f99b2;
-  --room-medium: #98a1aa;
-  --room-light: #d2d7db;
-  --room-lightest: #f7f7f7;
-  --room-editor-bg: #1e2a35;
-  --room-sidebar-bg: #3a4a5a;
-  --room-hover: rgba(127, 153, 178, 0.15);
-  --room-active: rgba(127, 153, 178, 0.25);
+  --room-darkest: #0A080D;
+  --room-dark: #1A1F24;
+  --room-accent: #7F838D;
+  --room-medium: #7F838D;
+  --room-light: #DCD8D8;
+  --room-lightest: #DCD8D8;
+  --room-editor-bg: #0A080D;
+  --room-sidebar-bg: #2F363F;
+  --room-hover: rgba(127, 131, 141, 0.15);
+  --room-active: rgba(127, 131, 141, 0.25);
 }
 
 /* ============================================
@@ -235,7 +235,7 @@
    ============================================ */
 .room-container {
   @apply h-screen flex flex-col;
-  background-color: var(--room-lightest);
+  background-color: #0A080D;
 }
 
 .room-main {
@@ -256,8 +256,9 @@
    Room 헤더 스타일
    ============================================ */
 .room-header {
-  @apply h-10 flex items-center justify-between px-4 shrink-0;
-  background-color: #2a4157;
+  @apply h-10 flex items-center justify-between p-6 shrink-0;
+  background-color: #1A1F24;
+  border-bottom: 1px solid #2F363F;
 }
 
 .room-header-logo {
@@ -267,45 +268,46 @@
 
 .room-git-btn {
   @apply px-3 py-1.5 text-xs font-medium rounded;
-  background-color: var(--room-lightest);
-  color: var(--room-darkest);
-  border: 1px solid var(--room-light);
+  background-color: #2F363F;
+  color: #DCD8D8;
+  border: 1px solid #7F838D;
   transition: all 0.15s ease;
 }
 
 .room-git-btn:hover {
-  background-color: var(--room-light);
-  border-color: var(--room-medium);
+  background-color: #7F838D;
+  border-color: #DCD8D8;
 }
 
 .room-share-btn {
   @apply w-8 h-8 flex items-center justify-center rounded;
-  color: var(--room-lightest);
+  color: #DCD8D8;
   transition: all 0.15s ease;
 }
 
 .room-share-btn:hover {
-  background-color: var(--room-hover);
-  color: var(--room-lightest);
+  background-color: #2F363F;
+  color: #DCD8D8;
 }
 
 .room-dropdown {
   @apply absolute right-0 top-10 w-80 rounded-lg shadow-xl p-3 z-50;
-  background-color: var(--room-lightest);
-  border: 1px solid var(--room-light);
+  background-color: #2F363F;
+  border: 1px solid #7F838D;
+  color: #DCD8D8;
 }
 
 .room-dropdown-input {
   @apply flex-1 px-3 py-2 rounded text-sm;
-  background-color: white;
-  color: var(--room-darkest);
-  border: 1px solid var(--room-light);
+  background-color: #1A1F24;
+  color: #DCD8D8;
+  border: 1px solid #7F838D;
 }
 
 .room-dropdown-input:focus {
   outline: none;
-  border-color: var(--room-accent);
-  box-shadow: 0 0 0 2px var(--room-hover);
+  border-color: #DCD8D8;
+  box-shadow: 0 0 0 2px rgba(220, 216, 216, 0.2);
 }
 
 .room-action-btn {
@@ -314,24 +316,24 @@
 }
 
 .room-action-btn-primary {
-  background-color: var(--room-accent);
-  color: white;
-  border: 1px solid var(--room-accent);
+  background-color: #7F838D;
+  color: #0A080D;
+  border: 1px solid #7F838D;
 }
 
 .room-action-btn-primary:hover {
-  background-color: var(--room-dark);
-  border-color: var(--room-dark);
+  background-color: #DCD8D8;
+  border-color: #DCD8D8;
 }
 
 .room-action-btn-secondary {
-  background-color: var(--room-lightest);
-  color: var(--room-darkest);
-  border: 1px solid var(--room-light);
+  background-color: #2F363F;
+  color: #DCD8D8;
+  border: 1px solid #7F838D;
 }
 
 .room-action-btn-secondary:hover {
-  background-color: var(--room-light);
+  background-color: #7F838D;
 }
 
 /* ============================================
@@ -339,59 +341,62 @@
    ============================================ */
 .file-viewer-container {
   @apply w-full h-full flex flex-col font-sans select-none;
-  background-color: #15293c;
+  background-color: #2F363F;
+  color: #DCD8D8;
 }
 
 .file-viewer-header {
   @apply flex items-center justify-between px-4 h-9;
-  background-color: #2e4861;
+  background-color: #1A1F24;
+  border-bottom: 1px solid #0A080D;
 }
 
 .file-viewer-header:hover {
-  background-color: rgba(39, 84, 127, 0.1);
+  background-color: #2F363F;
 }
 
 .file-viewer-title {
   @apply flex items-center text-[11px] font-semibold tracking-widest uppercase cursor-pointer;
-  color: #c6d5e6;
+  color: #DCD8D8;
 }
 
 .file-viewer-actions {
   @apply flex items-center gap-2 text-sm;
-  color: #a8b6c6;
+  color: #7F838D;
 }
 
 .file-viewer-actions svg:hover {
-  color: #61778f;
+  color: #DCD8D8;
 }
 
 .file-tree-item {
   @apply flex items-center py-1 cursor-pointer select-none text-[13px] h-[26px];
-  color: #c6d5e6;
+  color: #DCD8D8;
   transition:
     background-color 0.1s ease,
     color 0.1s ease;
 }
 
 .file-tree-item:hover {
-  background-color: rgba(127, 153, 178, 0.15);
-  color: var(--room-lightest);
+  background-color: #1A1F24;
+  color: #DCD8D8;
 }
 
 .file-tree-item-selected {
-  background-color: #4b5e73 !important;
-  color: white !important;
+  background-color: #4f5365 !important;
+  color: #DCD8D8 !important;
 }
 
 .file-viewer-statusbar {
   @apply h-[22px] text-[11px] flex items-center px-3 gap-3;
-  background-color: #35485c;
-  color: rgb(201, 200, 218);
+  background-color: #1A1F24;
+  color: #7F838D;
+  border-top: 1px solid #0A080D;
 }
 
 .file-viewer-empty {
   @apply h-full min-h-[150px] flex flex-col items-center justify-center space-y-2;
-  color: #87a2be;
+  color: #7F838D;
   opacity: 0.7;
 }
 
@@ -400,14 +405,15 @@
    ============================================ */
 .voice-chat-container {
   @apply flex flex-col h-full overflow-hidden;
+  color: #abadbe;
 }
 
 .voice-chat-header {
   @apply flex items-center justify-between p-1;
-  background-color: #687f98;
-  border-top: 1px solid #6d7d8c;
-  border-bottom: 1px solid #6d7d8c;
-  color: #d9dae3;
+  background-color: #1A1F24;
+  border-top: 1px solid #0A080D;
+  border-bottom: 1px solid #0A080D;
+  color: #bebdc5;
 }
 
 .voice-chat-title {
@@ -421,13 +427,13 @@
 
 .voice-chat-status-dot {
   @apply w-1.5 h-1.5 rounded-full;
-  background-color: #65e1c8;
+  background-color: #4EC9B0;
   animation: pulse 2s ease-in-out infinite;
 }
 
 .voice-chat-participants {
   @apply space-y-1 overflow-y-auto flex-1 p-1 pt-2;
-  background-color: #b4bbc0;
+  background-color: #434f5a;
 }
 
 .participant-row {
@@ -436,24 +442,25 @@
 }
 
 .participant-row:hover {
-  background-color: #959fa9;
+  background-color: #38414b;
   border-radius: 15px;
 }
 
 .participant-avatar {
   @apply h-10 w-10 shrink-0 rounded-full flex items-center justify-center font-semibold overflow-hidden;
-  color: white;
+  background-color: #7F838D;
+  color: #bfbdc7;
   transition: all 0.3s ease;
 }
 
 .participant-avatar-speaking {
-  border-color: #19cfad;
+  border-color: #27b855;
   border-width: 3px;
 }
 
 .participant-name {
   @apply truncate text-[14px] font-semibold leading-tight;
-  color: #375671;
+  color: #c3c2c7;
 }
 
 .participant-mic-btn {
@@ -462,11 +469,11 @@
 }
 
 .mic-icon-on {
-  color: #128c74;
+  color: #3ea18e;
 }
 
 .mic-icon-off {
-  color: #61707e;
+  color: #7F838D;
 }
 
 .mic-icon-muted {
@@ -480,7 +487,7 @@
 
 .voice-chat-empty {
   @apply flex flex-col items-center justify-center py-8;
-  color: #2f4d69;
+  color: #7F838D;
 }
 
 /* ============================================
@@ -497,11 +504,12 @@
 .text-chat-panel {
   @apply h-full flex flex-col;
   width: 320px;
+  background-color: #1A1F24;
 }
 
 .text-chat-messages {
   @apply flex-1 overflow-y-auto p-4 space-y-3;
-  background-color: #ced7e0;
+  background-color: #434f5a;
 }
 
 .message-bubble {
@@ -518,9 +526,8 @@
 
 .message-avatar {
   @apply h-8 w-8 rounded-full flex items-center justify-center font-semibold overflow-hidden shrink-0;
-  background-color: var(--room-accent);
-  color: white;
-  border: 1px solid var(--room-medium);
+  background-color: #7F838D;
+  color: #DCD8D8;
 }
 
 .message-content {
@@ -532,81 +539,82 @@
 }
 
 .message-text-mine {
-  background-color: var(--room-accent);
-  color: white;
+  background-color: #7F838D;
+  color: #08030e;
   border-bottom-right-radius: 4px;
 }
 
 .message-text-other {
-  background-color: var(--room-lightest);
-  color: var(--room-darkest);
-  border: 1px solid var(--room-light);
+  background-color: #2F363F;
+  color: #DCD8D8;
   border-bottom-left-radius: 4px;
 }
 
 .message-meta {
   @apply flex items-center gap-1 mt-1 px-1 text-xs;
-  color: var(--room-medium);
+  color: #b3b6be;
 }
 
 .text-chat-input-form {
   @apply p-4;
-  background-color: #9aa9b6;
+  background-color: #2F363F;
+  border-top: 1px solid #0A080D;
 }
 
 .text-chat-input {
   @apply flex-1 rounded-lg px-4 py-2 text-sm;
-  background-color: white;
-  color: var(--room-darkest);
-  border: 1px solid var(--room-light);
+  background-color: #1A1F24;
+  color: #DCD8D8;
 }
 
 .text-chat-input::placeholder {
-  color: var(--room-medium);
+  color: #7F838D;
 }
 
 .text-chat-input:focus {
   outline: none;
-  border-color: var(--room-accent);
-  box-shadow: 0 0 0 2px var(--room-hover);
+  border-color: #DCD8D8;
+  box-shadow: 0 0 0 2px rgba(127, 131, 141, 0.2);
 }
 
 .text-chat-input:disabled {
-  background-color: var(--room-light);
+  background-color: #2F363F;
   cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .text-chat-send-btn {
   @apply rounded-lg px-4 py-2 text-sm font-semibold whitespace-nowrap;
-  background-color: var(--room-accent);
-  color: white;
+  background-color: #7F838D;
+  color: #0A080D;
   transition: all 0.15s ease;
 }
 
 .text-chat-send-btn:hover {
-  background-color: var(--room-dark);
+  background-color: #626066;
 }
 
 .text-chat-send-btn:disabled {
-  background-color: var(--room-light);
-  color: var(--room-medium);
+  background-color: #2F363F;
+  color: #7F838D;
   cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .text-chat-toggle {
   @apply absolute -left-6 top-1/2 -translate-y-1/2 px-1 py-2 rounded text-sm z-20;
-  background-color: var(--room-dark);
-  color: white;
+  background-color: #2F363F;
+  color: #DCD8D8;
   transition: all 0.15s ease;
 }
 
 .text-chat-toggle:hover {
-  background-color: var(--room-accent);
+  background-color: #7F838D;
 }
 
 .text-chat-empty {
   @apply text-center py-8;
-  color: #2f4d69;
+  color: #7F838D;
 }
 
 /* ============================================
@@ -614,36 +622,37 @@
    ============================================ */
 .terminal-container {
   @apply flex flex-col overflow-hidden;
-  background-color: var(--room-editor-bg);
-  border-top: 1px solid var(--room-medium);
+  background-color: #0A080D;
+  border-top: 1px solid #2F363F;
+  color: #DCD8D8;
 }
 
 .terminal-toggle-btn {
   @apply absolute bottom-0 right-4 px-3 py-1 text-xs flex items-center gap-2 z-10;
-  background-color: var(--room-dark);
-  color: white;
-  border: 1px solid var(--room-medium);
+  background-color: #2F363F;
+  color: #DCD8D8;
+  border: 1px solid #7F838D;
   border-bottom: none;
   border-radius: 4px 4px 0 0;
   transition: all 0.15s ease;
 }
 
 .terminal-toggle-btn:hover {
-  background-color: var(--room-accent);
+  background-color: #7F838D;
 }
 
 .terminal-resize-handle {
   @apply relative h-1 cursor-row-resize flex items-center justify-center;
-  background-color: var(--room-medium);
+  background-color: #2F363F;
 }
 
 .terminal-resize-handle:hover {
-  background-color: var(--room-accent);
+  background-color: #7F838D;
 }
 
 .terminal-resize-icon {
   @apply opacity-0 transition text-xs select-none pointer-events-none;
-  color: white;
+  color: #DCD8D8;
 }
 
 .terminal-resize-handle:hover .terminal-resize-icon {
@@ -652,7 +661,7 @@
 
 .terminal-content {
   @apply flex-1 min-h-0 p-2 overflow-auto;
-  background-color: var(--room-editor-bg);
+  background-color: #0A080D;
 }
 
 /* ============================================
@@ -668,12 +677,12 @@
 }
 
 .room-scrollbar::-webkit-scrollbar-thumb {
-  background-color: var(--room-medium);
+  background-color: #2F363F;
   border-radius: 5px;
 }
 
 .room-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: var(--room-accent);
+  background-color: #7F838D;
 }
 
 /* ============================================
@@ -682,10 +691,10 @@
 @keyframes speaking-glow {
   0%,
   100% {
-    box-shadow: 0 0 8px rgba(78, 201, 176, 0.4);
+    box-shadow: 0 0 8px rgba(127, 131, 141, 0.4);
   }
   50% {
-    box-shadow: 0 0 16px rgba(78, 201, 176, 0.6);
+    box-shadow: 0 0 16px rgba(127, 131, 141, 0.6);
   }
 }
 

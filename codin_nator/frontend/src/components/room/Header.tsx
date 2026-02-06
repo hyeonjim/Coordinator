@@ -43,15 +43,17 @@ export default function Header({
 
   // 공통 버튼 스타일
   const btnBase =
-    "inline-flex items-center justify-center rounded-full px-2.5 py-1.5 mt-4 mb-4 text-xs font-semibold " +
-    "transition active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#d2d7db]/60";
+    "inline-flex items-center justify-center rounded-full px-4 py-1.5 mt-4 mb-4 text-xs font-semibold " +
+    "transition active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#7F838D]/60";
 
-  // 기본(회색 #d2d7db)
-  const btnGray = `${btnBase} bg-[#3C3C3C] text-[#d2d7db] hover:bg-[#c5cbd0]`;
+  // 기본
+  const btnGray = `${btnBase} bg-[#2F363F] text-[#c6c7cc] hover:bg-[#7F838D] border border-[#7F838D]`;
 
-  // 강조(참여하기 같은 primary 느낌을 주고 싶으면 톤만 살짝 다르게)
-  // 색 고정 요청이 "#d2d7db"라서, 같은 계열로만 대비 줌
-  const btnGrayStrong = `${btnBase} bg-[#d2d7db] text-[#98A1AA] hover:bg-[#bfc6cc]`;
+  // 강조(참여하기)
+  const btnGrayStrong = `${btnBase} bg-[#7F838D] text-[#0A080D] hover:bg-[#DCD8D8] border border-[#7F838D]`;
+
+  // 방 나가기 (채도 낮춘 경고색 - 구분용)
+  const btnLeave = `${btnBase} bg-[#4d3737] text-[#DCD8D8] hover:bg-[#8B5A5A] border border-[#6B4A4A]`;
 
   const handleGitAction = (action: string) => {
     if (!selectedFileId) {
@@ -158,7 +160,7 @@ export default function Header({
 
           {showShare && (
             <div className="room-dropdown">
-              <p className="text-xs text-[#98A1AA] mb-2">공유 링크</p>
+              <p className="text-xs text-[#7F838D] mb-2">공유 링크</p>
 
               <div className="flex items-center gap-1">
                 <input
@@ -176,7 +178,7 @@ export default function Header({
               </div>
 
               {copied && (
-                <span className="text-[#39586D] text-xs mt-2 block font-semibold">
+                <span className="text-[#7F838D] text-xs mt-2 block font-semibold">
                   링크가 복사되었습니다!
                 </span>
               )}
@@ -198,7 +200,7 @@ export default function Header({
 
               {id === "commit" && showCommit && (
                 <div className="room-dropdown">
-                  <p className="text-xs text-[#98A1AA] mb-2">Commit message</p>
+                  <p className="text-xs text-[#7F838D] mb-2">Commit message</p>
 
                   <div className="flex items-center gap-2">
                     <input
@@ -223,15 +225,11 @@ export default function Header({
 
         {/* ===== Room Actions ===== */}
         {isJoined ? (
-          <button onClick={onLeave} className={btnGray}>
+          <button onClick={onLeave} className={btnLeave}>
             방 나가기
           </button>
         ) : (
-          <button
-            onClick={onJoin}
-            // 참여하기도 같은 색(#d2d7db) 기반으로 통일 (살짝만 강조)
-            className={btnGrayStrong}
-          >
+          <button onClick={onJoin} className={btnGrayStrong}>
             참여하기
           </button>
         )}

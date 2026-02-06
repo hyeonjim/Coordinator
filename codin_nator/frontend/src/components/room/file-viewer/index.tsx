@@ -273,14 +273,14 @@ const FileViewer = ({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto room-scrollbar relative ">
+      <div className="flex-1 overflow-auto room-scrollbar relative ">
         {loading ? (
-          <div className="flex justify-center items-center h-20 text-[#98A1AA]">
+          <div className="flex justify-center items-center h-20 text-[#7F838D]">
             <VscLoading className="animate-spin text-2xl" />
           </div>
         ) : files.length === 0 ? (
           <div className="file-viewer-empty">
-            <VscFolderOpened className="text-4xl text-[#7F99B2]" />
+            <VscFolderOpened className="text-4xl text-[#7F838D]" />
             <span className="text-sm">파일이 없습니다.</span>
             <span className="text-xs">(.zip 파일을 이곳에 드래그하세요)</span>
           </div>
