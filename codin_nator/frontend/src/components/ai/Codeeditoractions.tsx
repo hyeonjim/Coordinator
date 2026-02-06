@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { VscBeaker, VscPlay, VscGraph } from "react-icons/vsc";
 import { aiService } from "@/services/ai/aiService";
+import Alert from "../common/Alert";
 
 type CodeEditorActionsProps = {
   roomId: number;
@@ -18,6 +19,7 @@ export default function Codeeditoractions({
   onTestGenerated,
   onAppendTerminal,
 }: CodeEditorActionsProps) {
+  const [alertMsg, setAlertMsg] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -63,15 +65,15 @@ export default function Codeeditoractions({
 
   const validateBeforeGenerate = () => {
     if (!fileName) {
-      alert("파일을 먼저 선택해주세요.");
+      setAlertMsg("파일을 먼저 선택해주세요.");
       return false;
     }
     if (!code || code.trim().length === 0) {
-      alert("코드가 비어있습니다.");
+      setAlertMsg("코드가 비어있습니다.");
       return false;
     }
     if (!fileName.toLowerCase().endsWith(".java")) {
-      alert("Java 파일만 테스트 생성이 가능합니다.");
+      setAlertMsg("Java 파일만 테스트 생성이 가능합니다.");
       return false;
     }
     return true;
@@ -100,12 +102,12 @@ export default function Codeeditoractions({
       onTestGenerated?.(response.testCode);
       onAppendTerminal?.("Generated Test Code", response.testCode);
 
-      alert("테스트 코드가 생성되었습니다!");
+      setAlertMsg("테스트 코드가 생성되었습니다!");
     } catch (e) {
       const msg =
         e instanceof Error ? e.message : "테스트 생성 중 오류가 발생했습니다.";
       setError(msg);
-      alert(msg);
+      setAlertMsg(msg);
     } finally {
       setIsGenerating(false);
     }
@@ -113,7 +115,7 @@ export default function Codeeditoractions({
 
   const handleRunTest = async () => {
     if (!latestTestCode) {
-      alert("먼저 테스트 코드를 생성해주세요.");
+      setAlertMsg("먼저 테스트 코드를 생성해주세요.");
       return;
     }
 
@@ -132,14 +134,14 @@ export default function Codeeditoractions({
       setLatestRunOutput(runOutput); // ✅ 분석 버튼 활성화 조건(실패 여부는 canAnalyze에서 판단)
       onAppendTerminal?.("Test Run Output", runOutput);
 
-      alert("테스트 실행이 완료되었습니다!");
+      setAlertMsg("테스트 실행이 완료되었습니다!");
     } catch (e) {
       const msg =
         e instanceof Error ? e.message : "테스트 실행 중 오류가 발생했습니다.";
       setError(msg);
       setLatestRunOutput(null);
       onAppendTerminal?.("Test Run Error", msg);
-      alert(msg);
+      setAlertMsg(msg);
     } finally {
       setIsRunning(false);
     }
@@ -147,11 +149,11 @@ export default function Codeeditoractions({
 
   const handleAnalyze = async () => {
     if (!fileName) {
-      alert("파일을 먼저 선택해주세요.");
+      setAlertMsg("파일을 먼저 선택해주세요.");
       return;
     }
     if (!latestRunOutput) {
-      alert("테스트 실행 결과가 없습니다. 먼저 테스트를 실행해주세요.");
+      setAlertMsg("테스트 실행 결과가 없습니다. 먼저 테스트를 실행해주세요.");
       return;
     }
 
@@ -159,7 +161,7 @@ export default function Codeeditoractions({
     if (isLikelySuccessOutput(latestRunOutput)) {
       const msg = "테스트가 성공했습니다! 저장/분석할 오류가 없습니다 🎉";
       onAppendTerminal?.("AI Analyze Result", msg);
-      alert(msg);
+      setAlertMsg(msg);
       return;
     }
 
@@ -178,7 +180,7 @@ export default function Codeeditoractions({
         // 혹시 서버가 성공으로 판단해 204를 준 경우
         const msg = "테스트 성공: 저장할 오류가 없습니다 🎉";
         onAppendTerminal?.("AI Analyze Result", msg);
-        alert(msg);
+        setAlertMsg(msg);
         return;
       }
 
@@ -188,13 +190,13 @@ export default function Codeeditoractions({
       // ✅ 터미널에도 표시(원하면)
       onAppendTerminal?.("AI Analyze Result", JSON.stringify(res, null, 2));
 
-      alert("AI 분석이 완료되었습니다! (마이페이지에 기록됨)");
+      setAlertMsg("AI 분석이 완료되었습니다! (마이페이지에 기록됨)");
     } catch (e) {
       const msg =
         e instanceof Error ? e.message : "AI 분석 중 오류가 발생했습니다.";
       setError(msg);
       onAppendTerminal?.("AI Analyze Error", msg);
-      alert(msg);
+      setAlertMsg(msg);
     } finally {
       setIsAnalyzing(false);
     }
@@ -272,6 +274,9 @@ export default function Codeeditoractions({
           {isAnalyzing ? "분석 중..." : "AI 분석"}
         </button>
       </div>
+      <Alert open={!!alertMsg} onConfirm={() => setAlertMsg(null)}>
+        {alertMsg}
+      </Alert>
     </div>
   );
 }

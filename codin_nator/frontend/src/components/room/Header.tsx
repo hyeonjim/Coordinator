@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import logo from "@/components/landing/logo2.png";
+import Alert from "@/components/common/Alert";
 
 interface HeaderProps {
   isJoined: boolean;
@@ -24,6 +25,7 @@ export default function Header({
   selectedFileId,
   editorContent,
 }: HeaderProps) {
+  const [alertMsg, setAlertMsg] = useState<string | null>(null);
   const [showShare, setShowShare] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -55,7 +57,7 @@ export default function Header({
 
   const handleGitAction = (action: string) => {
     if (!selectedFileId) {
-      alert("파일을 먼저 선택해주세요.");
+      setAlertMsg("파일을 먼저 선택해주세요.");
       return;
     }
     if (action === "add") {
@@ -75,10 +77,10 @@ export default function Header({
           },
         )
         .then(() => {
-          console.log("Files added to staging area.");
+          setAlertMsg("Staging area에 파일을 추가합니다.");
         })
-        .catch((error) => {
-          console.error("Error adding files:", error);
+        .catch(() => {
+          setAlertMsg("Staging area에 파일을 추가하는 데 실패했습니다.");
         });
       return;
     }
@@ -95,10 +97,10 @@ export default function Header({
           },
         })
         .then(() => {
-          console.log("Pushed to remote repository.");
+          setAlertMsg("리포지토리에 푸시되었습니다.");
         })
-        .catch((error) => {
-          console.error("Error during push:", error);
+        .catch(() => {
+          setAlertMsg("리포지토리에 푸시하는 데 실패했습니다.");
         });
       return;
     }
@@ -107,7 +109,10 @@ export default function Header({
   };
 
   const handleCommitSend = () => {
-    if (!commitMsg.trim()) return;
+    if (!commitMsg.trim()) {
+      setAlertMsg("커밋 메시지를 입력해주세요.");
+      return;
+    }
     axios
       .post(
         `/api/v1/room/git/${roomId}/commit`,
@@ -117,10 +122,10 @@ export default function Header({
         },
       )
       .then(() => {
-        console.log("Commit successful.");
+        setAlertMsg("커밋이 성공적으로 완료되었습니다.");
       })
-      .catch((error) => {
-        console.error("Error during commit:", error);
+      .catch(() => {
+        setAlertMsg("커밋하는 데 실패했습니다.");
       });
 
     setCommitMsg("");
@@ -128,7 +133,7 @@ export default function Header({
   };
 
   return (
-    <header className="room-header">
+    <header className="room-header relative">
       {/* Logo */}
       <div className="flex items-center">
         <div className="room-header-logo">
@@ -236,6 +241,9 @@ export default function Header({
           </button>
         )}
       </div>
+      <Alert open={!!alertMsg} onConfirm={() => setAlertMsg(null)}>
+        {alertMsg}
+      </Alert>
     </header>
   );
 }

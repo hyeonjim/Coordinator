@@ -22,6 +22,7 @@ import type {
   LocalFileSystemFileEntry,
   RawNode,
 } from "@/types/file/types";
+import Alert from "@/components/common/Alert";
 
 // Helper Functions (데이터 처리 로직)
 let tempIdSequence = 1;
@@ -77,6 +78,7 @@ const FileViewer = ({
   userName,
   userImageUrl,
 }: FileViewerProps) => {
+  const [alertMsg, setAlertMsg] = useState<string | null>(null);
   const [files, setFiles] = useState<FileNode[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -173,7 +175,7 @@ const FileViewer = ({
     return new Promise<void>((resolve, reject) => {
       fileEntry.file(async (file: File) => {
         if (!file.name.toLowerCase().endsWith(".zip")) {
-          alert("현재 .zip 파일 업로드만 지원합니다.");
+          setAlertMsg("현재 .zip 파일 업로드만 지원합니다.");
           reject("Not a zip file");
           return;
         }
@@ -196,7 +198,7 @@ const FileViewer = ({
           resolve();
         } catch (error) {
           console.error("업로드 실패:", error);
-          alert("업로드에 실패했습니다.");
+          setAlertMsg("업로드에 실패했습니다.");
           reject(error);
         }
       });
@@ -231,7 +233,7 @@ const FileViewer = ({
       await processUploadLoop(sanitizedTree);
 
       await fetchFileTree();
-      alert("파일 업로드가 완료되었습니다.");
+      setAlertMsg("파일 업로드가 완료되었습니다.");
     } catch (error) {
       console.error(error);
     } finally {
@@ -304,6 +306,9 @@ const FileViewer = ({
         <span>master*</span>
         {roomIdSafe && <span>Room: {roomIdSafe}</span>}
       </div>
+      <Alert open={!!alertMsg} onConfirm={() => setAlertMsg(null)}>
+        {alertMsg}
+      </Alert>
     </div>
   );
 };
