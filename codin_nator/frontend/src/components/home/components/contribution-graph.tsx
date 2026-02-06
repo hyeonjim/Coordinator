@@ -525,9 +525,8 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
           >
             {/* 헤더(고정) */}
             <div
-              className="flex items-start justify-between gap-3 p-7 rounded-t-xl"
+              className="flex items-start justify-between gap-3 p-7 rounded-t-xl bg-[#414c58]"
               style={{
-                backgroundColor: "#24292E",
                 borderBottomColor: "#24292E",
                 borderBottomWidth: "1px",
               }}
@@ -550,9 +549,8 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
                     <>
                       <span>·</span>
                       <span
-                        className="px-2 py-1 rounded-lg"
+                        className="px-2 py-1 rounded-lg bg-[#3A4149]"
                         style={{
-                          backgroundColor: "#3A4149",
                           color: "#ECEAEA",
                         }}
                       >

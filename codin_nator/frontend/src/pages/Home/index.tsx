@@ -318,7 +318,7 @@ export default function HomeLayout() {
             {/* 왼쪽: 프로필 */}
             <div className="flex items-center gap-6">
               <div className="relative">
-                <Avatar className="relative h-24 w-24 ring-1 ring-[#24292E] shadow-lg">
+                <Avatar className="relative h-24 w-24">
                   <AvatarImage
                     src={user?.imageUrl || "/placeholder.svg"}
                     alt={user?.name || "User"}
@@ -358,23 +358,10 @@ export default function HomeLayout() {
                 group flex items-center gap-2 px-5 py-2.5
                 rounded-lg font-medium text-sm
                 shadow-sm
-                transition-all duration-200
+                transition-all duration-200 hover:bg-[#5f4e4e] bg-[#646e79]
               "
               style={{
                 color: "#9da8b3",
-                backgroundColor: "#3A4149",
-                borderColor: "#7b848c",
-                borderWidth: "1px",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = "#24292E";
-                e.currentTarget.style.color = "#ECEAEA";
-                e.currentTarget.style.backgroundColor = "#24292E";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "#3A4149";
-                e.currentTarget.style.color = "#24292E";
-                e.currentTarget.style.backgroundColor = "#3A4149";
               }}
             >
               <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
@@ -400,7 +387,7 @@ export default function HomeLayout() {
           <div className="flex items-start justify-between mb-8">
             <div className="flex items-center gap-4">
               <div
-                className="p-3 rounded-lg bg-[#36383b]"
+                className="p-3 rounded-lg bg-[#7a6868]"
               >
                 <Activity className="w-5 h-5" style={{ color: "#ECEAEA" }} />
               </div>
@@ -444,13 +431,13 @@ export default function HomeLayout() {
           </div>
 
           {/* 통계 카드들 */}
-          <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-3 gap-8 mb-8">
             <motion.div
               key={`total-${selectedRoomId}-${stats.totalErrors}`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }}
-              className="p-6 rounded-xl shadow-sm transition-all duration-300"
+              className="p-6 rounded-xl shadow-sm transition-all duration-300 h-32"
               style={{
                 backgroundColor: "#b8bcc4",
                 borderColor: "#b8bcc4",
