@@ -59,7 +59,7 @@ public class CodeHandler extends BinaryWebSocketHandler {
         // 자신을 제외한 나머지 사람들에게 메시지 전송 (Broadcasting)
         // Yjs는 본인이 보낸 메시지를 다시 받으면 안 될 수도 있고, 받아도 무시하지만 트래픽 낭비입니다.
         for (WebSocketSession attendee : attendees) {
-            if (attendee.isOpen() && !attendee.getId().equals(session.getId())) { // 본인 제외
+//            if (attendee.isOpen() && !attendee.getId().equals(session.getId())) { // 본인 제외
                 try {
                     synchronized (attendee) {
                         attendee.sendMessage(message);
@@ -68,7 +68,7 @@ public class CodeHandler extends BinaryWebSocketHandler {
                     log.warn("메시지 전송 실패: {}", attendee.getId());
                 }
             }
-        }
+//        }
     }
 
     @Override
