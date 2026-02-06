@@ -204,14 +204,14 @@ export default function Codeeditoractions({
 
   // ✅ 버튼 공통 Tailwind 스타일 (통일)
   const actionBtnBase =
-    "flex items-center gap-2 px-3 py-1.5 text-[12px] font-medium rounded-full " +
+    "flex items-center gap-2 px-4 py-1.5 text-[13px] font-medium rounded-full " +
     "border border-transparent transition " +
     "active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-white/10";
 
   const actionBtnEnabled =
     "bg-slate-600 text-slate-300 hover:bg-slate-500 hover:text-white";
 
-  const actionBtnDisabled = "bg-[#2d2d30] text-[#858585] cursor-not-allowed";
+  const actionBtnDisabled = "bg-[#2d2d30] text-[#ECEAEA] cursor-not-allowed";
 
   return (
     <div className="flex items-center gap-2 px-4 py-2 bg-[#222225] border-b border-[#2d2d30] flex-shrink-0">

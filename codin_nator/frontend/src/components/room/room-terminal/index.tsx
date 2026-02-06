@@ -90,10 +90,10 @@ export default function RoomTerminal({
       disableStdin: true, // 사용자 입력 비활성화 (읽기 전용 터미널)
       cursorBlink: false, // 커서 깜빡임 비활성화
       theme: {
-        background: "#1e1e1e", // VSCode 다크 테마 배경색
-        foreground: "#d4d4d4", // 기본 텍스트 색상
+        background: "#0A080D", // 가장 어두운 배경
+        foreground: "#DCD8D8", // 기본 텍스트 색상
         cursor: "#00000000", // 투명한 커서 (보이지 않음)
-        selectionBackground: "#3a3d41", // 텍스트 선택 시 배경색
+        selectionBackground: "#2F363F", // 텍스트 선택 시 배경색
       },
       fontFamily: `
         Cascadia Code,

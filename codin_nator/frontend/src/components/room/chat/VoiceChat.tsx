@@ -100,7 +100,7 @@ function ParticipantRow({
             relative rounded-full p-[2px] transition-all duration-300 shrink-0 border-2
             ${
               isSpeaking
-                ? "border-[#4EC9B0] speaking-glow"
+                ? "border-[#7F838D] speaking-glow"
                 : "border-transparent"
             }
           `}
@@ -136,8 +136,8 @@ function ParticipantRow({
             isRemoteMuted
               ? "text-[#F14C4C]"
               : micOn
-                ? "text-[#128c74]"
-                : "text-[#61707e]"
+                ? "text-[#3ea18e]"
+                : "text-[#a6aab5]"
           }`}
         >
           {isRemoteMuted ? "MUTED" : micOn ? "ON" : "OFF"}
