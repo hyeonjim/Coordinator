@@ -244,7 +244,7 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
   // const shouldShowRoomHeader = roomGroupedLogs.length > 1;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* ===== 연도 탭 ===== */}
       <div className="flex gap-2">
         {years.map((year) => (
@@ -257,11 +257,16 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
               setIsLogOpen(false);
               setActiveLog(null);
             }}
-            className={`px-3 py-1 rounded-md text-sm ${
-              year === selectedYear
-                ? "bg-muted-foreground text-background"
-                : "bg-muted text-muted-foreground"
-            }`}
+            className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+            style={{
+              backgroundColor:
+                year === selectedYear ? "#5f7a8f" : "rgba(197, 204, 211, 0.3)",
+              color: year === selectedYear ? "#ffffff" : "#6b7985",
+              boxShadow:
+                year === selectedYear
+                  ? "0 2px 8px rgba(95, 122, 143, 0.3)"
+                  : "none",
+            }}
           >
             {year}
           </button>
@@ -269,19 +274,27 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
       </div>
 
       {/* ===== 월 ===== */}
-      <div className="flex ml-[28px] text-xs text-muted-foreground">
-        {months.map((m) => (
-          <span key={m} className="w-[66px]">
-            {m}
-          </span>
-        ))}
+      <div className="flex justify-center">
+        <div
+          className="flex ml-[28px] text-xs font-semibold"
+          style={{ color: "#7f8b96" }}
+        >
+          {months.map((m) => (
+            <span key={m} className="w-[66px]">
+              {m}
+            </span>
+          ))}
+        </div>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 justify-center">
         {/* 요일 */}
-        <div className="flex flex-col gap-[2px] text-xs pt-[2px] text-muted-foreground">
+        <div
+          className="flex flex-col gap-[2px] text-xs pt-[2px] font-medium"
+          style={{ color: "#7f8b96" }}
+        >
           {Array.from({ length: 7 }).map((_, i) => (
-            <div key={i} className="h-3">
+            <div key={i} className="h-[14px]">
               {i === 1 && "Mon"}
               {i === 3 && "Wed"}
               {i === 5 && "Fri"}
@@ -290,16 +303,16 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
         </div>
 
         {/* 잔디 */}
-        <div className="flex gap-[3px] overflow-x-auto">
+        <div className="flex gap-[5px]">
           {weeks.map((week, wi) => (
-            <div key={wi} className="flex flex-col gap-[3px]">
+            <div key={wi} className="flex flex-col gap-[4px]">
               {week.map((day, di) => (
                 <button
                   key={di}
                   title={day.date ? `${day.date} · ${day.count} errors` : ""}
-                  className={`w-3 h-3 rounded-sm ${getContribClass(
+                  className={`w-2.5 h-3 rounded ${getContribClass(
                     day.count,
-                  )} hover:shadow-md hover:scale-110 transition`}
+                  )} hover:shadow-md hover:scale-110 transition-all`}
                   onClick={() => {
                     if (!day.date) return;
                     setSelectedDate(day.date);
@@ -319,33 +332,75 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
       </div>
 
       {/* ===== 범례 ===== */}
-      <div className="flex justify-end gap-1 text-xs text-muted-foreground">
-        <span>Less</span>
-        {[0, 1, 2, 3, 4].map((i) => (
-          <div key={i} className={`w-3 h-3 rounded-sm contrib-level-${i}`} />
-        ))}
-        <span>More</span>
+      <div className="flex justify-center">
+        <div
+          className="flex items-center gap-2 text-xs font-medium px-4 py-2 rounded-xl"
+          style={{
+            color: "#7f8b96",
+            backgroundColor: "rgba(95, 122, 143, 0.05)",
+          }}
+        >
+          <span>Less</span>
+          <div className="flex gap-1.5">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className={`w-3.5 h-3.5 rounded contrib-level-${i} transition-transform hover:scale-125`}
+              />
+            ))}
+          </div>
+          <span>More</span>
+        </div>
       </div>
 
       {/* ===== 오류 목록 ===== */}
       {selectedDate && (
-        <div className="rounded-lg border p-4">
+        <div
+          className="rounded-2xl p-5 backdrop-blur"
+          style={{
+            backgroundColor: "rgba(255, 255, 255, 0.7)",
+            borderColor: "rgba(197, 204, 211, 0.5)",
+            borderWidth: "1px",
+          }}
+        >
           <button
             onClick={() => setIsLogOpen((v) => !v)}
-            className="flex w-full justify-between"
+            className="flex w-full justify-between items-center group"
           >
-            <span className="font-semibold">
-              {selectedDate} · {selectedLogs.length}건
-            </span>
+            <div className="flex items-center gap-2">
+              <div
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ backgroundColor: "#5f7a8f" }}
+              />
+              <span className="font-bold" style={{ color: "#2c4156" }}>
+                {selectedDate}
+              </span>
+              <span
+                className="px-2 py-0.5 rounded-full text-xs font-semibold"
+                style={{
+                  backgroundColor: "rgba(239, 68, 68, 0.1)",
+                  color: "#ef4444",
+                }}
+              >
+                {selectedLogs.length}건
+              </span>
+            </div>
             <ChevronDown
-              className={`h-4 w-4 transition ${isLogOpen ? "rotate-180" : ""}`}
+              className="h-5 w-5 transition-transform group-hover:scale-110"
+              style={{
+                color: "#5f7a8f",
+                transform: isLogOpen ? "rotate(180deg)" : "rotate(0deg)",
+              }}
             />
           </button>
 
           {isLogOpen && (
-            <div className="mt-3">
+            <div className="mt-4">
               {selectedLogs.length === 0 ? (
-                <div className="text-sm text-muted-foreground py-4 text-center">
+                <div
+                  className="text-sm py-8 text-center"
+                  style={{ color: "#98a1aa" }}
+                >
                   해당 날짜에는 발생한 오류가 없습니다.
                 </div>
               ) : (
@@ -353,26 +408,66 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
                   {roomGroupedLogs.map(([roomId, logs]) => (
                     <div key={roomId}>
                       {shouldShowRoomHeader && (
-                        <div className="flex items-center justify-between px-1 text-sm font-medium text-muted-foreground">
+                        <div
+                          className="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold mb-2"
+                          style={{
+                            backgroundColor: "rgba(95, 122, 143, 0.08)",
+                            color: "#5f7a8f",
+                          }}
+                        >
                           <span>
                             Room #{roomId === "unknown" ? "?" : roomId}
                           </span>
-                          <span>{logs.length}건</span>
+                          <span
+                            className="px-2 py-0.5 rounded-full text-xs"
+                            style={{
+                              backgroundColor: "rgba(95, 122, 143, 0.15)",
+                            }}
+                          >
+                            {logs.length}건
+                          </span>
                         </div>
                       )}
 
-                      <ul
-                        className={`${shouldShowRoomHeader ? "mt-2 " : ""}space-y-2`}
-                      >
+                      <ul className="space-y-2">
                         {logs.map((log) => (
                           <li
                             key={log.id}
                             onClick={() => setActiveLog(log)}
-                            className="cursor-pointer rounded border p-2 hover:bg-muted"
+                            className="cursor-pointer rounded-xl p-3 transition-all hover:scale-[1.02]"
+                            style={{
+                              backgroundColor: "rgba(255, 255, 255, 0.8)",
+                              borderColor: "rgba(197, 204, 211, 0.4)",
+                              borderWidth: "1px",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor =
+                                "rgba(95, 122, 143, 0.08)";
+                              e.currentTarget.style.borderColor = "#5f7a8f";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor =
+                                "rgba(255, 255, 255, 0.8)";
+                              e.currentTarget.style.borderColor =
+                                "rgba(197, 204, 211, 0.4)";
+                            }}
                           >
-                            <div className="flex justify-between text-sm">
-                              <span>{log.display_name}</span>
-                              <span>{addHoursToTimeString(log.time, 9)}</span>
+                            <div className="flex justify-between items-center">
+                              <span
+                                className="text-sm font-medium"
+                                style={{ color: "#2c4156" }}
+                              >
+                                {log.display_name}
+                              </span>
+                              <span
+                                className="text-xs font-semibold px-2 py-1 rounded-lg"
+                                style={{
+                                  backgroundColor: "rgba(95, 122, 143, 0.1)",
+                                  color: "#5f7a8f",
+                                }}
+                              >
+                                {addHoursToTimeString(log.time, 9)}
+                              </span>
                             </div>
                           </li>
                         ))}
@@ -389,27 +484,73 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
       {/* ===== 상세 모달 ===== */}
       {activeLog && (
         <div
-          className="fixed inset-0 z-50 bg-black/50 p-4 overflow-y-auto"
+          className="fixed inset-0 z-50 p-4 overflow-y-auto backdrop-blur-sm"
+          style={{ backgroundColor: "rgba(44, 65, 86, 0.4)" }}
           onMouseDown={(e) => {
             if (e.target === e.currentTarget) setActiveLog(null);
           }}
         >
-          <div className="mx-auto w-full max-w-2xl bg-background rounded-lg shadow-lg border flex flex-col max-h-[85vh]">
+          <div
+            className="mx-auto w-full max-w-3xl rounded-2xl shadow-2xl flex flex-col max-h-[600vh]"
+            style={{
+              backgroundColor: "rgba(255, 255, 255, 0.95)",
+              borderColor: "rgba(152, 161, 170, 0.3)",
+              borderWidth: "1px",
+            }}
+          >
             {/* 헤더(고정) */}
-            <div className="flex items-start justify-between gap-3 p-4 border-b">
+            <div
+              className="flex items-start justify-between gap-3 p-6 rounded-t-2xl"
+              style={{
+                backgroundColor: "rgba(95, 122, 143, 0.08)",
+                borderBottomColor: "rgba(197, 204, 211, 0.4)",
+                borderBottomWidth: "1px",
+              }}
+            >
               <div>
-                <h3 className="text-lg font-semibold">
+                <h3
+                  className="text-xl font-bold mb-2"
+                  style={{ color: "#2c4156" }}
+                >
                   {activeLog.display_name}
                 </h3>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {selectedDate} · {addHoursToTimeString(activeLog.time, 9)}
-                  {activeLog.roomId ? ` · Room #${activeLog.roomId}` : ""}
-                </p>
+                <div
+                  className="flex items-center gap-2 text-xs font-medium"
+                  style={{ color: "#7f8b96" }}
+                >
+                  <span>{selectedDate}</span>
+                  <span>·</span>
+                  <span>{addHoursToTimeString(activeLog.time, 9)}</span>
+                  {activeLog.roomId && (
+                    <>
+                      <span>·</span>
+                      <span
+                        className="px-2 py-1 rounded-lg"
+                        style={{
+                          backgroundColor: "rgba(95, 122, 143, 0.15)",
+                          color: "#5f7a8f",
+                        }}
+                      >
+                        Room #{activeLog.roomId}
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
 
               <button
                 onClick={() => setActiveLog(null)}
-                className="shrink-0 text-muted-foreground hover:text-foreground"
+                className="shrink-0 p-2 rounded-lg transition-all hover:scale-110"
+                style={{ color: "#98a1aa" }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor =
+                    "rgba(239, 68, 68, 0.1)";
+                  e.currentTarget.style.color = "#ef4444";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.color = "#98a1aa";
+                }}
                 aria-label="close"
               >
                 <X className="h-5 w-5" />
@@ -417,50 +558,134 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
             </div>
 
             {/* 본문(스크롤) */}
-            <div className="p-4 overflow-y-auto space-y-4">
+            <div className="p-6 overflow-y-auto space-y-5">
               <div>
-                <b>오류 내용</b>
-                <p className="mt-1 text-sm whitespace-pre-wrap">
+                <div
+                  className="text-sm font-bold mb-2 flex items-center gap-2"
+                  style={{ color: "#5f7a8f" }}
+                >
+                  <div
+                    className="w-1 h-4 rounded-full"
+                    style={{ backgroundColor: "#ef4444" }}
+                  />
+                  오류 내용
+                </div>
+                <div
+                  className="p-4 rounded-xl text-sm whitespace-pre-wrap"
+                  style={{
+                    backgroundColor: "rgba(239, 68, 68, 0.05)",
+                    borderColor: "rgba(239, 68, 68, 0.2)",
+                    borderWidth: "1px",
+                    color: "#2c4156",
+                  }}
+                >
                   {activeLog.error}
-                </p>
+                </div>
               </div>
 
               <div>
-                <div className="flex items-center justify-between">
-                  <b>원본 출력/Stacktrace</b>
+                <div className="flex items-center justify-between mb-2">
+                  <div
+                    className="text-sm font-bold flex items-center gap-2"
+                    style={{ color: "#5f7a8f" }}
+                  >
+                    <div
+                      className="w-1 h-4 rounded-full"
+                      style={{ backgroundColor: "#5f7a8f" }}
+                    />
+                    원본 출력/Stacktrace
+                  </div>
                   <button
                     onClick={() => setShowRaw((v) => !v)}
-                    className="text-xs px-2 py-1 rounded border hover:bg-muted"
+                    className="text-xs px-3 py-1.5 rounded-lg font-semibold transition-all"
+                    style={{
+                      backgroundColor: "rgba(95, 122, 143, 0.1)",
+                      color: "#5f7a8f",
+                      borderColor: "rgba(95, 122, 143, 0.3)",
+                      borderWidth: "1px",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#5f7a8f";
+                      e.currentTarget.style.color = "#ffffff";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor =
+                        "rgba(95, 122, 143, 0.1)";
+                      e.currentTarget.style.color = "#5f7a8f";
+                    }}
                   >
                     {showRaw ? "접기" : "펼치기"}
                   </button>
                 </div>
 
                 {showRaw ? (
-                  <pre className="mt-2 bg-muted p-3 text-xs rounded overflow-auto max-h-[40vh] whitespace-pre">
+                  <pre
+                    className="p-4 text-xs rounded-xl overflow-auto max-h-[40vh] whitespace-pre"
+                    style={{
+                      backgroundColor: "rgba(95, 122, 143, 0.05)",
+                      borderColor: "rgba(197, 204, 211, 0.4)",
+                      borderWidth: "1px",
+                      color: "#2c4156",
+                    }}
+                  >
                     {rawText}
                   </pre>
                 ) : (
-                  <pre className="mt-2 bg-muted p-3 text-xs rounded overflow-auto max-h-[18vh] whitespace-pre">
+                  <pre
+                    className="p-4 text-xs rounded-xl overflow-auto max-h-[18vh] whitespace-pre"
+                    style={{
+                      backgroundColor: "rgba(95, 122, 143, 0.05)",
+                      borderColor: "rgba(197, 204, 211, 0.4)",
+                      borderWidth: "1px",
+                      color: "#2c4156",
+                    }}
+                  >
                     {rawPreview}
                   </pre>
                 )}
               </div>
 
               <div>
-                <b>해결 방법</b>
+                <div
+                  className="text-sm font-bold mb-2 flex items-center gap-2"
+                  style={{ color: "#5f7a8f" }}
+                >
+                  <div
+                    className="w-1 h-4 rounded-full"
+                    style={{ backgroundColor: "#10b981" }}
+                  />
+                  해결 방법
+                </div>
                 {resolutionBullets.length > 0 ? (
-                  <ul className="mt-2 list-disc pl-5 space-y-1 text-sm">
+                  <ul className="space-y-2">
                     {resolutionBullets.map((b, i) => (
-                      <li key={i} className="whitespace-pre-wrap">
-                        {b}
+                      <li
+                        key={i}
+                        className="flex gap-2 p-3 rounded-lg text-sm whitespace-pre-wrap"
+                        style={{
+                          backgroundColor: "rgba(16, 185, 129, 0.05)",
+                          borderColor: "rgba(16, 185, 129, 0.2)",
+                          borderWidth: "1px",
+                          color: "#2c4156",
+                        }}
+                      >
+                        <span style={{ color: "#10b981" }}>•</span>
+                        <span>{b}</span>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="mt-1 text-sm whitespace-pre-wrap">
+                  <div
+                    className="p-4 rounded-xl text-sm whitespace-pre-wrap"
+                    style={{
+                      backgroundColor: "rgba(16, 185, 129, 0.05)",
+                      borderColor: "rgba(16, 185, 129, 0.2)",
+                      borderWidth: "1px",
+                      color: "#2c4156",
+                    }}
+                  >
                     {activeLog.resolution}
-                  </p>
+                  </div>
                 )}
               </div>
             </div>
