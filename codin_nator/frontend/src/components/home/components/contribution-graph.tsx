@@ -244,9 +244,9 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
   // const shouldShowRoomHeader = roomGroupedLogs.length > 1;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       {/* ===== 연도 탭 ===== */}
-      <div className="flex gap-2">
+      <div className="flex gap-3">
         {years.map((year) => (
           <button
             key={year}
@@ -257,41 +257,57 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
               setIsLogOpen(false);
               setActiveLog(null);
             }}
-            className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+            className="px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300"
             style={{
-              backgroundColor:
-                year === selectedYear ? "#5f7a8f" : "rgba(197, 204, 211, 0.3)",
-              color: year === selectedYear ? "#ffffff" : "#6b7985",
+              backgroundColor: year === selectedYear ? "#39586D" : "#F7F7F7",
+              color: year === selectedYear ? "#ffffff" : "#98A1AA",
+              borderColor: year === selectedYear ? "transparent" : "#D2D7DB",
+              borderWidth: "1.5px",
               boxShadow:
                 year === selectedYear
-                  ? "0 2px 8px rgba(95, 122, 143, 0.3)"
-                  : "none",
+                  ? "0 4px 16px rgba(57, 88, 109, 0.4)"
+                  : "0 2px 8px rgba(57, 88, 109, 0.08)",
+            }}
+            onMouseEnter={(e) => {
+              if (year !== selectedYear) {
+                e.currentTarget.style.backgroundColor =
+                  "rgba(127, 153, 178, 0.15)";
+                e.currentTarget.style.borderColor = "#7F99B2";
+                e.currentTarget.style.boxShadow =
+                  "0 4px 12px rgba(127, 153, 178, 0.2)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (year !== selectedYear) {
+                e.currentTarget.style.backgroundColor = "#F7F7F7";
+                e.currentTarget.style.borderColor = "#D2D7DB";
+                e.currentTarget.style.boxShadow =
+                  "0 2px 8px rgba(57, 88, 109, 0.08)";
+              }
             }}
           >
             {year}
           </button>
         ))}
       </div>
-
       {/* ===== 월 ===== */}
       <div className="flex justify-center">
         <div
-          className="flex ml-[28px] text-xs font-semibold"
-          style={{ color: "#7f8b96" }}
+          className="flex ml-[28px] text-xs font-bold tracking-wide"
+          style={{ color: "#98A1AA" }}
         >
           {months.map((m) => (
-            <span key={m} className="w-[66px]">
+            <span key={m} className="w-[56px]">
               {m}
             </span>
           ))}
         </div>
       </div>
-
       <div className="flex gap-2 justify-center">
         {/* 요일 */}
         <div
-          className="flex flex-col gap-[2px] text-xs pt-[2px] font-medium"
-          style={{ color: "#7f8b96" }}
+          className="flex flex-col gap-[2px] text-xs pt-[2px] font-bold"
+          style={{ color: "#98A1AA" }}
         >
           {Array.from({ length: 7 }).map((_, i) => (
             <div key={i} className="h-[14px]">
@@ -303,16 +319,22 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
         </div>
 
         {/* 잔디 */}
-        <div className="flex gap-[5px]">
+        <div className="flex gap-[3px]">
           {weeks.map((week, wi) => (
             <div key={wi} className="flex flex-col gap-[4px]">
               {week.map((day, di) => (
                 <button
                   key={di}
                   title={day.date ? `${day.date} · ${day.count} errors` : ""}
-                  className={`w-2.5 h-3 rounded ${getContribClass(
+                  className={`w-2.5 h-3 rounded-sm ${getContribClass(
                     day.count,
-                  )} hover:shadow-md hover:scale-110 transition-all`}
+                  )} hover:ring-2 hover:ring-offset-1 hover:scale-125 transition-all duration-200`}
+                  style={{
+                    ringColor:
+                      day.count > 0
+                        ? "rgba(239, 68, 68, 0.3)"
+                        : "rgba(127, 153, 178, 0.2)",
+                  }}
                   onClick={() => {
                     if (!day.date) return;
                     setSelectedDate(day.date);
@@ -330,37 +352,43 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
           ))}
         </div>
       </div>
-
       {/* ===== 범례 ===== */}
       <div className="flex justify-center">
         <div
-          className="flex items-center gap-2 text-xs font-medium px-4 py-2 rounded-xl"
+          className="flex items-center gap-3 text-xs font-bold px-5 py-2.5 rounded-xl backdrop-blur"
           style={{
-            color: "#7f8b96",
-            backgroundColor: "rgba(95, 122, 143, 0.05)",
+            color: "#98A1AA",
+            backgroundColor: "#F7F7F7",
+            borderColor: "#D2D7DB",
+            borderWidth: "1.5px",
+            boxShadow: "0 3px 12px rgba(127, 153, 178, 0.15)",
           }}
         >
           <span>Less</span>
-          <div className="flex gap-1.5">
+          <div className="flex gap-2">
             {[0, 1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className={`w-3.5 h-3.5 rounded contrib-level-${i} transition-transform hover:scale-125`}
+                className={`w-4 h-4 rounded-sm contrib-level-${i} transition-all duration-200 hover:scale-150 hover:ring-2 hover:ring-offset-1`}
+                style={{
+                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.08)",
+                }}
               />
             ))}
           </div>
           <span>More</span>
         </div>
       </div>
-
       {/* ===== 오류 목록 ===== */}
       {selectedDate && (
         <div
-          className="rounded-2xl p-5 backdrop-blur"
+          key={`logs-${selectedDate}`}
+          className="rounded-2xl p-6 backdrop-blur animate-in fade-in slide-in-from-bottom-4 duration-500 mx-30"
           style={{
-            backgroundColor: "rgba(255, 255, 255, 0.7)",
-            borderColor: "rgba(197, 204, 211, 0.5)",
-            borderWidth: "1px",
+            backgroundColor: "#F7F7F7",
+            borderColor: "#D2D7DB",
+            borderWidth: "1.5px",
+            boxShadow: "0 8px 24px rgba(44, 65, 86, 0.1)",
           }}
         >
           <button
@@ -370,9 +398,9 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
             <div className="flex items-center gap-2">
               <div
                 className="w-1.5 h-1.5 rounded-full"
-                style={{ backgroundColor: "#5f7a8f" }}
+                style={{ backgroundColor: "#7F99B2" }}
               />
-              <span className="font-bold" style={{ color: "#2c4156" }}>
+              <span className="font-bold" style={{ color: "#2C4156" }}>
                 {selectedDate}
               </span>
               <span
@@ -388,7 +416,7 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
             <ChevronDown
               className="h-5 w-5 transition-transform group-hover:scale-110"
               style={{
-                color: "#5f7a8f",
+                color: "#7F99B2",
                 transform: isLogOpen ? "rotate(180deg)" : "rotate(0deg)",
               }}
             />
@@ -399,7 +427,7 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
               {selectedLogs.length === 0 ? (
                 <div
                   className="text-sm py-8 text-center"
-                  style={{ color: "#98a1aa" }}
+                  style={{ color: "#98A1AA" }}
                 >
                   해당 날짜에는 발생한 오류가 없습니다.
                 </div>
@@ -411,8 +439,8 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
                         <div
                           className="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold mb-2"
                           style={{
-                            backgroundColor: "rgba(95, 122, 143, 0.08)",
-                            color: "#5f7a8f",
+                            backgroundColor: "rgba(127, 153, 178, 0.08)",
+                            color: "#7F99B2",
                           }}
                         >
                           <span>
@@ -421,7 +449,7 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
                           <span
                             className="px-2 py-0.5 rounded-full text-xs"
                             style={{
-                              backgroundColor: "rgba(95, 122, 143, 0.15)",
+                              backgroundColor: "rgba(127, 153, 178, 0.15)",
                             }}
                           >
                             {logs.length}건
@@ -429,41 +457,44 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
                         </div>
                       )}
 
-                      <ul className="space-y-2">
+                      <ul className="space-y-2.5">
                         {logs.map((log) => (
                           <li
                             key={log.id}
                             onClick={() => setActiveLog(log)}
-                            className="cursor-pointer rounded-xl p-3 transition-all hover:scale-[1.02]"
+                            className="cursor-pointer rounded-xl p-4 transition-all duration-300 hover:scale-[1.01] hover:-translate-y-0.5"
                             style={{
-                              backgroundColor: "rgba(255, 255, 255, 0.8)",
-                              borderColor: "rgba(197, 204, 211, 0.4)",
+                              backgroundColor: "#F7F7F7",
+                              borderColor: "#D2D7DB",
                               borderWidth: "1px",
+                              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
                             }}
                             onMouseEnter={(e) => {
                               e.currentTarget.style.backgroundColor =
-                                "rgba(95, 122, 143, 0.08)";
-                              e.currentTarget.style.borderColor = "#5f7a8f";
+                                "rgba(57, 88, 109, 0.06)";
+                              e.currentTarget.style.borderColor = "#39586D";
+                              e.currentTarget.style.boxShadow =
+                                "0 4px 16px rgba(57, 88, 109, 0.15)";
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor =
-                                "rgba(255, 255, 255, 0.8)";
-                              e.currentTarget.style.borderColor =
-                                "rgba(197, 204, 211, 0.4)";
+                              e.currentTarget.style.backgroundColor = "#F7F7F7";
+                              e.currentTarget.style.borderColor = "#D2D7DB";
+                              e.currentTarget.style.boxShadow =
+                                "0 2px 8px rgba(0, 0, 0, 0.04)";
                             }}
                           >
                             <div className="flex justify-between items-center">
                               <span
                                 className="text-sm font-medium"
-                                style={{ color: "#2c4156" }}
+                                style={{ color: "#2C4156" }}
                               >
                                 {log.display_name}
                               </span>
                               <span
                                 className="text-xs font-semibold px-2 py-1 rounded-lg"
                                 style={{
-                                  backgroundColor: "rgba(95, 122, 143, 0.1)",
-                                  color: "#5f7a8f",
+                                  backgroundColor: "rgba(127, 153, 178, 0.1)",
+                                  color: "#7F99B2",
                                 }}
                               >
                                 {addHoursToTimeString(log.time, 9)}
@@ -480,43 +511,44 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
           )}
         </div>
       )}
-
       {/* ===== 상세 모달 ===== */}
       {activeLog && (
         <div
-          className="fixed inset-0 z-50 p-4 overflow-y-auto backdrop-blur-sm"
-          style={{ backgroundColor: "rgba(44, 65, 86, 0.4)" }}
+          key={`modal-${activeLog.id}`}
+          className="fixed inset-0 z-50 p-4 overflow-y-auto backdrop-blur-md animate-in fade-in duration-300"
+          style={{ backgroundColor: "rgba(44, 65, 86, 0.5)" }}
           onMouseDown={(e) => {
             if (e.target === e.currentTarget) setActiveLog(null);
           }}
         >
           <div
-            className="mx-auto w-full max-w-3xl rounded-2xl shadow-2xl flex flex-col max-h-[600vh]"
+            className="mx-auto w-full max-w-3xl rounded-2xl shadow-2xl flex flex-col h-[95vh] animate-in slide-in-from-bottom-8 duration-500"
             style={{
-              backgroundColor: "rgba(255, 255, 255, 0.95)",
-              borderColor: "rgba(152, 161, 170, 0.3)",
-              borderWidth: "1px",
+              backgroundColor: "#F7F7F7",
+              borderColor: "#D2D7DB",
+              borderWidth: "1.5px",
+              boxShadow: "0 20px 60px rgba(44, 65, 86, 0.2)",
             }}
           >
             {/* 헤더(고정) */}
             <div
-              className="flex items-start justify-between gap-3 p-6 rounded-t-2xl"
+              className="flex items-start justify-between gap-3 p-7 rounded-t-2xl backdrop-blur"
               style={{
-                backgroundColor: "rgba(95, 122, 143, 0.08)",
-                borderBottomColor: "rgba(197, 204, 211, 0.4)",
-                borderBottomWidth: "1px",
+                backgroundColor: "rgba(127, 153, 178, 0.06)",
+                borderBottomColor: "#D2D7DB",
+                borderBottomWidth: "1.5px",
               }}
             >
               <div>
                 <h3
                   className="text-xl font-bold mb-2"
-                  style={{ color: "#2c4156" }}
+                  style={{ color: "#2C4156" }}
                 >
                   {activeLog.display_name}
                 </h3>
                 <div
                   className="flex items-center gap-2 text-xs font-medium"
-                  style={{ color: "#7f8b96" }}
+                  style={{ color: "#98A1AA" }}
                 >
                   <span>{selectedDate}</span>
                   <span>·</span>
@@ -527,8 +559,8 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
                       <span
                         className="px-2 py-1 rounded-lg"
                         style={{
-                          backgroundColor: "rgba(95, 122, 143, 0.15)",
-                          color: "#5f7a8f",
+                          backgroundColor: "rgba(127, 153, 178, 0.15)",
+                          color: "#7F99B2",
                         }}
                       >
                         Room #{activeLog.roomId}
@@ -541,7 +573,7 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
               <button
                 onClick={() => setActiveLog(null)}
                 className="shrink-0 p-2 rounded-lg transition-all hover:scale-110"
-                style={{ color: "#98a1aa" }}
+                style={{ color: "#98A1AA" }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor =
                     "rgba(239, 68, 68, 0.1)";
@@ -549,7 +581,7 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.color = "#98a1aa";
+                  e.currentTarget.style.color = "#98A1AA";
                 }}
                 aria-label="close"
               >
@@ -558,25 +590,29 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
             </div>
 
             {/* 본문(스크롤) */}
-            <div className="p-6 overflow-y-auto space-y-5">
+            <div className="flex-1 p-7 overflow-y-auto space-y-6">
               <div>
                 <div
-                  className="text-sm font-bold mb-2 flex items-center gap-2"
-                  style={{ color: "#5f7a8f" }}
+                  className="text-sm font-bold mb-3 flex items-center gap-2.5"
+                  style={{ color: "#2C4156" }}
                 >
                   <div
-                    className="w-1 h-4 rounded-full"
-                    style={{ backgroundColor: "#ef4444" }}
+                    className="w-1.5 h-5 rounded-full"
+                    style={{
+                      backgroundColor: "#ef4444",
+                      boxShadow: "0 0 8px rgba(239, 68, 68, 0.3)",
+                    }}
                   />
                   오류 내용
                 </div>
                 <div
-                  className="p-4 rounded-xl text-sm whitespace-pre-wrap"
+                  className="p-5 rounded-xl text-sm whitespace-pre-wrap leading-relaxed"
                   style={{
-                    backgroundColor: "rgba(239, 68, 68, 0.05)",
+                    backgroundColor: "rgba(239, 68, 68, 0.04)",
                     borderColor: "rgba(239, 68, 68, 0.2)",
-                    borderWidth: "1px",
-                    color: "#2c4156",
+                    borderWidth: "1.5px",
+                    color: "#2C4156",
+                    boxShadow: "inset 0 2px 8px rgba(239, 68, 68, 0.05)",
                   }}
                 >
                   {activeLog.error}
@@ -584,34 +620,40 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-3">
                   <div
-                    className="text-sm font-bold flex items-center gap-2"
-                    style={{ color: "#5f7a8f" }}
+                    className="text-sm font-bold flex items-center gap-2.5"
+                    style={{ color: "#2c4156" }}
                   >
                     <div
-                      className="w-1 h-4 rounded-full"
-                      style={{ backgroundColor: "#5f7a8f" }}
+                      className="w-1.5 h-5 rounded-full"
+                      style={{
+                        backgroundColor: "#7F99B2",
+                        boxShadow: "0 0 8px rgba(127, 153, 178, 0.3)",
+                      }}
                     />
                     원본 출력/Stacktrace
                   </div>
                   <button
                     onClick={() => setShowRaw((v) => !v)}
-                    className="text-xs px-3 py-1.5 rounded-lg font-semibold transition-all"
+                    className="text-xs px-4 py-2 rounded-lg font-bold transition-all duration-200"
                     style={{
-                      backgroundColor: "rgba(95, 122, 143, 0.1)",
-                      color: "#5f7a8f",
-                      borderColor: "rgba(95, 122, 143, 0.3)",
-                      borderWidth: "1px",
+                      backgroundColor: "rgba(127, 153, 178, 0.1)",
+                      color: "#7F99B2",
+                      borderColor: "#D2D7DB",
+                      borderWidth: "1.5px",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "#5f7a8f";
+                      e.currentTarget.style.backgroundColor = "#39586D";
                       e.currentTarget.style.color = "#ffffff";
+                      e.currentTarget.style.boxShadow =
+                        "0 2px 8px rgba(57, 88, 109, 0.3)";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor =
-                        "rgba(95, 122, 143, 0.1)";
-                      e.currentTarget.style.color = "#5f7a8f";
+                        "rgba(127, 153, 178, 0.1)";
+                      e.currentTarget.style.color = "#7F99B2";
+                      e.currentTarget.style.boxShadow = "none";
                     }}
                   >
                     {showRaw ? "접기" : "펼치기"}
@@ -620,7 +662,7 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
 
                 {showRaw ? (
                   <pre
-                    className="p-4 text-xs rounded-xl overflow-auto max-h-[40vh] whitespace-pre"
+                    className="p-4 text-xs rounded-xl overflow-auto max-h-[60vh] whitespace-pre"
                     style={{
                       backgroundColor: "rgba(95, 122, 143, 0.05)",
                       borderColor: "rgba(197, 204, 211, 0.4)",
@@ -632,7 +674,7 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
                   </pre>
                 ) : (
                   <pre
-                    className="p-4 text-xs rounded-xl overflow-auto max-h-[18vh] whitespace-pre"
+                    className="p-4 text-xs rounded-xl overflow-auto max-h-[30vh] whitespace-pre"
                     style={{
                       backgroundColor: "rgba(95, 122, 143, 0.05)",
                       borderColor: "rgba(197, 204, 211, 0.4)",
@@ -647,41 +689,54 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
 
               <div>
                 <div
-                  className="text-sm font-bold mb-2 flex items-center gap-2"
-                  style={{ color: "#5f7a8f" }}
+                  className="text-sm font-bold mb-3 flex items-center gap-2.5"
+                  style={{ color: "#2C4156" }}
                 >
                   <div
-                    className="w-1 h-4 rounded-full"
-                    style={{ backgroundColor: "#10b981" }}
+                    className="w-1.5 h-5 rounded-full"
+                    style={{
+                      backgroundColor: "#10b981",
+                      boxShadow: "0 0 8px rgba(16, 185, 129, 0.3)",
+                    }}
                   />
                   해결 방법
                 </div>
                 {resolutionBullets.length > 0 ? (
-                  <ul className="space-y-2">
+                  <ul className="space-y-2.5">
                     {resolutionBullets.map((b, i) => (
                       <li
                         key={i}
-                        className="flex gap-2 p-3 rounded-lg text-sm whitespace-pre-wrap"
+                        className="flex gap-3 p-4 rounded-lg text-sm whitespace-pre-wrap leading-relaxed"
                         style={{
-                          backgroundColor: "rgba(16, 185, 129, 0.05)",
+                          backgroundColor: "rgba(16, 185, 129, 0.04)",
                           borderColor: "rgba(16, 185, 129, 0.2)",
-                          borderWidth: "1px",
+                          borderWidth: "1.5px",
                           color: "#2c4156",
+                          boxShadow: "inset 0 2px 8px rgba(16, 185, 129, 0.05)",
                         }}
                       >
-                        <span style={{ color: "#10b981" }}>•</span>
+                        <span
+                          style={{
+                            color: "#10b981",
+                            fontWeight: "bold",
+                            fontSize: "1.1rem",
+                          }}
+                        >
+                          •
+                        </span>
                         <span>{b}</span>
                       </li>
                     ))}
                   </ul>
                 ) : (
                   <div
-                    className="p-4 rounded-xl text-sm whitespace-pre-wrap"
+                    className="p-5 rounded-xl text-sm whitespace-pre-wrap leading-relaxed"
                     style={{
-                      backgroundColor: "rgba(16, 185, 129, 0.05)",
+                      backgroundColor: "rgba(16, 185, 129, 0.04)",
                       borderColor: "rgba(16, 185, 129, 0.2)",
-                      borderWidth: "1px",
+                      borderWidth: "1.5px",
                       color: "#2c4156",
+                      boxShadow: "inset 0 2px 8px rgba(16, 185, 129, 0.05)",
                     }}
                   >
                     {activeLog.resolution}
