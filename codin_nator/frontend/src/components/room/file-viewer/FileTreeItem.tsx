@@ -151,8 +151,8 @@ export const FileTreeItem = ({
           )}
         </span>
 
-        {/* 파일명 표시 */}
-        <span className="truncate leading-6 flex-1">{node.name}</span>
+        {/* 파일명 표시 (글자가 길면 툴팁으로 전체 이름 표시) */}
+        <span className="truncate leading-6 flex-1" title={node.name}>{node.name}</span>
       </div>
 
       {/* 폴더가 열려있고 자식이 있다면 재귀적으로 렌더링합니다. */}

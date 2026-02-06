@@ -285,7 +285,7 @@ const FileViewer = ({
             <span className="text-xs">(.zip 파일을 이곳에 드래그하세요)</span>
           </div>
         ) : (
-          <div className="py-1">
+          <div className="py-1 inline-block min-w-full">
             {files.map((node) => (
               <FileTreeItem
                 key={node.fileId}

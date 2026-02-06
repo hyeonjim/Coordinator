@@ -410,9 +410,8 @@
 
 .voice-chat-header {
   @apply flex items-center justify-between p-1;
-  background-color: #1A1F24;
+  background-color: #2d353c;
   border-top: 1px solid #0A080D;
-  border-bottom: 1px solid #0A080D;
   color: #bebdc5;
 }
 
@@ -433,7 +432,7 @@
 
 .voice-chat-participants {
   @apply space-y-1 overflow-y-auto flex-1 p-1 pt-2;
-  background-color: #434f5a;
+  background-color: #515e6a;
 }
 
 .participant-row {
@@ -509,7 +508,7 @@
 
 .text-chat-messages {
   @apply flex-1 overflow-y-auto p-4 space-y-3;
-  background-color: #434f5a;
+  background-color: #515e6a;
 }
 
 .message-bubble {
@@ -539,7 +538,7 @@
 }
 
 .message-text-mine {
-  background-color: #7F838D;
+  background-color: #9b9ea8;
   color: #08030e;
   border-bottom-right-radius: 4px;
 }
