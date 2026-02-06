@@ -238,7 +238,15 @@ export default function RoomTerminal({
     setIsTerminalOpen((previousState) => !previousState);
   }, []);
 
-  // 렌더링
+  useEffect(() => {
+    if (!fitAddonRef.current || !terminalRef.current) return;
+
+    try {
+      fitAddonRef.current.fit();
+    } catch (error) {
+      console.warn("Terminal fit 실패 (height 변경):", error);
+    }
+  }, [terminalHeight]);
 
   return (
     <>
@@ -253,30 +261,27 @@ export default function RoomTerminal({
       </button>
 
       {/* 터미널이 열려있을 때만 표시 */}
-      {isTerminalOpen && (
-        <>
-          {/* 드래그 핸들 */}
-          <div
-            onMouseDown={handleDragStart}
-            className="terminal-resize-handle"
-          >
-            <div className="terminal-resize-icon">
-              ≡
-            </div>
-          </div>
+      <>
+        {/* 드래그 핸들 */}
+        <div
+          onMouseDown={handleDragStart}
+          className={`terminal-resize-handle ${isTerminalOpen ? "" : "hidden"}`}
+        >
+          <div className="terminal-resize-icon">≡</div>
+        </div>
 
-          {/* 터미널 영역 */}
-          <div
-            style={{ height: terminalHeight }}
-            className="terminal-container"
-          >
-            {/* xterm 터미널 출력 영역 */}
-            <div className="terminal-content">
-              <div ref={terminalContainerRef} className="h-full w-full" />
-            </div>
+        {/* 터미널 영역 */}
+        <div
+          style={{ height: isTerminalOpen ? terminalHeight : 0 }}
+          className={`terminal-container transition-all duration-200 ${
+            isTerminalOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
+        >
+          <div className="terminal-content">
+            <div ref={terminalContainerRef} className="h-full w-full" />
           </div>
-        </>
-      )}
+        </div>
+      </>
     </>
   );
 }
