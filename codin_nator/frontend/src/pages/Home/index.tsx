@@ -3,6 +3,7 @@
  * OAuth 콜백 처리 및 인증된 사용자의 메인 레이아웃
  */
 import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 
 import {
   Avatar,
@@ -15,6 +16,15 @@ import { aiService, type TestReportResponse } from "@/services/ai/aiService";
 import { useOAuthCallback } from "@/hooks/user/useOAuthCallback";
 import { useNavigate } from "react-router-dom";
 import CreateRoomModal from "@/components/home/CreateRoomModal";
+import {
+  LogOut,
+  Plus,
+  Github,
+  TrendingUp,
+  Bug,
+  Calendar,
+  Activity,
+} from "lucide-react";
 
 /** contribution-graph.tsx와 동일한 형태로 맞춤 */
 interface ErrorLog {
@@ -162,6 +172,21 @@ export default function HomeLayout() {
     return map;
   }, [reports, selectedRoomId]);
 
+  // 통계 계산
+  const stats = useMemo(() => {
+    const totalErrors = Object.values(contributionData).reduce(
+      (sum, day) => sum + day.count,
+      0,
+    );
+    const daysWithErrors = Object.values(contributionData).filter(
+      (day) => day.count > 0,
+    ).length;
+    const avgErrorsPerDay =
+      daysWithErrors > 0 ? (totalErrors / daysWithErrors).toFixed(1) : "0";
+
+    return { totalErrors, daysWithErrors, avgErrorsPerDay };
+  }, [contributionData]);
+
   useEffect(() => {
     const bump = () => setRefreshTick((v) => v + 1);
 
@@ -192,12 +217,30 @@ export default function HomeLayout() {
   // 로그인 처리 중 로딩 표시
   if (isProcessing) {
     return (
-      <div className="h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: "#e8ecef" }}
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
           {/* 로딩 스피너 */}
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-foreground mx-auto mb-4" />
-          <p className="text-foreground">로그인 처리 중...</p>
-        </div>
+          <div className="relative">
+            <div
+              className="animate-spin rounded-full h-16 w-16 border-4 mx-auto mb-6"
+              style={{ borderColor: "#c5ccd3", borderTopColor: "#5f7a8f" }}
+            />
+            <div
+              className="absolute inset-0 rounded-full blur-xl animate-pulse"
+              style={{ backgroundColor: "rgba(95, 122, 143, 0.25)" }}
+            />
+          </div>
+          <p className="font-medium" style={{ color: "#2c4156" }}>
+            Logging in...
+          </p>
+        </motion.div>
       </div>
     );
   }
@@ -205,49 +248,143 @@ export default function HomeLayout() {
   // 에러 발생 시 표시
   if (error) {
     return (
-      <div className="h-screen flex items-center justify-center bg-background">
-        <div className="text-center text-red-500">
-          <p className="mb-4">로그인 오류: {error}</p>
-          <a
-            href="/"
-            className="underline text-foreground hover:text-muted-foreground"
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: "#e8ecef" }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center max-w-md mx-auto px-6"
+        >
+          <div
+            className="backdrop-blur-xl rounded-3xl shadow-xl p-8"
+            style={{
+              backgroundColor: "rgba(255, 255, 255, 0.85)",
+              borderColor: "#c5ccd3",
+              borderWidth: "1px",
+            }}
           >
-            다시 시도하기
-          </a>
-        </div>
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-3xl">⚠️</span>
+            </div>
+            <h3 className="text-xl font-bold mb-2" style={{ color: "#2c4156" }}>
+              Login Error
+            </h3>
+            <p className="text-red-600 mb-6">{error}</p>
+            <a
+              href="/"
+              className="
+                inline-block px-6 py-3
+                rounded-xl font-medium
+                text-white
+                shadow-lg
+                transition-all duration-200
+              "
+              style={{
+                backgroundColor: "#5f7a8f",
+                boxShadow: "0 4px 20px rgba(95, 122, 143, 0.35)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#39586d";
+                e.currentTarget.style.boxShadow =
+                  "0 6px 24px rgba(57, 88, 109, 0.45)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "#5f7a8f";
+                e.currentTarget.style.boxShadow =
+                  "0 4px 20px rgba(95, 122, 143, 0.35)";
+              }}
+            >
+              Try Again
+            </a>
+          </div>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-y-scroll">
-      <div className="flex flex-1">
-        <div className="max-w-4xl mx-auto space-y-8 p-6">
-          {/* 프로필 섹션 */}
+    <div
+      className="min-h-screen overflow-y-auto"
+      style={{ backgroundColor: "#e8ecef" }}
+    >
+      {/* 배경 장식 */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div
+          className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full blur-3xl animate-pulse"
+          style={{
+            backgroundColor: "rgba(127, 153, 178, 0.3)",
+            animationDuration: "4s",
+          }}
+        />
+        <div
+          className="absolute top-1/3 -left-32 w-[500px] h-[500px] rounded-full blur-3xl animate-pulse"
+          style={{
+            backgroundColor: "rgba(57, 88, 109, 0.25)",
+            animationDuration: "5s",
+          }}
+        />
+        <div
+          className="absolute bottom-20 right-1/4 w-[400px] h-[400px] rounded-full blur-3xl animate-pulse"
+          style={{
+            backgroundColor: "rgba(152, 161, 170, 0.2)",
+            animationDuration: "6s",
+          }}
+        />
+      </div>
+
+      <div className="relative max-w-6xl mx-auto px-25 py-10 space-y-8">
+        {/* 프로필 섹션 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="relative backdrop-blur-xl rounded-3xl shadow-xl p-8"
+          style={{
+            backgroundColor: "rgba(247, 247, 247, 0.9)",
+            borderColor: "rgba(210, 215, 219, 0.5)",
+            borderWidth: "1.5px",
+            boxShadow: "0 10px 40px rgba(44, 65, 86, 0.1)",
+          }}
+        >
           <div className="flex items-start justify-between">
             {/* 왼쪽: 프로필 */}
-            <div className="flex items-center gap-4">
-              <Avatar className="h-20 w-20">
-                <AvatarImage
-                  src={user?.imageUrl || "/placeholder.svg"}
-                  alt={user?.name || "User"}
+            <div className="flex items-center gap-6">
+              <div className="relative group">
+                <div
+                  className="absolute inset-0 rounded-full blur-md opacity-50 group-hover:opacity-70 transition"
+                  style={{ backgroundColor: "rgba(127, 153, 178, 0.5)" }}
                 />
-                <AvatarFallback className="text-2xl">
-                  {user?.name?.charAt(0).toUpperCase() || "U"}
-                </AvatarFallback>
-              </Avatar>
+                <Avatar className="relative h-24 w-24 ring-4 ring-white shadow-lg">
+                  <AvatarImage
+                    src={user?.imageUrl || "/placeholder.svg"}
+                    alt={user?.name || "User"}
+                  />
+                  <AvatarFallback
+                    className="text-2xl text-white"
+                    style={{ backgroundColor: "#7F99B2" }}
+                  >
+                    {user?.name?.charAt(0).toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
 
-              <div>
-                <h2 className="text-xl font-semibold text-foreground">
+              <div className="space-y-1">
+                <h2 className="text-2xl font-bold" style={{ color: "#2c4156" }}>
                   {user?.name || "Unknown User"}
                 </h2>
-                <p className="text-muted-foreground">
+                <p className="text-sm" style={{ color: "#98A1AA" }}>
                   {user?.email || "No email provided"}
                 </p>
                 {user?.gitId && (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    GitHub ID: {user.gitId}
-                  </p>
+                  <div
+                    className="flex items-center gap-1.5 text-sm mt-2"
+                    style={{ color: "#98A1AA" }}
+                  >
+                    <Github className="w-4 h-4" />
+                    <span>{user.gitId}</span>
+                  </div>
                 )}
               </div>
             </div>
@@ -256,57 +393,231 @@ export default function HomeLayout() {
             <button
               onClick={handleLogout}
               className="
-      h-10 px-4
-      rounded-lg
-      text-sm font-medium
-      text-muted-foreground
-      border border-border
-      hover:text-destructive
-      hover:border-destructive
-      hover:bg-destructive/10
-      transition
-    "
+                group flex items-center gap-2 px-5 py-2.5
+                rounded-xl font-medium text-sm
+                backdrop-blur
+                shadow-sm
+                transition-all duration-200
+              "
+              style={{
+                color: "#98A1AA",
+                backgroundColor: "rgba(247, 247, 247, 0.9)",
+                borderColor: "#D2D7DB",
+                borderWidth: "1.5px",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "#7F99B2";
+                e.currentTarget.style.color = "#39586D";
+                e.currentTarget.style.backgroundColor =
+                  "rgba(127, 153, 178, 0.1)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "#D2D7DB";
+                e.currentTarget.style.color = "#98A1AA";
+                e.currentTarget.style.backgroundColor =
+                  "rgba(247, 247, 247, 0.9)";
+              }}
             >
+              <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
               Logout
             </button>
           </div>
+        </motion.div>
 
-          {/* 기여 그래프 섹션 */}
-          <div className="bg-card rounded-xl border p-6 relative">
-            <button
-              className="
-    absolute top-6 right-6
-    px-4 py-2
-    text-sm font-medium
-    rounded-lg
-    border border-neutral-300
-    bg-background
-    hover:bg-neutral-100
-    transition
-  "
-              onClick={() => setIsCreateRoomOpen(true)}
-            >
-              방 만들기
-            </button>
-            {/* ✅ 방별 보기 */}
-            <div className="flex items-center justify-between gap-4 mb-4">
-              <select
-                value={selectedRoomId}
-                onChange={(e) => setSelectedRoomId(e.target.value)}
-                className="h-9 px-3 rounded-md border bg-background text-sm"
+        {/* 기여 그래프 섹션 */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
+          className="relative backdrop-blur-xl rounded-3xl shadow-xl p-8"
+          style={{
+            backgroundColor: "rgba(247, 247, 247, 0.9)",
+            borderColor: "rgba(210, 215, 219, 0.5)",
+            borderWidth: "1.5px",
+            boxShadow: "0 10px 40px rgba(44, 65, 86, 0.1)",
+          }}
+        >
+          {/* 헤더 */}
+          <div className="flex items-start justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <div
+                className="p-2.5 rounded-xl"
+                style={{
+                  backgroundColor: "rgba(127, 153, 178, 0.15)",
+                  boxShadow: "0 2px 10px rgba(127, 153, 178, 0.2)",
+                }}
               >
-                <option value="all">전체 (참여한 모든 방)</option>
-                {roomOptions.map((id) => (
-                  <option key={id} value={id}>
-                    Room #{id}
-                  </option>
-                ))}
-              </select>
+                <Activity className="w-6 h-6" style={{ color: "#39586D" }} />
+              </div>
+              <div>
+                <h3
+                  className="text-2xl font-bold mb-1"
+                  style={{ color: "#2C4156" }}
+                >
+                  Error Report Diary
+                </h3>
+                <p className="text-sm" style={{ color: "#98A1AA" }}>
+                  Track your debugging journey & growth
+                </p>
+              </div>
             </div>
-            <ContributionGraph data={contributionData} />
+
+            <button
+              onClick={() => setIsCreateRoomOpen(true)}
+              className="
+                group flex items-center gap-2 px-5 py-2.5
+                rounded-xl font-medium text-sm
+                text-white
+                shadow-lg
+                hover:scale-105
+                transition-all duration-200
+              "
+              style={{
+                backgroundColor: "#7F99B2",
+                boxShadow: "0 4px 20px rgba(127, 153, 178, 0.3)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#39586D";
+                e.currentTarget.style.boxShadow =
+                  "0 6px 24px rgba(57, 88, 109, 0.4)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "#7F99B2";
+                e.currentTarget.style.boxShadow =
+                  "0 4px 20px rgba(127, 153, 178, 0.3)";
+              }}
+            >
+              <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-200" />
+              Create Room
+            </button>
           </div>
-        </div>
+
+          {/* 통계 카드들 */}
+          <div className="grid grid-cols-3 gap-5 mb-8">
+            <motion.div
+              key={`total-${selectedRoomId}-${stats.totalErrors}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }}
+              className="p-6 rounded-2xl bg-white shadow-sm transition-all duration-300"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2.5 rounded-xl bg-red-50">
+                  <Bug className="w-5 h-5 text-red-600" />
+                </div>
+                <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                  Total Errors
+                </span>
+              </div>
+              <p className="text-4xl font-extrabold tracking-tight text-red-500">
+                {stats.totalErrors}
+              </p>
+            </motion.div>
+
+            <motion.div
+              key={`days-${selectedRoomId}-${stats.daysWithErrors}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
+              className="p-6 rounded-2xl bg-white shadow-sm transition-all duration-300"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2.5 rounded-xl bg-slate-50">
+                  <Calendar className="w-5 h-5 text-slate-600" />
+                </div>
+                <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                  Active Days
+                </span>
+              </div>
+              <p className="text-4xl font-extrabold tracking-tight text-slate-600">
+                {stats.daysWithErrors}
+              </p>
+            </motion.div>
+
+            <motion.div
+              key={`avg-${selectedRoomId}-${stats.avgErrorsPerDay}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.6, ease: "easeOut" }}
+              className="p-6 rounded-2xl bg-white shadow-sm transition-all duration-300"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2.5 rounded-xl bg-emerald-50">
+                  <TrendingUp className="w-5 h-5 text-emerald-600" />
+                </div>
+                <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                  Daily Average
+                </span>
+              </div>
+              <p className="text-4xl font-extrabold tracking-tight text-emerald-500">
+                {stats.avgErrorsPerDay}
+              </p>
+            </motion.div>
+          </div>
+
+          {/* 방별 보기 - 왼쪽 정렬 */}
+          <motion.div
+            className="mb-6"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+          >
+            <select
+              value={selectedRoomId}
+              onChange={(e) => setSelectedRoomId(e.target.value)}
+              className="
+                h-11 px-4 pr-10
+                rounded-xl
+                backdrop-blur
+                text-sm font-semibold
+                shadow-sm
+                transition-all duration-200
+                cursor-pointer
+              "
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.8)",
+                borderColor: "rgba(95, 122, 143, 0.25)",
+                borderWidth: "1.5px",
+                color: "#2c4156",
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "#5f7a8f";
+                e.currentTarget.style.boxShadow =
+                  "0 0 0 4px rgba(95, 122, 143, 0.12)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "rgba(95, 122, 143, 0.25)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+              <option value="all">All Rooms</option>
+              {roomOptions.map((id) => (
+                <option key={id} value={id}>
+                  Room #{id}
+                </option>
+              ))}
+            </select>
+          </motion.div>
+
+          {/* ContributionGraph */}
+          <motion.div
+            key={`graph-${selectedRoomId}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.7 }}
+            className="p-7 rounded-2xl backdrop-blur"
+            style={{
+              backgroundColor: "rgba(255, 255, 255, 0.6)",
+              borderColor: "rgba(152, 161, 170, 0.2)",
+              borderWidth: "1px",
+              boxShadow: "0 4px 20px rgba(44, 65, 86, 0.06)",
+            }}
+          >
+            <ContributionGraph data={contributionData} />
+          </motion.div>
+        </motion.div>
       </div>
+
       {isCreateRoomOpen && (
         <CreateRoomModal onClose={() => setIsCreateRoomOpen(false)} />
       )}
