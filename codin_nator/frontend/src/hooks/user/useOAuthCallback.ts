@@ -73,7 +73,7 @@ export function useOAuthCallback(): UseOAuthCallbackResult {
         setSearchParams(searchParams, { replace: true });
 
         // mypage로 리다이렉트
-        navigate("/home/mypage", { replace: true });
+        navigate("/home", { replace: true });
       } catch (err) {
         // 에러 처리
         const errorMessage =
