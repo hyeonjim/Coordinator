@@ -267,7 +267,7 @@ export default function CodeEditor({
      🖥 Render
      ========================= */
   return (
-    <div className="h-full w-full flex flex-col bg-[#1e1e1e]">
+    <div className="h-full w-full flex flex-col bg-[#26282a]">
       <Codeeditoractions
         roomId={roomId}
         fileName={fileName}

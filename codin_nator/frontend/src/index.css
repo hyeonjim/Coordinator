@@ -213,3 +213,486 @@
 .contrib-level-4 {
   background-color: oklch(0.4 0.18 25);
 }
+
+/* ============================================
+   Room 테마 - 색상 변수
+   ============================================ */
+:root {
+  --room-darkest: #2c4156;
+  --room-dark: #39586d;
+  --room-accent: #7f99b2;
+  --room-medium: #98a1aa;
+  --room-light: #d2d7db;
+  --room-lightest: #f7f7f7;
+  --room-editor-bg: #1e2a35;
+  --room-sidebar-bg: #3a4a5a;
+  --room-hover: rgba(127, 153, 178, 0.15);
+  --room-active: rgba(127, 153, 178, 0.25);
+}
+
+/* ============================================
+   Room 레이아웃 스타일
+   ============================================ */
+.room-container {
+  @apply h-screen flex flex-col;
+  background-color: var(--room-lightest);
+}
+
+.room-main {
+  @apply flex-1 flex overflow-hidden;
+}
+
+.room-sidebar-left {
+  @apply w-64 flex flex-col;
+  background-color: var(--room-sidebar-bg);
+}
+
+.room-content {
+  @apply flex-1 flex flex-col min-w-0 overflow-hidden relative;
+  background-color: var(--room-editor-bg);
+}
+
+/* ============================================
+   Room 헤더 스타일
+   ============================================ */
+.room-header {
+  @apply h-10 flex items-center justify-between px-4 shrink-0;
+  background-color: #2a4157;
+}
+
+.room-header-logo {
+  @apply h-7 px-2 flex items-center justify-center;
+  background-color: transparent;
+}
+
+.room-git-btn {
+  @apply px-3 py-1.5 text-xs font-medium rounded;
+  background-color: var(--room-lightest);
+  color: var(--room-darkest);
+  border: 1px solid var(--room-light);
+  transition: all 0.15s ease;
+}
+
+.room-git-btn:hover {
+  background-color: var(--room-light);
+  border-color: var(--room-medium);
+}
+
+.room-share-btn {
+  @apply w-8 h-8 flex items-center justify-center rounded;
+  color: var(--room-lightest);
+  transition: all 0.15s ease;
+}
+
+.room-share-btn:hover {
+  background-color: var(--room-hover);
+  color: var(--room-lightest);
+}
+
+.room-dropdown {
+  @apply absolute right-0 top-10 w-80 rounded-lg shadow-xl p-3 z-50;
+  background-color: var(--room-lightest);
+  border: 1px solid var(--room-light);
+}
+
+.room-dropdown-input {
+  @apply flex-1 px-3 py-2 rounded text-sm;
+  background-color: white;
+  color: var(--room-darkest);
+  border: 1px solid var(--room-light);
+}
+
+.room-dropdown-input:focus {
+  outline: none;
+  border-color: var(--room-accent);
+  box-shadow: 0 0 0 2px var(--room-hover);
+}
+
+.room-action-btn {
+  @apply px-3 py-1.5 rounded text-sm font-semibold;
+  transition: all 0.15s ease;
+}
+
+.room-action-btn-primary {
+  background-color: var(--room-accent);
+  color: white;
+  border: 1px solid var(--room-accent);
+}
+
+.room-action-btn-primary:hover {
+  background-color: var(--room-dark);
+  border-color: var(--room-dark);
+}
+
+.room-action-btn-secondary {
+  background-color: var(--room-lightest);
+  color: var(--room-darkest);
+  border: 1px solid var(--room-light);
+}
+
+.room-action-btn-secondary:hover {
+  background-color: var(--room-light);
+}
+
+/* ============================================
+   Room 파일 뷰어 스타일
+   ============================================ */
+.file-viewer-container {
+  @apply w-full h-full flex flex-col font-sans select-none;
+  background-color: #1c2f42;
+}
+
+.file-viewer-header {
+  @apply flex items-center justify-between px-4 h-9;
+  background-color: #12293d;
+}
+
+.file-viewer-header:hover {
+  background-color: rgba(39, 84, 127, 0.1);
+}
+
+.file-viewer-title {
+  @apply flex items-center text-[11px] font-semibold tracking-widest uppercase cursor-pointer;
+  color: #94abc4;
+}
+
+.file-viewer-actions {
+  @apply flex items-center gap-2 text-sm;
+  color: #a8b6c6;
+}
+
+.file-viewer-actions svg:hover {
+  color: #61778f;
+}
+
+.file-tree-item {
+  @apply flex items-center py-1 cursor-pointer select-none text-[13px] h-[26px];
+  color: var(--room-lightest);
+  transition:
+    background-color 0.1s ease,
+    color 0.1s ease;
+}
+
+.file-tree-item:hover {
+  background-color: rgba(127, 153, 178, 0.15);
+  color: var(--room-lightest);
+}
+
+.file-tree-item-selected {
+  background-color: #4b5e73 !important;
+  color: white !important;
+}
+
+.file-viewer-statusbar {
+  @apply h-[22px] text-[11px] flex items-center px-3 gap-3;
+  background-color: #35485c;
+  color: rgb(201, 200, 218);
+}
+
+.file-viewer-empty {
+  @apply h-full min-h-[150px] flex flex-col items-center justify-center space-y-2;
+  color: var(--room-medium);
+  opacity: 0.6;
+}
+
+/* ============================================
+   Room 음성 채팅 스타일
+   ============================================ */
+.voice-chat-container {
+  @apply flex flex-col h-full overflow-hidden;
+}
+
+.voice-chat-header {
+  @apply flex items-center justify-between p-1;
+  background-color: #687f98;
+  border-top: 1px solid #6d7d8c;
+  border-bottom: 1px solid #6d7d8c;
+  color: #d9dae3;
+}
+
+.voice-chat-title {
+  @apply text-[12px] font-semibold uppercase tracking-widest;
+  margin-left: 10px;
+}
+
+.voice-chat-status {
+  @apply flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-semibold;
+}
+
+.voice-chat-status-dot {
+  @apply w-1.5 h-1.5 rounded-full;
+  background-color: #65e1c8;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.voice-chat-participants {
+  @apply space-y-1 overflow-y-auto flex-1 p-1 pt-2;
+  background-color: #b4bbc0;
+}
+
+.participant-row {
+  @apply flex items-center justify-between px-2;
+  transition: background-color 0.15s ease;
+}
+
+.participant-row:hover {
+  background-color: #8997a5;
+  border-radius: 15px;
+}
+
+.participant-avatar {
+  @apply h-10 w-10 shrink-0 rounded-full flex items-center justify-center font-semibold overflow-hidden;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.participant-avatar-speaking {
+  border-color: #4ec9b0;
+  box-shadow: 0 0 12px rgba(78, 201, 176, 0.4);
+}
+
+.participant-name {
+  @apply truncate text-[14px] font-semibold leading-tight;
+  color: #375671;
+}
+
+.participant-mic-btn {
+  @apply flex items-center pl-2 py-1 px-2 cursor-pointer;
+  transition: all 0.15s ease;
+}
+
+.participant-mic-btn:hover {
+}
+
+.mic-icon-on {
+  color: #1f5248;
+}
+
+.mic-icon-off {
+  color: #375671;
+}
+
+.mic-icon-muted {
+  color: #f14c4c;
+}
+
+.mic-status-text {
+  @apply text-[11px] font-bold w-9 text-center;
+  /* color: #c7d2db; */
+}
+
+.voice-chat-empty {
+  @apply flex flex-col items-center justify-center py-8;
+  color: var(--room-medium);
+  opacity: 0.6;
+}
+
+/* ============================================
+   Room 텍스트 채팅 스타일
+   ============================================ */
+.text-chat-container {
+  @apply relative h-full flex;
+}
+
+.text-chat-sidebar {
+  @apply h-full transition-all duration-300 ease-in-out overflow-hidden;
+}
+
+.text-chat-panel {
+  @apply h-full flex flex-col;
+  width: 320px;
+}
+
+.text-chat-messages {
+  @apply flex-1 overflow-y-auto p-4 space-y-3;
+  background-color: #ced7e0;
+}
+
+.message-bubble {
+  @apply flex gap-2 items-end;
+}
+
+.message-bubble-mine {
+  @apply justify-end;
+}
+
+.message-bubble-other {
+  @apply justify-start;
+}
+
+.message-avatar {
+  @apply h-8 w-8 rounded-full flex items-center justify-center font-semibold overflow-hidden shrink-0;
+  background-color: var(--room-accent);
+  color: white;
+  border: 1px solid var(--room-medium);
+}
+
+.message-content {
+  @apply max-w-[70%];
+}
+
+.message-text {
+  @apply rounded-2xl px-4 py-2 text-sm break-words;
+}
+
+.message-text-mine {
+  background-color: var(--room-accent);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.message-text-other {
+  background-color: var(--room-lightest);
+  color: var(--room-darkest);
+  border: 1px solid var(--room-light);
+  border-bottom-left-radius: 4px;
+}
+
+.message-meta {
+  @apply flex items-center gap-1 mt-1 px-1 text-xs;
+  color: var(--room-medium);
+}
+
+.text-chat-input-form {
+  @apply p-4;
+  background-color: #a2b2c0;
+}
+
+.text-chat-input {
+  @apply flex-1 rounded-lg px-4 py-2 text-sm;
+  background-color: white;
+  color: var(--room-darkest);
+  border: 1px solid var(--room-light);
+}
+
+.text-chat-input::placeholder {
+  color: var(--room-medium);
+}
+
+.text-chat-input:focus {
+  outline: none;
+  border-color: var(--room-accent);
+  box-shadow: 0 0 0 2px var(--room-hover);
+}
+
+.text-chat-input:disabled {
+  background-color: var(--room-light);
+  cursor: not-allowed;
+}
+
+.text-chat-send-btn {
+  @apply rounded-lg px-4 py-2 text-sm font-semibold whitespace-nowrap;
+  background-color: var(--room-accent);
+  color: white;
+  transition: all 0.15s ease;
+}
+
+.text-chat-send-btn:hover {
+  background-color: var(--room-dark);
+}
+
+.text-chat-send-btn:disabled {
+  background-color: var(--room-light);
+  color: var(--room-medium);
+  cursor: not-allowed;
+}
+
+.text-chat-toggle {
+  @apply absolute -left-6 top-1/2 -translate-y-1/2 px-1 py-2 rounded text-sm z-20;
+  background-color: var(--room-dark);
+  color: white;
+  transition: all 0.15s ease;
+}
+
+.text-chat-toggle:hover {
+  background-color: var(--room-accent);
+}
+
+.text-chat-empty {
+  @apply text-center py-8;
+  color: var(--room-medium);
+}
+
+/* ============================================
+   Room 터미널 스타일
+   ============================================ */
+.terminal-container {
+  @apply flex flex-col overflow-hidden;
+  background-color: var(--room-editor-bg);
+  border-top: 1px solid var(--room-medium);
+}
+
+.terminal-toggle-btn {
+  @apply absolute bottom-0 right-4 px-3 py-1 text-xs flex items-center gap-2 z-10;
+  background-color: var(--room-dark);
+  color: white;
+  border: 1px solid var(--room-medium);
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  transition: all 0.15s ease;
+}
+
+.terminal-toggle-btn:hover {
+  background-color: var(--room-accent);
+}
+
+.terminal-resize-handle {
+  @apply relative h-1 cursor-row-resize flex items-center justify-center;
+  background-color: var(--room-medium);
+}
+
+.terminal-resize-handle:hover {
+  background-color: var(--room-accent);
+}
+
+.terminal-resize-icon {
+  @apply opacity-0 transition text-xs select-none pointer-events-none;
+  color: white;
+}
+
+.terminal-resize-handle:hover .terminal-resize-icon {
+  opacity: 1;
+}
+
+.terminal-content {
+  @apply flex-1 min-h-0 p-2 overflow-auto;
+  background-color: var(--room-editor-bg);
+}
+
+/* ============================================
+   Room 스크롤바 스타일
+   ============================================ */
+.room-scrollbar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.room-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.room-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--room-medium);
+  border-radius: 5px;
+}
+
+.room-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: var(--room-accent);
+}
+
+/* ============================================
+   Room 애니메이션
+   ============================================ */
+@keyframes speaking-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(78, 201, 176, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(78, 201, 176, 0.6);
+  }
+}
+
+.speaking-glow {
+  animation: speaking-glow 1.5s ease-in-out infinite;
+}

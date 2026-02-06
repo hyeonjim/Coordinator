@@ -200,8 +200,19 @@ export default function Codeeditoractions({
     }
   };
 
+  // ✅ 버튼 공통 Tailwind 스타일 (통일)
+  const actionBtnBase =
+    "flex items-center gap-2 px-3 py-1.5 text-[12px] font-medium rounded-full " +
+    "border border-transparent transition " +
+    "active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-white/10";
+
+  const actionBtnEnabled =
+    "bg-slate-600 text-slate-300 hover:bg-slate-500 hover:text-white";
+
+  const actionBtnDisabled = "bg-[#2d2d30] text-[#858585] cursor-not-allowed";
+
   return (
-    <div className="flex items-center gap-2 px-4 h-[35px] bg-[#1e1e1e] border-b border-[#2d2d30] flex-shrink-0">
+    <div className="flex items-center gap-2 px-4 py-2 bg-[#222225] border-b border-[#2d2d30] flex-shrink-0">
       {/* 파일명 표시 */}
       <div className="flex items-center gap-2 flex-1">
         <span className="text-[13px] text-[#cccccc]">
@@ -213,24 +224,19 @@ export default function Codeeditoractions({
       </div>
 
       {/* AI 액션 버튼들 */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-3">
         {/* 테스트 생성 버튼 */}
         <button
           onClick={handleGenerateTest}
           disabled={isGenerating || !fileName || !code}
-          className={`
-            flex items-center gap-2 px-3 py-1.5 rounded
-            text-[12px] font-medium
-            transition-all duration-200
-            ${
-              isGenerating || !fileName || !code
-                ? "bg-[#2d2d30] text-[#858585] cursor-not-allowed"
-                : "bg-[#0e639c] text-white hover:bg-[#1177bb] active:bg-[#0d5a8f]"
-            }
-          `}
+          className={`${actionBtnBase} ${
+            isGenerating || !fileName || !code
+              ? actionBtnDisabled
+              : actionBtnEnabled
+          }`}
           title="현재 코드에서 테스트 코드 생성"
         >
-          <VscBeaker className="text-[14px]" />
+          <VscBeaker className="text-[12px]" />
           {isGenerating ? "생성 중..." : "테스트 생성"}
         </button>
 
@@ -238,36 +244,22 @@ export default function Codeeditoractions({
         <button
           onClick={handleRunTest}
           disabled={isRunning || !latestTestCode}
-          className={`
-            flex items-center gap-2 px-3 py-1.5 rounded
-            text-[12px] font-medium
-            transition-all duration-200
-            ${
-              isRunning || !latestTestCode
-                ? "bg-[#2d2d30] text-[#858585] cursor-not-allowed"
-                : "bg-[#3c3c3c] text-white hover:bg-[#4a4a4a] active:bg-[#2f2f2f]"
-            }
-          `}
+          className={`${actionBtnBase} ${
+            isRunning || !latestTestCode ? actionBtnDisabled : actionBtnEnabled
+          }`}
           title={!latestTestCode ? "테스트 생성 후 실행 가능" : "테스트 실행"}
         >
-          <VscPlay className="text-[14px]" />
+          <VscPlay className="text-[12px]" />
           {isRunning ? "실행 중..." : "테스트 실행"}
         </button>
 
-        {/* ✅ AI 분석 버튼 (실패일 때만 활성화) */}
+        {/* AI 분석 버튼 */}
         <button
           onClick={handleAnalyze}
           disabled={isAnalyzing || !canAnalyze}
-          className={`
-            flex items-center gap-2 px-3 py-1.5 rounded
-            text-[12px] font-medium
-            transition-all duration-200
-            ${
-              isAnalyzing || !canAnalyze
-                ? "bg-[#2d2d30] text-[#858585] cursor-not-allowed"
-                : "bg-[#2b7a2b] text-white hover:bg-[#339233] active:bg-[#246824]"
-            }
-          `}
+          className={`${actionBtnBase} ${
+            isAnalyzing || !canAnalyze ? actionBtnDisabled : actionBtnEnabled
+          }`}
           title={
             !latestRunOutput
               ? "테스트 실행 후 분석 가능"
@@ -276,7 +268,7 @@ export default function Codeeditoractions({
                 : "AI 분석"
           }
         >
-          <VscGraph className="text-[14px]" />
+          <VscGraph className="text-[12px]" />
           {isAnalyzing ? "분석 중..." : "AI 분석"}
         </button>
       </div>
