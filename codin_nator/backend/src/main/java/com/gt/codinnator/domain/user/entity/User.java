@@ -23,6 +23,7 @@ public class User {
     private String gitId; // GitHub의 고유 ID
 
     @Column(columnDefinition = "TEXT")
+    @Convert(converter = GitTokenConverter.class) // 자동 암호화
     private String gitToken;
 
     private String email;

@@ -32,7 +32,7 @@ public class Room {
     private LocalDateTime createdAt;
 
     @Lob // SQL의 TEXT 타입 대응
-    @Column(name = "git_token", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "git_token", columnDefinition = "TEXT")
     @Convert(converter = GitTokenConverter.class) // 자동 암호화
     private String gitToken;
 
