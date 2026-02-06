@@ -199,19 +199,19 @@
 
 /* Contribution graph colors */
 .contrib-level-0 {
-  background-color: #24292E;
+  background-color: #dcdfe2;
 }
 .contrib-level-1 {
-  background-color: oklch(0.88 0.08 25);
+  background-color: oklch(0.93 0.05 25);
 }
 .contrib-level-2 {
-  background-color: oklch(0.75 0.14 25);
+  background-color: oklch(0.85 0.10 25);
 }
 .contrib-level-3 {
-  background-color: oklch(0.60 0.18 25);
+  background-color: oklch(0.75 0.14 25);
 }
 .contrib-level-4 {
-  background-color: oklch(0.45 0.18 25);
+  background-color: oklch(0.60 0.18 25);
 }
 
 /* ============================================

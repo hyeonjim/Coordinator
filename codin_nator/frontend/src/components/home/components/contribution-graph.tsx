@@ -259,10 +259,10 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
             }}
             className="px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-300"
             style={{
-              backgroundColor: year === selectedYear ? "#24292E" : "transparent",
+              backgroundColor: year === selectedYear ? "#4a535c" : "transparent",
               color: year === selectedYear ? "#ECEAEA" : "#24292E",
-              borderColor: year === selectedYear ? "#24292E" : "#9297A2",
               borderWidth: "1px",
+              borderColor: year === selectedYear ? "#24292E" : "#9297A2",
               boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
             }}
             onMouseEnter={(e) => {
@@ -294,7 +294,7 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
               style={{ color: "#24292E" }}
             >
               {months.map((m) => (
-                <span key={m} className="w-[56px]">
+                <span key={m} className="w-[70px]">
                   {m}
                 </span>
               ))}
@@ -302,14 +302,14 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
           </div>
           {/* 잔디 */}
           <div className="flex gap-2 justify-center">
-            <div className="flex gap-[3px]">
+            <div className="flex gap-[4px]">
               {weeks.map((week, wi) => (
-                <div key={wi} className="flex flex-col gap-[4px]">
+                <div key={wi} className="flex flex-col gap-[2px]">
                   {week.map((day, di) => (
                     <button
                       key={di}
                       title={day.date ? `${day.date} · ${day.count} errors` : ""}
-                      className={`w-2.5 h-3 rounded-sm ${getContribClass(day.count)}
+                      className={`w-3 h-3 rounded-sm ${getContribClass(day.count)}
                         hover:ring-2 hover:ring-offset-1
                         ${day.count > 0 ? "hover:ring-[#24292E]/40" : "hover:ring-[#9297A2]/40"}
                         hover:scale-125 transition-all duration-200`}

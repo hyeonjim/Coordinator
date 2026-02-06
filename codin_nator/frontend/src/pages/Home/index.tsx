@@ -312,13 +312,7 @@ export default function HomeLayout() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="relative rounded-2xl shadow-xl p-8"
-          style={{
-            backgroundColor: "#9297A2",
-            borderColor: "#9297A2",
-            borderWidth: "1px",
-            boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
-          }}
+          className="relative rounded-2xl shadow-xl p-8 bg-[#a4abb4]"
         >
           <div className="flex items-start justify-between">
             {/* 왼쪽: 프로필 */}
@@ -406,10 +400,7 @@ export default function HomeLayout() {
           <div className="flex items-start justify-between mb-8">
             <div className="flex items-center gap-4">
               <div
-                className="p-3 rounded-lg"
-                style={{
-                  backgroundColor: "#3A4149",
-                }}
+                className="p-3 rounded-lg bg-[#36383b]"
               >
                 <Activity className="w-5 h-5" style={{ color: "#ECEAEA" }} />
               </div>
@@ -432,10 +423,9 @@ export default function HomeLayout() {
                 group flex items-center gap-2 px-5 py-2.5
                 rounded-lg font-medium text-sm
                 shadow-lg
-                transition-all duration-200
+                transition-all duration-200 bg-[#405063]
               "
               style={{
-                backgroundColor: "#3A4149",
                 color: "#ECEAEA",
                 boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
               }}
@@ -462,8 +452,8 @@ export default function HomeLayout() {
               transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }}
               className="p-6 rounded-xl shadow-sm transition-all duration-300"
               style={{
-                backgroundColor: "#ECEAEA",
-                borderColor: "#ECEAEA",
+                backgroundColor: "#b8bcc4",
+                borderColor: "#b8bcc4",
                 borderWidth: "1px"
               }}
             >
@@ -487,8 +477,8 @@ export default function HomeLayout() {
               transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
               className="p-6 rounded-xl shadow-sm transition-all duration-300"
               style={{
-                backgroundColor: "#ECEAEA",
-                borderColor: "#ECEAEA",
+                backgroundColor: "#b8bcc4",
+                borderColor: "#b8bcc4",
                 borderWidth: "1px"
               }}
             >
@@ -512,8 +502,8 @@ export default function HomeLayout() {
               transition={{ delay: 0.4, duration: 0.6, ease: "easeOut" }}
               className="p-6 rounded-xl shadow-sm transition-all duration-300"
               style={{
-                backgroundColor: "#ECEAEA",
-                borderColor: "#ECEAEA",
+                backgroundColor: "#b8bcc4",
+                borderColor: "#b8bcc4",
                 borderWidth: "1px"
               }}
             >
@@ -550,8 +540,8 @@ export default function HomeLayout() {
                 cursor-pointer
               "
               style={{
-                backgroundColor: "#ECEAEA",
-                borderColor: "#ECEAEA",
+                backgroundColor: "#b8bcc4",
+                borderColor: "#b8bcc4",
                 borderWidth: "1px",
                 color: "#24292E",
               }}
@@ -561,7 +551,7 @@ export default function HomeLayout() {
                   "0 0 0 3px rgba(26, 31, 36, 0.2)";
               }}
               onBlur={(e) => {
-                e.currentTarget.style.borderColor = "#ECEAEA";
+                e.currentTarget.style.borderColor = "#b8bcc4";
                 e.currentTarget.style.boxShadow = "none";
               }}
             >
@@ -582,8 +572,8 @@ export default function HomeLayout() {
             transition={{ delay: 0.6, duration: 0.7 }}
             className="p-7 rounded-xl"
             style={{
-              backgroundColor: "#ECEAEA",
-              borderColor: "#ECEAEA",
+              backgroundColor: "#b8bcc4",
+              borderColor: "#b8bcc4",
               borderWidth: "1px",
               boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
             }}
