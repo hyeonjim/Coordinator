@@ -335,7 +335,7 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
             className="flex w-full justify-between"
           >
             <span className="font-semibold">
-              📅 {selectedDate} · {selectedLogs.length}건
+              {selectedDate} · {selectedLogs.length}건
             </span>
             <ChevronDown
               className={`h-4 w-4 transition ${isLogOpen ? "rotate-180" : ""}`}
@@ -355,7 +355,7 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
                       {shouldShowRoomHeader && (
                         <div className="flex items-center justify-between px-1 text-sm font-medium text-muted-foreground">
                           <span>
-                            🏠 Room #{roomId === "unknown" ? "?" : roomId}
+                            Room #{roomId === "unknown" ? "?" : roomId}
                           </span>
                           <span>{logs.length}건</span>
                         </div>
