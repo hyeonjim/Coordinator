@@ -136,8 +136,8 @@ function ParticipantRow({
             isRemoteMuted
               ? "text-[#F14C4C]"
               : micOn
-                ? "text-[#1f5248]"
-                : "text-[#375671]"
+                ? "text-[#128c74]"
+                : "text-[#61707e]"
           }`}
         >
           {isRemoteMuted ? "MUTED" : micOn ? "ON" : "OFF"}

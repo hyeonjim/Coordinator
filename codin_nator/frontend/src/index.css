@@ -339,12 +339,12 @@
    ============================================ */
 .file-viewer-container {
   @apply w-full h-full flex flex-col font-sans select-none;
-  background-color: #1c2f42;
+  background-color: #15293c;
 }
 
 .file-viewer-header {
   @apply flex items-center justify-between px-4 h-9;
-  background-color: #12293d;
+  background-color: #2e4861;
 }
 
 .file-viewer-header:hover {
@@ -353,7 +353,7 @@
 
 .file-viewer-title {
   @apply flex items-center text-[11px] font-semibold tracking-widest uppercase cursor-pointer;
-  color: #94abc4;
+  color: #c6d5e6;
 }
 
 .file-viewer-actions {
@@ -367,7 +367,7 @@
 
 .file-tree-item {
   @apply flex items-center py-1 cursor-pointer select-none text-[13px] h-[26px];
-  color: var(--room-lightest);
+  color: #c6d5e6;
   transition:
     background-color 0.1s ease,
     color 0.1s ease;
@@ -391,8 +391,8 @@
 
 .file-viewer-empty {
   @apply h-full min-h-[150px] flex flex-col items-center justify-center space-y-2;
-  color: var(--room-medium);
-  opacity: 0.6;
+  color: #87a2be;
+  opacity: 0.7;
 }
 
 /* ============================================
@@ -436,7 +436,7 @@
 }
 
 .participant-row:hover {
-  background-color: #8997a5;
+  background-color: #959fa9;
   border-radius: 15px;
 }
 
@@ -447,8 +447,8 @@
 }
 
 .participant-avatar-speaking {
-  border-color: #4ec9b0;
-  box-shadow: 0 0 12px rgba(78, 201, 176, 0.4);
+  border-color: #19cfad;
+  border-width: 3px;
 }
 
 .participant-name {
@@ -461,15 +461,12 @@
   transition: all 0.15s ease;
 }
 
-.participant-mic-btn:hover {
-}
-
 .mic-icon-on {
-  color: #1f5248;
+  color: #128c74;
 }
 
 .mic-icon-off {
-  color: #375671;
+  color: #61707e;
 }
 
 .mic-icon-muted {
@@ -483,8 +480,7 @@
 
 .voice-chat-empty {
   @apply flex flex-col items-center justify-center py-8;
-  color: var(--room-medium);
-  opacity: 0.6;
+  color: #2f4d69;
 }
 
 /* ============================================
@@ -555,7 +551,7 @@
 
 .text-chat-input-form {
   @apply p-4;
-  background-color: #a2b2c0;
+  background-color: #9aa9b6;
 }
 
 .text-chat-input {
@@ -610,7 +606,7 @@
 
 .text-chat-empty {
   @apply text-center py-8;
-  color: var(--room-medium);
+  color: #2f4d69;
 }
 
 /* ============================================

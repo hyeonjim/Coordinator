@@ -46,7 +46,7 @@ export default function Header({
     "transition active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#d2d7db]/60";
 
   // 기본(회색 #d2d7db)
-  const btnGray = `${btnBase} bg-[#7F99B2] text-[#2C4156] hover:bg-[#c5cbd0]`;
+  const btnGray = `${btnBase} bg-[#3C3C3C] text-[#d2d7db] hover:bg-[#c5cbd0]`;
 
   // 강조(참여하기 같은 primary 느낌을 주고 싶으면 톤만 살짝 다르게)
   // 색 고정 요청이 "#d2d7db"라서, 같은 계열로만 대비 줌
