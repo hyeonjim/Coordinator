@@ -303,8 +303,7 @@ export default function HomeLayout() {
 
   return (
     <div
-      className="min-h-screen overflow-y-auto"
-      style={{ backgroundColor: "#3A4149" }}
+      className="min-h-screen overflow-y-auto bg-[#5b646e]"
     >
 
       <div className="relative max-w-6xl mx-auto px-8 py-12 space-y-8">
@@ -368,9 +367,9 @@ export default function HomeLayout() {
                 transition-all duration-200
               "
               style={{
-                color: "#24292E",
+                color: "#9da8b3",
                 backgroundColor: "#3A4149",
-                borderColor: "#3A4149",
+                borderColor: "#7b848c",
                 borderWidth: "1px",
               }}
               onMouseEnter={(e) => {

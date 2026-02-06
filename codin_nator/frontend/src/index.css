@@ -441,7 +441,7 @@
 }
 
 .participant-row:hover {
-  background-color: #38414b;
+  background-color: #4a5460;
   border-radius: 15px;
 }
 
@@ -472,7 +472,7 @@
 }
 
 .mic-icon-off {
-  color: #7F838D;
+  color: #a6aab5;
 }
 
 .mic-icon-muted {
@@ -557,17 +557,16 @@
 .text-chat-input-form {
   @apply p-4;
   background-color: #2F363F;
-  border-top: 1px solid #0A080D;
 }
 
 .text-chat-input {
   @apply flex-1 rounded-lg px-4 py-2 text-sm;
-  background-color: #1A1F24;
-  color: #DCD8D8;
+  background-color: #8f9397;
+  color: #050505;
 }
 
 .text-chat-input::placeholder {
-  color: #7F838D;
+  color: #212122;
 }
 
 .text-chat-input:focus {
@@ -584,7 +583,7 @@
 
 .text-chat-send-btn {
   @apply rounded-lg px-4 py-2 text-sm font-semibold whitespace-nowrap;
-  background-color: #7F838D;
+  background-color: #6b6f79;
   color: #0A080D;
   transition: all 0.15s ease;
 }
