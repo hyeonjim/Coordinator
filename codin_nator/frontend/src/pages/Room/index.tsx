@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 import CodeEditor from "@/components/room/code-editor";
 import RoomTerminal from "@/components/room/room-terminal";
@@ -78,6 +78,29 @@ export default function RoomPage() {
     isSidebarCollapsed,
     setIsSidebarCollapsed,
   } = useRoomSetup(roomId);
+
+  /**
+   * ✅ 방 참가자(Participant) DB 등록
+   * - 같은 방에서 생성된 AI 리포트를 "참가자"가 마이페이지에서 볼 수 있게 하려면
+   *   내가 이 방에 참여했다는 기록이 필요함.
+   * - isJoined=true가 된 순간 1회(멱등) 호출
+   */
+  useEffect(() => {
+    if (!isJoined) return;
+    if (!currentRoomId) return;
+
+    const token = localStorage.getItem("access_token");
+    if (!token) return;
+
+    fetch(`/api/v1/room/${currentRoomId}/participants/me`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }).catch((e) => {
+      console.error("[RoomPage] participant join failed", e);
+    });
+  }, [isJoined, currentRoomId]);
 
   // WebSocket 연결 (✅ master 유지: STOMP 2개)
   const textChatWebSocket = useTextChatWebSocket(
@@ -181,7 +204,7 @@ export default function RoomPage() {
       <div className="flex-1 flex overflow-hidden">
         <aside className="w-64 flex flex-col">
           <div className="flex-1 overflow-auto">
-            {/* ✅ 중요: 3인자 콜백으로 전달해야 FileViewer가 content를 fetch해서 준다 */}
+            {/* ✅ 사용자 정보 전달하여 실시간 위치 추적 */}
             <FileViewer
               roomId={Number(currentRoomId)}
               onFileSelect={(fileId, content, fileName) => {
@@ -189,6 +212,9 @@ export default function RoomPage() {
                 // 필요하면 여기서 terminalText 초기화도 가능
                 setTerminalText("");
               }}
+              userId={userId}
+              userName={userName}
+              userImageUrl={userImageUrl}
             />
           </div>
 
@@ -217,9 +243,11 @@ export default function RoomPage() {
                 fileContent={selectedFile.content}
                 fileName={selectedFile.name}
                 onChange={setCurrentEditorCode}
-                // onTestGenerated={setGeneratedTestCode} // ✅ 기존 유지
                 onTestGenerated={(code) => setGeneratedTestCode(code)}
                 onAppendTerminal={appendTerminal} // ✅ 네 기능
+                userId={userId}
+                userName={userName}
+                userImageUrl={userImageUrl}
               />
             ) : (
               <div className="flex items-center justify-center h-full text-[#858585]">

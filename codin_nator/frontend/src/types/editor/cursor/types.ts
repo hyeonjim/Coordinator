@@ -1,0 +1,37 @@
+/**
+ * Editor Cursor 관련 타입 정의
+ * - 다른 사용자의 커서/선택 영역 정보를 표현하는 타입들을 모아둡니다.
+ * - @slate-yjs/core의 awareness/data 구조와 호환되도록 설계했습니다.
+ */
+import type { Range } from "slate";
+
+// Yjs awareness에 저장되는 사용자 정보 타입
+export interface CursorUserData {
+  userId: string; // 사용자 고유 ID (git id 등)
+  name: string; // 표시할 사용자 이름
+  color?: string; // 할당된 색상 (옵션)
+  imageUrl?: string; // 아바타 URL (옵션)
+}
+
+// Remote cursor를 렌더링하기 위한 정보
+export interface RemoteCursor {
+  clientId: number; // Yjs client id
+  userId: string; // 사용자 고유 ID
+  name: string; // 표시 이름
+  color?: string; // 라벨/캐럿 색상
+  imageUrl?: string; // 아바타 URL
+  selection: Range | null; // Slate selection (없으면 null)
+}
+
+// Overlay/컴포넌트 props 타입
+export interface RemoteCursorOverlayProps {
+  cursors: RemoteCursor[];
+  editor: any; // Slate editor (ReactEditor 적용된 인스턴스)
+}
+
+export interface CursorCaretProps {
+  cursor: RemoteCursor;
+  editor: any;
+}
+
+export type { Range };

@@ -15,6 +15,8 @@ import {
 
 import { FileTreeItem } from "./FileTreeItem";
 import { getFileTree } from "@/lib/utils";
+import { useFileLocations } from "./useFileLocations";
+import { getUserColor } from "../code-editor/colorAssignment";
 import type {
   FileNode,
   LocalFileSystemFileEntry,
@@ -68,7 +70,13 @@ const normalizeFileTree = (data: unknown): RawNode[] => {
     []) as RawNode[];
 };
 
-const FileViewer = ({ roomId, onFileSelect }: FileViewerProps) => {
+const FileViewer = ({
+  roomId,
+  onFileSelect,
+  userId,
+  userName,
+  userImageUrl,
+}: FileViewerProps) => {
   const [files, setFiles] = useState<FileNode[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -79,6 +87,15 @@ const FileViewer = ({ roomId, onFileSelect }: FileViewerProps) => {
       ? numericRoomId
       : null;
   }, [roomId]);
+
+  // 파일 위치 추적 (사용자 색상은 getUserColor로 계산)
+  const { fileLocations, updateCurrentFile } = useFileLocations(
+    roomIdSafe ?? 0,
+    userId,
+    userName,
+    userImageUrl,
+    userId ? getUserColor(userId) : undefined,
+  );
 
   const fetchFileTree = useCallback(async () => {
     if (!roomIdSafe) {
@@ -119,19 +136,12 @@ const FileViewer = ({ roomId, onFileSelect }: FileViewerProps) => {
 
     setSelectedId(node.fileId);
 
+    // awareness에 현재 파일 위치 업데이트
+    updateCurrentFile(node.fileId);
+
     if (!onFileSelect) return;
 
-    // ✅ 2인자/3인자 모두 지원
-    const cb = onFileSelect as any;
-    const wantsContent = typeof cb === "function" && cb.length >= 3;
-
-    // (기존 master) fileName만 전달
-    if (!wantsContent) {
-      cb(node.fileId, node.name);
-      return;
-    }
-
-    // (네 기능) content까지 전달
+    // content까지 전달
     try {
       const accessToken = localStorage.getItem("access_token");
       const headers = accessToken
@@ -151,11 +161,11 @@ const FileViewer = ({ roomId, onFileSelect }: FileViewerProps) => {
           ? response.data
           : JSON.stringify(response.data ?? "", null, 2);
 
-      cb(node.fileId, content, node.name);
+      onFileSelect(node.fileId, content, node.name);
     } catch (error) {
       console.error("파일 내용 로드 실패:", error);
       // content 못 가져와도 파일명은 전달
-      cb(node.fileId, "", node.name);
+      onFileSelect(node.fileId, "", node.name);
     }
   };
 
@@ -283,6 +293,7 @@ const FileViewer = ({ roomId, onFileSelect }: FileViewerProps) => {
                 depth={0}
                 selectedId={selectedId}
                 onSelect={handleSelectFile}
+                fileLocations={fileLocations}
               />
             ))}
           </div>

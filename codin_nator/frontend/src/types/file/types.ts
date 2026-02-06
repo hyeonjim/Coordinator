@@ -1,4 +1,10 @@
-// --- 1. File System Access API Types (Local definitions to avoid global conflicts) ---
+/**
+ * ========================================
+ * 1. File System Access API Types
+ * ========================================
+ * 로컬 파일 시스템 드래그앤드롭 처리를 위한 타입 정의
+ */
+
 export interface LocalFileSystemEntry {
   isFile: boolean;
   isDirectory: boolean;
@@ -33,7 +39,12 @@ export interface LocalFileSystemDirectoryEntry extends LocalFileSystemEntry {
   createReader: () => LocalFileSystemDirectoryReader;
 }
 
-// --- 2. Existing FileNode Definitions ---
+/**
+ * ========================================
+ * 2. File Tree Node Types
+ * ========================================
+ * 파일 트리 구조를 표현하는 타입 정의
+ */
 
 /**
  * Backend API Response type for File Node
@@ -53,8 +64,7 @@ export interface FileNode {
   name: string;
   type: "DIR" | "FILE";
   children?: FileNode[];
-  // Store the original entry for upload handling
-  fileEntry?: LocalFileSystemFileEntry;
+  fileEntry?: LocalFileSystemFileEntry; // 드래그앤드롭 업로드용
 }
 
 /**
@@ -66,26 +76,44 @@ export type RawNode = Partial<BackendFileNode> & {
   kind?: string;
   fileEntry?: unknown;
   id?: number;
-  // Allow loose type string for D&D compatibility ("file", "folder")
-  type?: string;
+  type?: string; // "file", "folder" 등 유연한 문자열 허용
   children?: RawNode[];
 };
 
 /**
- * FileViewer 컴포넌트 Props
+ * ========================================
+ * 3. File Viewer Component Props
+ * ========================================
  */
+
+/**
+ * 파일을 보고 있는 사용자 정보
+ * Participant 타입 기반으로 색상 추가
+ */
+export interface FileViewerUser {
+  userId: string;
+  userName: string;
+  imageUrl?: string;
+  color?: string;
+}
+
+/**
+ * 파일별 사용자 위치 정보
+ */
+export interface FileLocationState {
+  fileId: number;
+  users: FileViewerUser[];
+}
+
 /**
  * FileViewer 컴포넌트 Props
- * - (master) onFileSelect(fileId, fileName)
- * - (your feature) onFileSelect(fileId, content, fileName)
- *
- * 둘 다 지원하도록 오버로드 형태로 선언 (기존 로직 훼손 없음)
  */
 export interface FileViewerProps {
   roomId: number;
-  onFileSelect?: {
-    (fileId: number, content: string, fileName: string): void;
-  };
+  onFileSelect?: (fileId: number, content: string, fileName: string) => void;
+  userId?: string;
+  userName?: string;
+  userImageUrl?: string;
 }
 
 /**
@@ -96,4 +124,5 @@ export interface FileTreeItemProps {
   depth: number;
   selectedId: number | null;
   onSelect: (node: FileNode) => void;
+  fileLocations: FileLocationState[]; // 모든 파일의 사용자 위치 정보
 }
