@@ -241,29 +241,29 @@ const FileViewer = ({
 
   return (
     <div
-      className="w-full h-full bg-[#252526] text-[#cccccc] flex flex-col font-sans select-none border-r border-[#1e1e1e]"
+      className="file-viewer-container"
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
-      <div className="flex items-center justify-between px-4 h-[35px] bg-[#252526] hover:bg-[#2a2d2e] group">
-        <div className="flex items-center text-[11px] font-bold text-[#bbbbbb] tracking-wide uppercase cursor-pointer">
+      <div className="file-viewer-header group border-b border-gray-600">
+        <div className="file-viewer-title">
           <span className="mr-1">
             <VscChevronDown />
           </span>
           <span>PROJECT-EXPLORER</span>
         </div>
 
-        <div className="hidden group-hover:flex items-center gap-2 text-sm text-[#cccccc]">
+        <div className="file-viewer-actions">
           <VscNewFile
-            className="hover:text-white cursor-pointer"
+            className="cursor-pointer transition-colors"
             title="새 파일"
           />
           <VscNewFolder
-            className="hover:text-white cursor-pointer"
+            className="cursor-pointer transition-colors"
             title="새 폴더"
           />
           <VscRefresh
-            className="hover:text-white cursor-pointer"
+            className="cursor-pointer transition-colors"
             title="새로고침"
             onClick={(event) => {
               event.stopPropagation();
@@ -273,14 +273,14 @@ const FileViewer = ({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar relative">
+      <div className="flex-1 overflow-y-auto room-scrollbar relative ">
         {loading ? (
-          <div className="flex justify-center items-center h-20 text-[#cccccc]">
+          <div className="flex justify-center items-center h-20 text-[#98A1AA]">
             <VscLoading className="animate-spin text-2xl" />
           </div>
         ) : files.length === 0 ? (
-          <div className="h-full min-h-[150px] flex flex-col items-center justify-center text-[#858585] opacity-50 space-y-2">
-            <VscFolderOpened className="text-4xl" />
+          <div className="file-viewer-empty">
+            <VscFolderOpened className="text-4xl text-[#7F99B2]" />
             <span className="text-sm">파일이 없습니다.</span>
             <span className="text-xs">(.zip 파일을 이곳에 드래그하세요)</span>
           </div>
@@ -300,7 +300,7 @@ const FileViewer = ({
         )}
       </div>
 
-      <div className="h-[22px] bg-[#007acc] text-white text-[11px] flex items-center px-3 gap-3">
+      <div className="file-viewer-statusbar">
         <span>master*</span>
         {roomIdSafe && <span>Room: {roomIdSafe}</span>}
       </div>

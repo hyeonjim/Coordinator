@@ -245,7 +245,7 @@ export default function RoomTerminal({
       {/* 터미널 토글 버튼 (코드 에디터 하단 우측에 absolute 위치) */}
       <button
         onClick={handleToggleTerminal}
-        className="absolute bottom-0 right-4 bg-[#2d2d30] hover:bg-[#3e3e42] text-slate-300 px-1.5 py-0.5 text-xs border border-slate-600 rounded-t transition-colors flex items-center gap-2 z-10"
+        className="terminal-toggle-btn"
         title={isTerminalOpen ? "터미널 닫기" : "터미널 열기"}
       >
         <span>Terminal</span>
@@ -258,29 +258,9 @@ export default function RoomTerminal({
           {/* 드래그 핸들 */}
           <div
             onMouseDown={handleDragStart}
-            className="
-              relative
-              h-1
-              bg-neutral-500
-              hover:bg-blue-300
-              cursor-row-resize
-              flex
-              items-center
-              justify-center
-              group
-            "
+            className="terminal-resize-handle"
           >
-            <div
-              className="
-                opacity-0
-                group-hover:opacity-100
-                transition
-                text-blue-300
-                text-xs
-                select-none
-                pointer-events-none
-              "
-            >
+            <div className="terminal-resize-icon">
               ≡
             </div>
           </div>
@@ -288,10 +268,10 @@ export default function RoomTerminal({
           {/* 터미널 영역 */}
           <div
             style={{ height: terminalHeight }}
-            className="border-t border-slate-700 bg-[#1e1e1e] flex flex-col overflow-hidden"
+            className="terminal-container"
           >
             {/* xterm 터미널 출력 영역 */}
-            <div className="flex-1 min-h-0 bg-[#1e1e1e] p-2 overflow-auto">
+            <div className="terminal-content">
               <div ref={terminalContainerRef} className="h-full w-full" />
             </div>
           </div>

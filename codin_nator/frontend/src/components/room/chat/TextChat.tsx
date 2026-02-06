@@ -19,15 +19,12 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 
   return (
     <div
-      className={[
-        "flex gap-2 items-end",
-        message.isMe ? "justify-end" : "justify-start",
-      ].join(" ")}
+      className={`message-bubble ${message.isMe ? "message-bubble-mine" : "message-bubble-other"}`}
     >
-      {/* 아바타 (상대방 메시지만 왼쪽에 표시, 호스트는 표시 안함) */}
+      {/* 아바타 (상대방 메시지만 왼쪽에 표시) */}
       {!message.isMe && (
-        <div className="flex-shrink-0">
-          <div className="h-8 w-8 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-semibold overflow-hidden border border-slate-200">
+        <div className="shrink-0">
+          <div className="message-avatar">
             {message.imageUrl ? (
               <img
                 src={message.imageUrl}
@@ -43,32 +40,20 @@ function MessageBubble({ message }: { message: ChatMessage }) {
         </div>
       )}
 
-      <div className="max-w-[70%]">
+      <div className="message-content">
         {/* 메시지 내용 */}
         <div
-          className={[
-            "rounded-2xl px-4 py-2",
-            message.isMe
-              ? "bg-indigo-600 text-white rounded-br-md"
-              : "bg-slate-100 text-slate-900 rounded-bl-md",
-          ].join(" ")}
+          className={`message-text ${message.isMe ? "message-text-mine" : "message-text-other"}`}
         >
-          <p className="text-sm break-words">{message.message}</p>
+          <p>{message.message}</p>
         </div>
 
         {/* 시간 및 발신자 이름 (상대방 메시지만 이름 표시) */}
         <div
-          className={[
-            "flex items-center gap-1 mt-1 px-1",
-            message.isMe ? "justify-end" : "justify-start",
-          ].join(" ")}
+          className={`message-meta ${message.isMe ? "justify-end" : "justify-start"}`}
         >
-          {!message.isMe && (
-            <span className="text-xs pr-3 text-slate-500">
-              {message.userName}
-            </span>
-          )}
-          <span className="text-xs text-slate-400">{time}</span>
+          {!message.isMe && <span className="pr-3">{message.userName}</span>}
+          <span>{time}</span>
         </div>
       </div>
     </div>
@@ -118,68 +103,52 @@ export function TextChat({
   };
 
   return (
-    <div className="relative h-full flex">
+    <div className="text-chat-container">
       {/* 사이드바 컨텐츠 */}
       <div
-        className={`
-          h-full
-          transition-all
-          duration-300
-          ease-in-out
-          overflow-hidden
-          ${isSidebarCollapsed ? "w-0" : "w-80"}
-        `}
+        className={`text-chat-sidebar ${isSidebarCollapsed ? "w-0" : "w-80"}`}
       >
-        <aside className="h-full w-80 border-l border-slate-200 bg-white flex flex-col">
+        <aside className="text-chat-panel">
           {/* 텍스트 채팅 */}
           <div className="flex-1 overflow-hidden flex flex-col relative">
             {/* 텍스트 채팅 탭 */}
-            <div className="absolute inset-0 flex flex-col bg-white">
-                {/* 메시지 목록 */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                  {messages.map((msg) => (
-                    <MessageBubble key={msg.id} message={msg} />
-                  ))}
+            <div className="absolute inset-0 flex flex-col">
+              {/* 메시지 목록 */}
+              <div className="text-chat-messages room-scrollbar">
+                {messages.map((msg) => (
+                  <MessageBubble key={msg.id} message={msg} />
+                ))}
 
-                  {/* 메시지가 없을 때 */}
-                  {messages.length === 0 && (
-                    <p className="text-center text-slate-400 py-8">
-                      메시지가 없습니다
-                    </p>
-                  )}
+                {/* 메시지가 없을 때 */}
+                {messages.length === 0 && (
+                  <p className="text-chat-empty">메시지가 없습니다</p>
+                )}
 
-                  {/* 스크롤 타겟 (항상 맨 아래에 위치) */}
-                  <div ref={scrollRef} />
-                </div>
-
-                {/* 입력 폼 */}
-                <form
-                  onSubmit={handleSubmit}
-                  className="p-4 border-t border-slate-100"
-                >
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={inputText}
-                      onChange={(e) => setInputText(e.target.value)}
-                      placeholder={
-                        disabled
-                          ? "방에 먼저 참여해주세요"
-                          : "메시지를 입력하세요..."
-                      }
-                      disabled={disabled}
-                      className="flex-1 rounded-xl border border-slate-200 px-4 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 disabled:bg-slate-50"
-                    />
-                    <button
-                      type="submit"
-                      disabled={disabled || !inputText.trim()}
-                      className="rounded-xl bg-indigo-400 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 disabled:opacity-70 transition-colors whitespace-nowrap"
-                    >
-                      전송
-                    </button>
-                  </div>
-                </form>
+                {/* 스크롤 타겟 (항상 맨 아래에 위치) */}
+                <div ref={scrollRef} />
               </div>
+
+              {/* 입력 폼 */}
+              <form onSubmit={handleSubmit} className="text-chat-input-form">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    placeholder={
+                      disabled
+                        ? "방에 먼저 참여해주세요"
+                        : "메시지를 입력하세요..."
+                    }
+                    disabled={disabled}
+                    className="text-chat-input"
+                  />
+                  <button type="submit" className="text-chat-send-btn">
+                    전송
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </aside>
       </div>
@@ -187,20 +156,7 @@ export function TextChat({
       {/* 사이드바 토글 버튼 */}
       <button
         onClick={() => setIsSidebarCollapsed((previous) => !previous)}
-        className="
-          absolute
-          -left-6
-          top-1/2
-          -translate-y-1/2
-          bg-neutral-700
-          hover:bg-neutral-600
-          px-1
-          py-2
-          rounded
-          text-sm
-          transition
-          z-20
-        "
+        className="text-chat-toggle"
       >
         {isSidebarCollapsed ? "◀" : "▶"}
       </button>

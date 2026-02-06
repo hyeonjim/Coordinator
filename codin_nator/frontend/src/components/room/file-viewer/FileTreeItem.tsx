@@ -16,7 +16,10 @@ import {
   VscFolder,
   VscFolderOpened,
 } from "react-icons/vsc";
-import type { FileNode, FileTreeItemProps as FileTreeItemPropsType } from "@/types/file/types";
+import type {
+  FileNode,
+  FileTreeItemProps as FileTreeItemPropsType,
+} from "@/types/file/types";
 
 // 파일 확장자에 맞는 아이콘을 반환하는 헬퍼 함수입니다.
 // 별도의 유틸 파일로 분리하지 않고 직관적으로 찾을 수 있도록 여기에 배치했습니다.
@@ -52,8 +55,8 @@ export const FileTreeItem = ({
   const [isOpen, setIsOpen] = useState(false);
 
   // 현재 노드의 fileId로 사용자 위치 정보를 찾습니다.
-  const usersOnFile = fileLocations.find((loc) => loc.fileId === node.fileId)
-    ?.users || [];
+  const usersOnFile =
+    fileLocations.find((loc) => loc.fileId === node.fileId)?.users || [];
 
   // 깊이(depth)에 따라 왼쪽 여백을 계산하여 계층 구조를 시각적으로 표현합니다.
   const paddingLeft = depth * 12 + 10;
@@ -79,15 +82,7 @@ export const FileTreeItem = ({
       {/* 파일/폴더 한 줄을 렌더링하는 영역 */}
       <div
         onClick={handleClick}
-        className={`
-          group flex items-center py-[3px] cursor-pointer select-none text-[13px] h-[30px]
-          transition-colors duration-100
-          ${
-            isSelected
-              ? "bg-[#37373d] text-white" // 선택됨
-              : "text-[#cccccc] hover:bg-[#2a2d2e] hover:text-white" // 평상시 및 호버
-          }
-        `}
+        className={`file-tree-item group ${isSelected ? "file-tree-item-selected" : ""}`}
         style={{ paddingLeft: `${paddingLeft}px` }}
       >
         {/* 파일을 보고 있는 사용자 아바타 표시 (파일일 때만, 왼쪽에 배치) */}
@@ -104,8 +99,8 @@ export const FileTreeItem = ({
                   <img
                     src={user.imageUrl}
                     alt={user.userName}
-                    className="rounded-full border border-[#1e1e1e] object-cover shrink-0"
-                    style={{ width: "26px", height: "26px" }}
+                    className="rounded-full object-cover shrink-0"
+                    style={{ width: "24px", height: "24px" }}
                   />
                 ) : (
                   <div
@@ -123,7 +118,7 @@ export const FileTreeItem = ({
             ))}
             {usersOnFile.length > 3 && (
               <div
-                className="rounded-full bg-[#3c3c3c] border border-[#1e1e1e] flex items-center justify-center text-[7px] text-[#cccccc] shrink-0"
+                className="rounded-full bg-[#39586D] border border-[#2C4156] flex items-center justify-center text-[7px] text-[#F7F7F7] shrink-0"
                 style={{ width: "16px", height: "16px", marginLeft: "-4px" }}
               >
                 +{usersOnFile.length - 3}

@@ -187,7 +187,7 @@ export default function RoomPage() {
   }, [webRTC, voiceChatWebSocket, currentRoomId, userId]);
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="room-container">
       <Header
         isJoined={isJoined}
         onJoin={handleJoin}
@@ -196,9 +196,9 @@ export default function RoomPage() {
         editorContent={currentEditorCode}
       />
 
-      <div className="flex-1 flex overflow-hidden">
-        <aside className="w-64 flex flex-col">
-          <div className="flex-1 overflow-auto">
+      <div className="room-main">
+        <aside className="room-sidebar-left">
+          <div className="flex-1 overflow-auto room-scrollbar">
             {/* 사용자 정보 전달하여 실시간 위치 추적 */}
             <FileViewer
               roomId={Number(currentRoomId)}
@@ -227,7 +227,7 @@ export default function RoomPage() {
           </div>
         </aside>
 
-        <main className="flex-1 flex flex-col min-w-0 bg-[#1e1e1e] overflow-hidden relative">
+        <main className="room-content">
           <div className="flex-1 min-h-0 overflow-hidden">
             {selectedFile ? (
               <CodeEditor

@@ -69,12 +69,7 @@ function Avatar({ name, imageUrl }: AvatarProps) {
   const initial = (name?.trim()?.[0] ?? "?").toUpperCase();
 
   return (
-    <div
-      className={`
-        h-10 w-10 shrink-0 rounded-full bg-slate-100 text-slate-700 
-        flex items-center justify-center font-semibold overflow-hidden border border-slate-200
-      `}
-    >
+    <div className="participant-avatar">
       {imageUrl ? (
         <img src={imageUrl} alt={name} className="h-full w-full object-cover" />
       ) : (
@@ -96,7 +91,7 @@ function ParticipantRow({
   onToggle,
 }: ParticipantRowProps) {
   return (
-    <div className="flex items-center justify-between rounded-lg px-1 py-1 hover:bg-slate-50 transition-colors group">
+    <div className="participant-row group">
       {/* 왼쪽: 아바타 + 이름 */}
       <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
         {/* 말하는 중이면 아바타 테두리 강조 */}
@@ -105,7 +100,7 @@ function ParticipantRow({
             relative rounded-full p-[2px] transition-all duration-300 shrink-0 border-2
             ${
               isSpeaking
-                ? "border-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"
+                ? "border-[#4EC9B0] speaking-glow"
                 : "border-transparent"
             }
           `}
@@ -113,9 +108,7 @@ function ParticipantRow({
           <Avatar name={name} imageUrl={imageUrl} />
         </div>
         <div className="flex flex-col min-w-0">
-          <span className="truncate text-[14px] font-semibold text-slate-800 leading-tight">
-            {name}
-          </span>
+          <span className="participant-name">{name}</span>
         </div>
       </div>
 
@@ -125,37 +118,27 @@ function ParticipantRow({
           e.stopPropagation();
           onToggle();
         }}
-        className={`
-          flex items-center pl-3 group transition-opacity cursor-pointer 
-          hover:bg-slate-100 rounded-lg py-1 px-1
-          ${isRemoteMuted ? "opacity-50" : "opacity-100"}
-        `}
+        className={`participant-mic-btn ${isRemoteMuted ? "opacity-50" : "opacity-100"}`}
       >
         <span
-          className={`
-            transition-colors
-            ${
-              isRemoteMuted
-                ? "text-rose-500"
-                : micOn
-                  ? "text-emerald-500"
-                  : "text-slate-400"
-            }
-          `}
+          className={
+            isRemoteMuted
+              ? "mic-icon-muted"
+              : micOn
+                ? "mic-icon-on"
+                : "mic-icon-off"
+          }
         >
           <MicIcon on={micOn} isPeerMuted={isRemoteMuted} />
         </span>
         <span
-          className={`
-            text-[11px] font-bold transition-colors w-9 text-center
-            ${
-              isRemoteMuted
-                ? "text-rose-600"
-                : micOn
-                  ? "text-emerald-600"
-                  : "text-slate-400"
-            }
-          `}
+          className={`mic-status-text ${
+            isRemoteMuted
+              ? "text-[#F14C4C]"
+              : micOn
+                ? "text-[#1f5248]"
+                : "text-[#375671]"
+          }`}
         >
           {isRemoteMuted ? "MUTED" : micOn ? "ON" : "OFF"}
         </span>
@@ -175,18 +158,16 @@ export function VoiceChat({
   isPeerMuted,
 }: VoiceChatProps) {
   return (
-    <div className="rounded-xl flex flex-col h-full bg-white shadow-sm border border-slate-100">
-      <div className="flex items-center justify-between mb-2 p-3 pb-0">
-        <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-          참여자 목록
-        </h2>
-        <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-0.5 rounded-full text-[10px] text-slate-500 font-bold border border-slate-100">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+    <div className="voice-chat-container">
+      <div className="voice-chat-header">
+        <h2 className="voice-chat-title">참여자 목록</h2>
+        <div className="voice-chat-status">
+          <span className="voice-chat-status-dot"></span>
           <span>{participants.length}명 접속</span>
         </div>
       </div>
 
-      <div className="space-y-1 overflow-y-auto flex-1 p-2 pt-1 custom-scrollbar">
+      <div className="voice-chat-participants room-scrollbar">
         {participants.map((p) => (
           <ParticipantRow
             key={p.userId}
@@ -202,10 +183,8 @@ export function VoiceChat({
           />
         ))}
         {participants.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-8 opacity-40">
-            <p className="text-sm font-medium text-slate-500">
-              참여자가 없습니다
-            </p>
+          <div className="voice-chat-empty">
+            <p className="text-sm font-medium">참여자가 없습니다</p>
           </div>
         )}
       </div>
