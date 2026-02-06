@@ -326,15 +326,10 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
                 <button
                   key={di}
                   title={day.date ? `${day.date} · ${day.count} errors` : ""}
-                  className={`w-2.5 h-3 rounded-sm ${getContribClass(
-                    day.count,
-                  )} hover:ring-2 hover:ring-offset-1 hover:scale-125 transition-all duration-200`}
-                  style={{
-                    ringColor:
-                      day.count > 0
-                        ? "rgba(239, 68, 68, 0.3)"
-                        : "rgba(127, 153, 178, 0.2)",
-                  }}
+                  className={`w-2.5 h-3 rounded-sm ${getContribClass(day.count)}
+                    hover:ring-2 hover:ring-offset-1
+                    ${day.count > 0 ? "hover:ring-red-500/30" : "hover:ring-slate-400/20"}
+                    hover:scale-125 transition-all duration-200`}
                   onClick={() => {
                     if (!day.date) return;
                     setSelectedDate(day.date);
