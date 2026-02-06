@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
+import logo from "@/components/landing/logo2.png";
 
 interface HeaderProps {
   isJoined: boolean;
@@ -132,7 +133,7 @@ export default function Header({
       <div className="flex items-center">
         <div className="room-header-logo">
           <img
-            src="/src/assets/images/logo2.png"
+            src={logo}
             alt="CODIN'NATOR"
             className="h-full w-auto object-contain"
           />
