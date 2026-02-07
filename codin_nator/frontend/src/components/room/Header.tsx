@@ -206,11 +206,11 @@ export default function Header({
               <button
                 onClick={() => handleGitAction(id)}
                 // ✅ Add/Commit/Push 통일
-                className={`${btnGray} ${
-                  id === "commit" && gitStage !== "added" ? btnDisabled : ""
-                } ${
-                  id === "push" && gitStage !== "committed" ? btnDisabled : ""
-                }`}
+                className={`${btnGray}
+    ${id === "add" && gitStage !== "idle" ? btnDisabled : ""}
+    ${id === "commit" && gitStage !== "added" ? btnDisabled : ""}
+    ${id === "push" && gitStage !== "committed" ? btnDisabled : ""}
+  `}
               >
                 {label}
               </button>
