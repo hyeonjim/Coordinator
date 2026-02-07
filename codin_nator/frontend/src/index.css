@@ -259,7 +259,7 @@
    ============================================ */
 .room-header {
   @apply h-10 flex items-center justify-between p-6 shrink-0;
-  background-color: #1A1F24;
+  background-color: #283036;
   border-bottom: 1px solid #2F363F;
 }
 
@@ -349,12 +349,12 @@
 
 .file-viewer-header {
   @apply flex items-center justify-between px-4 h-9;
-  background-color: #1A1F24;
+  background-color: #424d55;
   border-bottom: 1px solid #0A080D;
 }
 
 .file-viewer-header:hover {
-  background-color: #2F363F;
+  background-color: #3d4550;
 }
 
 .file-viewer-title {
@@ -391,9 +391,8 @@
 
 .file-viewer-statusbar {
   @apply h-[22px] text-[11px] flex items-center px-3 gap-3;
-  background-color: #1A1F24;
+  background-color: #1e2225;
   color: #7F838D;
-  border-top: 1px solid #0A080D;
 }
 
 .file-viewer-empty {
@@ -412,7 +411,7 @@
 
 .voice-chat-header {
   @apply flex items-center justify-between p-1;
-  background-color: #1A1F24;
+  background-color: #3e454d;
   border-top: 1px solid #0A080D;
   color: #DCD8D8;
 }
@@ -434,7 +433,7 @@
 
 .voice-chat-participants {
   @apply space-y-1 overflow-y-auto flex-1 p-1 pt-2;
-  background-color: #2F363F;
+  background-color: #68717c;
 }
 
 .participant-row {
@@ -443,7 +442,7 @@
 }
 
 .participant-row:hover {
-  background-color: #1A1F24;
+  background-color: #5b6066;
   border-radius: 15px;
 }
 
@@ -474,7 +473,7 @@
 }
 
 .mic-icon-off {
-  color: #7F838D;
+  color: #414349;
 }
 
 .mic-icon-muted {
@@ -510,7 +509,7 @@
 
 .text-chat-messages {
   @apply flex-1 overflow-y-auto p-4 space-y-3;
-  background-color: #2F363F;
+  background-color: #68717c;
 }
 
 .message-bubble {
@@ -540,7 +539,7 @@
 }
 
 .message-text-mine {
-  background-color: #7F838D;
+  background-color: #b3b7c0;
   color: #0A080D;
   border-bottom-right-radius: 4px;
 }
@@ -553,22 +552,22 @@
 
 .message-meta {
   @apply flex items-center gap-1 mt-1 px-1 text-xs;
-  color: #7F838D;
+  color: #26272b;
 }
 
 .text-chat-input-form {
   @apply p-4;
-  background-color: #1A1F24;
+  background-color: #424950;
 }
 
 .text-chat-input {
   @apply flex-1 rounded-lg px-4 py-2 text-sm;
-  background-color: #2F363F;
-  color: #DCD8D8;
+  background-color: #858d99;
+  color: #353333;
 }
 
 .text-chat-input::placeholder {
-  color: #7F838D;
+  color: #252627;
 }
 
 .text-chat-input:focus {
@@ -591,7 +590,7 @@
 }
 
 .text-chat-send-btn:hover {
-  background-color: #DCD8D8;
+  background-color: #9f9fad;
 }
 
 .text-chat-send-btn:disabled {
