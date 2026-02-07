@@ -21,7 +21,11 @@ import { getUserColor } from "./colorAssignment";
 
 /* 자동완성 */
 import AutoCompletePopup from "./AutoCompletePopup";
-import { filterAutoComplete, getCurrentWord, type AutoCompleteItem } from "./javaAutoComplete";
+import {
+  filterAutoComplete,
+  getCurrentWord,
+  type AutoCompleteItem,
+} from "./javaAutoComplete";
 
 interface CodeEditorProps {
   roomId: number;
@@ -101,10 +105,12 @@ export default function CodeEditor({
   // ===========================
   // 🔤 자동완성 상태
   // ===========================
-  const [autoCompleteItems, setAutoCompleteItems] = useState<AutoCompleteItem[]>([]);  // 매칭된 항목들
-  const [selectedIndex, setSelectedIndex] = useState(0);  // 선택된 인덱스
-  const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });  // 팝업 위치
-  const [currentWord, setCurrentWord] = useState({ word: "", start: 0 });  // 현재 입력 중인 단어
+  const [autoCompleteItems, setAutoCompleteItems] = useState<
+    AutoCompleteItem[]
+  >([]); // 매칭된 항목들
+  const [selectedIndex, setSelectedIndex] = useState(0); // 선택된 인덱스
+  const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 }); // 팝업 위치
+  const [currentWord, setCurrentWord] = useState({ word: "", start: 0 }); // 현재 입력 중인 단어
 
   const localUserData =
     userId && userName
@@ -203,13 +209,7 @@ export default function CodeEditor({
       const path = ReactEditor.findPath(editor as ReactEditor, element);
       return (
         <div {...attributes} className="flex code-line">
-          <span
-            contentEditable={false}
-            className="select-none text-[#858585] pr-4 min-w-[40px]"
-          >
-            {path[0] + 1}
-          </span>
-          <span className="flex-1 whitespace-pre">{children}</span>
+          {children}
         </div>
       );
     },
@@ -313,7 +313,7 @@ export default function CodeEditor({
           // 아래 화살표: 다음 항목 선택
           event.preventDefault();
           setSelectedIndex((prev) =>
-            prev < autoCompleteItems.length - 1 ? prev + 1 : 0
+            prev < autoCompleteItems.length - 1 ? prev + 1 : 0,
           );
           break;
 
@@ -321,7 +321,7 @@ export default function CodeEditor({
           // 위 화살표: 이전 항목 선택
           event.preventDefault();
           setSelectedIndex((prev) =>
-            prev > 0 ? prev - 1 : autoCompleteItems.length - 1
+            prev > 0 ? prev - 1 : autoCompleteItems.length - 1,
           );
           break;
 
@@ -424,6 +424,16 @@ export default function CodeEditor({
       />
 
       <div className="flex-1 overflow-auto font-mono text-sm text-[#DCD8D8] relative">
+        <div className="absolute left-0 top-0 bottom-0 w-10 text-[#858585] select-none pointer-events-none">
+          {currentCode.split("\n").map((_, i) => (
+            <div
+              key={i}
+              className="h-[1.4em] flex items-center justify-end pr-2"
+            >
+              {i + 1}
+            </div>
+          ))}
+        </div>
         <Slate
           editor={editor}
           initialValue={initialValue}
@@ -445,7 +455,7 @@ export default function CodeEditor({
             renderLeaf={renderLeaf}
             renderElement={renderElement}
             onKeyDown={handleKeyDown}
-            className="min-h-full px-2 py-4 focus:outline-none"
+            className="min-h-full px-2 py-4 focus:outline-none pl-12"
           />
         </Slate>
         <RemoteCursorOverlay cursors={remoteCursors} editor={editor} />
