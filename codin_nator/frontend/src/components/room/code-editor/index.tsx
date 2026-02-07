@@ -167,10 +167,10 @@ export default function CodeEditor({
      ✨ Prism Highlight
      ========================= */
   const decorate = useCallback(([node, path]: NodeEntry) => {
-    if (!Text.isText(node)) return [];
+    if (!node || !Text.isText(node)) return [];
 
     const grammar = Prism.languages.java;
-    const tokens = Prism.tokenize(node.text, grammar);
+    const tokens = Prism.tokenize(node.text ?? "", grammar);
 
     let start = 0;
     const ranges: any[] = [];
@@ -401,7 +401,10 @@ export default function CodeEditor({
         seedFromText(res.data ?? "");
         metaMap.set("seeded", true);
       } catch (e) {
-        console.error("[CodeEditor] seed 실패", e);
+        console.error("[CodeEditor] seed 실패, 빈 에디터로 초기화", e);
+        // 새로 생성된 파일이거나 API 실패 시 빈 에디터로 초기화
+        seedFromText("");
+        metaMap.set("seeded", true);
       }
     };
 
@@ -437,15 +440,16 @@ export default function CodeEditor({
           editor={editor}
           initialValue={initialValue}
           onChange={(value) => {
-            const text = value.map((n) => Node.string(n)).join("\n");
-            setCurrentCode(text);
-            onChange?.(text);
             try {
+              const text = value.map((n) => Node.string(n)).join("\n");
+              setCurrentCode(text);
+              onChange?.(text);
               setLocalSelection(editor.selection as Range | null);
-            } catch {}
-
-            // 🔤 자동완성 트리거
-            handleAutoComplete();
+              // 🔤 자동완성 트리거
+              handleAutoComplete();
+            } catch {
+              // 에디터 초기화 중 에러 무시
+            }
           }}
         >
           <Editable
