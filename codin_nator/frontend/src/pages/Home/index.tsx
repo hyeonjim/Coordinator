@@ -347,7 +347,7 @@ export default function HomeLayout() {
           {/* 헤더 */}
           <div className="flex items-start justify-between mb-8">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-[#ca8888]">
+              <div className="p-3 rounded-lg bg-[#cc9999]">
                 <Activity className="w-5 h-5 text-[#24292E]" />
               </div>
               <div>
@@ -367,7 +367,7 @@ export default function HomeLayout() {
                 rounded-lg font-medium text-sm
                 shadow-md
                 transition-all duration-200
-                bg-[#6088af] hover:bg-[#1775c7]
+                bg-[#738da7] hover:bg-[#1775c7]
                 text-white
               "
             >
@@ -377,7 +377,7 @@ export default function HomeLayout() {
           </div>
 
           {/* 통계 카드들 */}
-          <div className="grid grid-cols-3 gap-12 my-5 mx-25">
+          <div className="grid grid-cols-3 gap-13 my-5 mx-25">
             <motion.div
               key={`total-${selectedRoomId}-${stats.totalErrors}`}
               initial={{ opacity: 0, y: 20 }}
@@ -386,7 +386,7 @@ export default function HomeLayout() {
               className="p-6 rounded-xl shadow-sm transition-all duration-300 h-32 bg-[#e8ecf0] border border-[#b4b9be]"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-lg bg-[#d87a7a]">
+                <div className="p-2 rounded-lg bg-[#b66a6a]">
                   <Bug className="w-4 h-4 text-white" />
                 </div>
                 <span className="text-xs font-medium uppercase tracking-wider text-[#586069]">
@@ -406,7 +406,7 @@ export default function HomeLayout() {
               className="p-6 rounded-xl shadow-sm transition-all duration-300 bg-[#e8ecf0] border border-[#b4b9be]"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-lg bg-[#24292E]">
+                <div className="p-2 rounded-lg bg-[#67707a]">
                   <Calendar className="w-4 h-4 text-white" />
                 </div>
                 <span className="text-xs font-medium uppercase tracking-wider text-[#586069]">
@@ -426,7 +426,7 @@ export default function HomeLayout() {
               className="p-6 rounded-xl shadow-sm transition-all duration-300 bg-[#e8ecf0] border border-[#b4b9be]"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-lg bg-[#24292E]">
+                <div className="p-2 rounded-lg bg-[#548364]">
                   <TrendingUp className="w-4 h-4 text-white" />
                 </div>
                 <span className="text-xs font-medium uppercase tracking-wider text-[#586069]">

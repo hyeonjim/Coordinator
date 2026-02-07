@@ -282,7 +282,7 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
           </div>
           {/* 잔디 */}
           <div className="flex gap-2 justify-center">
-            <div className="flex gap-[4px]">
+            <div className="flex gap-[3px] mb-2">
               {weeks.map((week, wi) => (
                 <div key={wi} className="flex flex-col gap-[2px]">
                   {week.map((day, di) => (
