@@ -347,7 +347,7 @@ export default function HomeLayout() {
           {/* 헤더 */}
           <div className="flex items-start justify-between mb-8">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-[#c49a9a]">
+              <div className="p-3 rounded-lg bg-[#ca8888]">
                 <Activity className="w-5 h-5 text-[#24292E]" />
               </div>
               <div>
@@ -367,7 +367,7 @@ export default function HomeLayout() {
                 rounded-lg font-medium text-sm
                 shadow-md
                 transition-all duration-200
-                bg-[#729cc4] hover:bg-[#4A8BC2]
+                bg-[#6088af] hover:bg-[#1775c7]
                 text-white
               "
             >

@@ -268,10 +268,10 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
         ))}
       </div>
       {/* ===== 월 & 잔디 (가로 스크롤 영역) ===== */}
-      <div className="overflow-x-auto pb-2">
+      <div className="overflow-x-auto">
         <div className="min-w-[720px]">
           {/* 월 */}
-          <div className="flex justify-center mb-2">
+          <div className="flex justify-center mb-4">
             <div className="flex ml-[28px] text-xs font-medium tracking-wide text-[#24292E]">
               {months.map((m) => (
                 <span key={m} className="w-[70px]">
@@ -289,7 +289,7 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
                     <button
                       key={di}
                       title={day.date ? `${day.date} · ${day.count} errors` : ""}
-                      className={`w-3 h-3 rounded-sm ${getContribClass(day.count)}
+                      className={`w-3.5 h-4.5 rounded-sm ${getContribClass(day.count)}
                         hover:ring-2 hover:ring-offset-1
                         ${day.count > 0 ? "hover:ring-[#24292E]/40" : "hover:ring-[#9297A2]/40"}
                         hover:scale-125 transition-all duration-200`}
@@ -313,7 +313,7 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
         </div>
       </div>
       {/* ===== 범례 ===== */}
-      <div className="flex justify-center">
+      <div className="flex justify-center mb-12">
         <div
           className="flex items-center gap-3 text-xs font-medium px-5 py-2.5 rounded-lg text-[#24292E] bg-transparent border border-[#9297A2] shadow-md"
         >
