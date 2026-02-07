@@ -15,6 +15,7 @@ import {
   VscFile,
   VscFolder,
   VscFolderOpened,
+  VscCheck,  // 삭제 모드 체크 아이콘
 } from "react-icons/vsc";
 import type {
   FileNode,
@@ -50,7 +51,13 @@ export const FileTreeItem = ({
   selectedId,
   onSelect,
   fileLocations,
+  // ===== 삭제 모드 관련 props =====
+  isDeleteMode = false,
+  deleteTargetIds,  // 삭제 대상 Set (하위 노드에도 전달)
+  onToggleDeleteTarget,
 }: FileTreeItemPropsType) => {
+  // 현재 노드가 삭제 대상인지 확인
+  const isDeleteTarget = deleteTargetIds?.has(node.fileId) ?? false;
   // 폴더의 열림/닫힘 상태를 관리합니다.
   const [isOpen, setIsOpen] = useState(false);
 
@@ -68,12 +75,20 @@ export const FileTreeItem = ({
   const handleClick = (e: MouseEvent<HTMLDivElement>) => {
     e.stopPropagation(); // 이벤트 버블링을 방지합니다.
 
+    // ===== 삭제 모드일 때의 동작 =====
+    if (isDeleteMode) {
+      // 삭제 모드에서는 클릭 시 삭제 대상으로 선택/해제
+      onToggleDeleteTarget?.(node.fileId);
+      return;
+    }
+
+    // ===== 일반 모드일 때의 동작 =====
     if (node.type === "DIR") {
       // 폴더이면 열림/닫힘 상태를 토글합니다.
       setIsOpen(!isOpen);
     } else {
       // 파일이면 선택 이벤트를 상위로 전달합니다.
-      onSelect(node);
+      onSelect?.(node);
     }
   };
 
@@ -82,9 +97,22 @@ export const FileTreeItem = ({
       {/* 파일/폴더 한 줄을 렌더링하는 영역 */}
       <div
         onClick={handleClick}
-        className={`file-tree-item group ${isSelected ? "file-tree-item-selected" : ""}`}
+        className={`file-tree-item group ${isSelected ? "file-tree-item-selected" : ""} ${
+          isDeleteMode ? "delete-mode-item" : ""
+        } ${isDeleteTarget ? "delete-target-item" : ""}`}
         style={{ paddingLeft: `${paddingLeft}px` }}
       >
+        {/* ===== 삭제 모드: 체크박스 표시 ===== */}
+        {isDeleteMode && (
+          <span className="delete-checkbox mr-2">
+            {isDeleteTarget ? (
+              <VscCheck className="text-red-500" />
+            ) : (
+              <span className="w-4 h-4 border border-gray-500 rounded-sm inline-block" />
+            )}
+          </span>
+        )}
+
         {/* 파일을 보고 있는 사용자 아바타 표시 (파일일 때만, 왼쪽에 배치) */}
         {node.type === "FILE" && usersOnFile.length > 0 && (
           <div className="flex items-center" style={{ marginRight: "-10px" }}>
@@ -166,6 +194,10 @@ export const FileTreeItem = ({
               selectedId={selectedId}
               onSelect={onSelect}
               fileLocations={fileLocations}
+              // ===== 삭제 모드 props 전달 =====
+              isDeleteMode={isDeleteMode}
+              deleteTargetIds={deleteTargetIds}
+              onToggleDeleteTarget={onToggleDeleteTarget}
             />
           ))}
         </div>

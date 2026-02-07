@@ -12,6 +12,8 @@ import {
   VscNewFolder,
   VscRefresh,
   VscTrash,
+  VscCheck,    // 삭제 확인 버튼용 아이콘
+  VscClose,    // 삭제 취소 버튼용 아이콘
 } from "react-icons/vsc";
 
 import { FileTreeItem } from "./FileTreeItem";
@@ -83,6 +85,12 @@ const FileViewer = ({
   const [files, setFiles] = useState<FileNode[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // ===== 삭제 모드 관련 상태 =====
+  // 삭제 모드 활성화 여부
+  const [isDeleteMode, setIsDeleteMode] = useState(false);
+  // 삭제할 파일/폴더 ID 목록 (다중 선택 지원)
+  const [deleteTargetIds, setDeleteTargetIds] = useState<Set<number>>(new Set());
 
   const roomIdSafe = useMemo(() => {
     const numericRoomId = Number(roomId);
@@ -240,13 +248,47 @@ const FileViewer = ({
     }
   };
 
-  const handleDeleteFile = async () => {
-    if (!roomIdSafe || selectedId === null) {
-      setAlertMsg("삭제할 파일을 선택해주세요.");
+  /**
+   * 삭제 모드 토글
+   * - 삭제 버튼 클릭 시 삭제 모드 진입/해제
+   */
+  const handleToggleDeleteMode = () => {
+    if (isDeleteMode) {
+      // 삭제 모드 해제 시 선택 초기화
+      setDeleteTargetIds(new Set());
+    }
+    setIsDeleteMode(!isDeleteMode);
+  };
+
+  /**
+   * 삭제 대상 파일/폴더 토글 선택
+   * - 삭제 모드에서 파일/폴더 클릭 시 선택/해제
+   */
+  const handleToggleDeleteTarget = (fileId: number) => {
+    setDeleteTargetIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(fileId)) {
+        newSet.delete(fileId);
+      } else {
+        newSet.add(fileId);
+      }
+      return newSet;
+    });
+  };
+
+  /**
+   * 선택된 파일/폴더 일괄 삭제 실행
+   */
+  const handleConfirmDelete = async () => {
+    if (!roomIdSafe || deleteTargetIds.size === 0) {
+      setAlertMsg("삭제할 파일 또는 폴더를 선택해주세요.");
       return;
     }
 
-    const confirmed = window.confirm("선택한 파일을 삭제하시겠습니까?");
+    const targetCount = deleteTargetIds.size;
+    const confirmed = window.confirm(
+      `선택한 ${targetCount}개의 항목을 삭제하시겠습니까?`
+    );
     if (!confirmed) return;
 
     try {
@@ -256,17 +298,32 @@ const FileViewer = ({
         headers.Authorization = `Bearer ${accessToken}`;
       }
 
-      await axios.delete(`/api/v1/room/editor/${roomIdSafe}/delete-file/${selectedId}`, {
-        headers,
-      });
+      // 선택된 모든 파일/폴더 삭제 (순차 처리)
+      for (const fileId of deleteTargetIds) {
+        await axios.delete(
+          `/api/v1/room/editor/${roomIdSafe}/delete-file/${fileId}`,
+          { headers }
+        );
+      }
 
+      // 상태 초기화
+      setDeleteTargetIds(new Set());
+      setIsDeleteMode(false);
       setSelectedId(null);
       await fetchFileTree();
-      setAlertMsg("파일이 삭제되었습니다.");
+      setAlertMsg(`${targetCount}개의 항목이 삭제되었습니다.`);
     } catch (error) {
       console.error("파일 삭제 실패:", error);
-      setAlertMsg("파일 삭제에 실패했습니다.");
+      setAlertMsg("일부 파일 삭제에 실패했습니다.");
     }
+  };
+
+  /**
+   * 삭제 모드 취소
+   */
+  const handleCancelDeleteMode = () => {
+    setDeleteTargetIds(new Set());
+    setIsDeleteMode(false);
   };
 
   const uploadFileToServer = async (fileEntry: LocalFileSystemFileEntry) => {
@@ -381,6 +438,13 @@ const FileViewer = ({
         </div>
       </div>
 
+      {/* ===== 삭제 모드 안내 배너 ===== */}
+      {isDeleteMode && (
+        <div className="delete-mode-banner">
+          <span>삭제할 파일/폴더를 선택하세요 ({deleteTargetIds.size}개 선택됨)</span>
+        </div>
+      )}
+
       <div className="flex-1 overflow-auto room-scrollbar relative ">
         {loading ? (
           <div className="flex justify-center items-center h-20 text-[#7F838D]">
@@ -400,27 +464,56 @@ const FileViewer = ({
                 node={node}
                 depth={0}
                 selectedId={selectedId}
-                onSelect={handleSelectFile}
+                onSelect={isDeleteMode ? undefined : handleSelectFile}
                 fileLocations={fileLocations}
+                // ===== 삭제 모드 관련 props =====
+                isDeleteMode={isDeleteMode}
+                deleteTargetIds={deleteTargetIds}
+                onToggleDeleteTarget={handleToggleDeleteTarget}
               />
             ))}
           </div>
         )}
       </div>
 
+      {/* ===== 하단 상태바 (삭제 모드에 따라 UI 변경) ===== */}
       <div className="file-viewer-statusbar flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span>master*</span>
           {roomIdSafe && <span>Room: {roomIdSafe}</span>}
         </div>
-        <VscTrash
-          className="cursor-pointer transition-colors hover:text-red-500"
-          title="선택한 파일 삭제"
-          onClick={(event) => {
-            event.stopPropagation();
-            handleDeleteFile();
-          }}
-        />
+
+        {isDeleteMode ? (
+          // 삭제 모드: 확인/취소 버튼 표시
+          <div className="flex items-center gap-2">
+            <VscCheck
+              className="cursor-pointer transition-colors text-green-500 hover:text-green-400 text-lg"
+              title="삭제 확인"
+              onClick={(event) => {
+                event.stopPropagation();
+                handleConfirmDelete();
+              }}
+            />
+            <VscClose
+              className="cursor-pointer transition-colors text-red-500 hover:text-red-400 text-lg"
+              title="삭제 취소"
+              onClick={(event) => {
+                event.stopPropagation();
+                handleCancelDeleteMode();
+              }}
+            />
+          </div>
+        ) : (
+          // 일반 모드: 삭제 버튼 표시
+          <VscTrash
+            className="cursor-pointer transition-colors hover:text-red-500"
+            title="삭제 모드 (파일/폴더 선택 삭제)"
+            onClick={(event) => {
+              event.stopPropagation();
+              handleToggleDeleteMode();
+            }}
+          />
+        )}
       </div>
       <Alert open={!!alertMsg} onConfirm={() => setAlertMsg(null)}>
         {alertMsg}

@@ -401,6 +401,39 @@
   opacity: 0.7;
 }
 
+/* ===== 삭제 모드 배너 ===== */
+.delete-mode-banner {
+  @apply px-3 py-2 text-xs font-semibold text-center;
+  background-color: #5c3d3d;
+  color: #f5b5b5;
+  border-bottom: 1px solid #7a4a4a;
+}
+
+/* ===== 삭제 모드 아이템 스타일 ===== */
+.delete-mode-item {
+  cursor: pointer;
+}
+
+.delete-mode-item:hover {
+  background-color: #4a3535 !important;
+}
+
+/* 삭제 대상으로 선택된 아이템 */
+.delete-target-item {
+  background-color: #5c3d3d !important;
+  border-left: 3px solid #d87a7a;
+}
+
+.delete-target-item:hover {
+  background-color: #6d4545 !important;
+}
+
+/* 삭제 모드 체크박스 */
+.delete-checkbox {
+  @apply flex items-center justify-center;
+  min-width: 16px;
+}
+
 /* ============================================
    Room 음성 채팅 스타일
    ============================================ */
@@ -626,8 +659,9 @@
   color: #DCD8D8;
 }
 
+/* 기존 단독 버튼용 (버튼 그룹 사용 시 아래 스타일 사용) */
 .terminal-toggle-btn {
-  @apply absolute bottom-0 right-4 px-3 py-1 text-xs flex items-center gap-2 z-10;
+  @apply px-3 py-1 text-xs flex items-center gap-2;
   background-color: #2F363F;
   color: #DCD8D8;
   border: 1px solid #7F838D;
@@ -638,6 +672,44 @@
 
 .terminal-toggle-btn:hover {
   background-color: #7F838D;
+}
+
+/* ===== 터미널 버튼 그룹 (Run + Terminal 버튼) ===== */
+.terminal-btn-group {
+  @apply absolute bottom-0 right-4 flex items-end gap-1 z-10;
+}
+
+/* ===== Java 실행 버튼 (IntelliJ 스타일) ===== */
+.run-java-btn {
+  @apply px-3 py-1 text-xs flex items-center gap-1.5;
+  background-color: #2F363F;
+  color: #DCD8D8;
+  border: 1px solid #7F838D;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  transition: all 0.15s ease;
+}
+
+/* 활성화 상태 (Java 파일 선택됨) */
+.run-java-btn-active {
+  background-color: #3d5c3d;
+  border-color: #5a8c5a;
+  color: #a8e6a8;
+}
+
+.run-java-btn-active:hover {
+  background-color: #4a7a4a;
+  color: #c8f7c8;
+}
+
+/* 비활성화 상태 (Java 파일 아님) */
+.run-java-btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.run-java-btn-disabled:hover {
+  background-color: #2F363F;
 }
 
 .terminal-resize-handle {
