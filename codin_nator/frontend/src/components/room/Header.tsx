@@ -12,6 +12,8 @@ interface HeaderProps {
   editorContent: string;
 }
 
+type GitStage = "idle" | "added" | "committed";
+
 const gitActions = [
   { id: "add", label: "Add" },
   { id: "commit", label: "Commit" },
@@ -31,6 +33,9 @@ export default function Header({
 
   const [showCommit, setShowCommit] = useState(false);
   const [commitMsg, setCommitMsg] = useState("");
+  const [gitStage, setGitStage] = useState<GitStage>("idle");
+
+  const btnDisabled = "opacity-40 pointer-events-none";
 
   const shareLink = window.location.href;
 
@@ -80,6 +85,7 @@ export default function Header({
         )
         .then(() => {
           setAlertMsg("Staging area에 파일을 추가합니다.");
+          setGitStage("added");
         })
         .catch(() => {
           setAlertMsg("Staging area에 파일을 추가하는 데 실패했습니다.");
@@ -100,6 +106,7 @@ export default function Header({
         })
         .then(() => {
           setAlertMsg("리포지토리에 푸시되었습니다.");
+          setGitStage("idle");
         })
         .catch(() => {
           setAlertMsg("리포지토리에 푸시하는 데 실패했습니다.");
@@ -125,6 +132,7 @@ export default function Header({
       )
       .then(() => {
         setAlertMsg("커밋이 성공적으로 완료되었습니다.");
+        setGitStage("committed");
       })
       .catch(() => {
         setAlertMsg("커밋하는 데 실패했습니다.");
@@ -198,12 +206,16 @@ export default function Header({
               <button
                 onClick={() => handleGitAction(id)}
                 // ✅ Add/Commit/Push 통일
-                className={btnGray}
+                className={`${btnGray}
+    ${id === "add" && gitStage !== "idle" ? btnDisabled : ""}
+    ${id === "commit" && gitStage !== "added" ? btnDisabled : ""}
+    ${id === "push" && gitStage !== "committed" ? btnDisabled : ""}
+  `}
               >
                 {label}
               </button>
 
-              {id === "commit" && showCommit && (
+              {id === "commit" && showCommit && gitStage === "added" && (
                 <div className="room-dropdown">
                   <p className="text-xs text-[#7F838D] mb-2">Commit message</p>
 
