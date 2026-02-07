@@ -134,10 +134,10 @@ function ParticipantRow({
         <span
           className={`mic-status-text ${
             isRemoteMuted
-              ? "text-[#F14C4C]"
+              ? "text-[#d87a7a]"
               : micOn
-                ? "text-[#3ea18e]"
-                : "text-[#a6aab5]"
+                ? "text-[#7ba87b]"
+                : "text-[#7F838D]"
           }`}
         >
           {isRemoteMuted ? "MUTED" : micOn ? "ON" : "OFF"}

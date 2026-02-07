@@ -221,13 +221,15 @@
   --room-darkest: #0A080D;
   --room-dark: #1A1F24;
   --room-accent: #7F838D;
-  --room-medium: #7F838D;
+  --room-medium: #2F363F;
   --room-light: #DCD8D8;
   --room-lightest: #DCD8D8;
   --room-editor-bg: #0A080D;
   --room-sidebar-bg: #2F363F;
   --room-hover: rgba(127, 131, 141, 0.15);
   --room-active: rgba(127, 131, 141, 0.25);
+  --room-error: #d87a7a;
+  --room-success: #7ba87b;
 }
 
 /* ============================================
@@ -383,8 +385,8 @@
 }
 
 .file-tree-item-selected {
-  background-color: #4f5365 !important;
-  color: #DCD8D8 !important;
+  background-color: #7F838D !important;
+  color: #0A080D !important;
 }
 
 .file-viewer-statusbar {
@@ -405,14 +407,14 @@
    ============================================ */
 .voice-chat-container {
   @apply flex flex-col h-full overflow-hidden;
-  color: #abadbe;
+  color: #7F838D;
 }
 
 .voice-chat-header {
   @apply flex items-center justify-between p-1;
-  background-color: #2d353c;
+  background-color: #1A1F24;
   border-top: 1px solid #0A080D;
-  color: #bebdc5;
+  color: #DCD8D8;
 }
 
 .voice-chat-title {
@@ -426,13 +428,13 @@
 
 .voice-chat-status-dot {
   @apply w-1.5 h-1.5 rounded-full;
-  background-color: #4EC9B0;
+  background-color: #7ba87b;
   animation: pulse 2s ease-in-out infinite;
 }
 
 .voice-chat-participants {
   @apply space-y-1 overflow-y-auto flex-1 p-1 pt-2;
-  background-color: #515e6a;
+  background-color: #2F363F;
 }
 
 .participant-row {
@@ -441,25 +443,25 @@
 }
 
 .participant-row:hover {
-  background-color: #4a5460;
+  background-color: #1A1F24;
   border-radius: 15px;
 }
 
 .participant-avatar {
   @apply h-10 w-10 shrink-0 rounded-full flex items-center justify-center font-semibold overflow-hidden;
   background-color: #7F838D;
-  color: #bfbdc7;
+  color: #DCD8D8;
   transition: all 0.3s ease;
 }
 
 .participant-avatar-speaking {
-  border-color: #27b855;
+  border-color: #7ba87b;
   border-width: 3px;
 }
 
 .participant-name {
   @apply truncate text-[14px] font-semibold leading-tight;
-  color: #c3c2c7;
+  color: #DCD8D8;
 }
 
 .participant-mic-btn {
@@ -468,15 +470,15 @@
 }
 
 .mic-icon-on {
-  color: #3ea18e;
+  color: #7ba87b;
 }
 
 .mic-icon-off {
-  color: #a6aab5;
+  color: #7F838D;
 }
 
 .mic-icon-muted {
-  color: #f14c4c;
+  color: #d87a7a;
 }
 
 .mic-status-text {
@@ -508,7 +510,7 @@
 
 .text-chat-messages {
   @apply flex-1 overflow-y-auto p-4 space-y-3;
-  background-color: #515e6a;
+  background-color: #2F363F;
 }
 
 .message-bubble {
@@ -538,62 +540,62 @@
 }
 
 .message-text-mine {
-  background-color: #9b9ea8;
-  color: #08030e;
+  background-color: #7F838D;
+  color: #0A080D;
   border-bottom-right-radius: 4px;
 }
 
 .message-text-other {
-  background-color: #2F363F;
+  background-color: #1A1F24;
   color: #DCD8D8;
   border-bottom-left-radius: 4px;
 }
 
 .message-meta {
   @apply flex items-center gap-1 mt-1 px-1 text-xs;
-  color: #b3b6be;
+  color: #7F838D;
 }
 
 .text-chat-input-form {
   @apply p-4;
-  background-color: #2F363F;
+  background-color: #1A1F24;
 }
 
 .text-chat-input {
   @apply flex-1 rounded-lg px-4 py-2 text-sm;
-  background-color: #8f9397;
-  color: #050505;
+  background-color: #2F363F;
+  color: #DCD8D8;
 }
 
 .text-chat-input::placeholder {
-  color: #212122;
+  color: #7F838D;
 }
 
 .text-chat-input:focus {
   outline: none;
-  border-color: #DCD8D8;
-  box-shadow: 0 0 0 2px rgba(127, 131, 141, 0.2);
+  border-color: #7F838D;
+  box-shadow: 0 0 0 2px rgba(127, 131, 141, 0.3);
 }
 
 .text-chat-input:disabled {
-  background-color: #2F363F;
+  background-color: #1A1F24;
   cursor: not-allowed;
   opacity: 0.5;
 }
 
 .text-chat-send-btn {
   @apply rounded-lg px-4 py-2 text-sm font-semibold whitespace-nowrap;
-  background-color: #6b6f79;
+  background-color: #7F838D;
   color: #0A080D;
   transition: all 0.15s ease;
 }
 
 .text-chat-send-btn:hover {
-  background-color: #626066;
+  background-color: #DCD8D8;
 }
 
 .text-chat-send-btn:disabled {
-  background-color: #2F363F;
+  background-color: #1A1F24;
   color: #7F838D;
   cursor: not-allowed;
   opacity: 0.5;
@@ -689,10 +691,10 @@
 @keyframes speaking-glow {
   0%,
   100% {
-    box-shadow: 0 0 8px rgba(127, 131, 141, 0.4);
+    box-shadow: 0 0 8px rgba(123, 168, 123, 0.5);
   }
   50% {
-    box-shadow: 0 0 16px rgba(127, 131, 141, 0.6);
+    box-shadow: 0 0 16px rgba(123, 168, 123, 0.7);
   }
 }
 

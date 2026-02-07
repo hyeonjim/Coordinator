@@ -217,10 +217,7 @@ export default function HomeLayout() {
   // 로그인 처리 중 로딩 표시
   if (isProcessing) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: "#3A4149" }}
-      >
+      <div className="min-h-screen flex items-center justify-center bg-[#8e97a1]">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -228,12 +225,9 @@ export default function HomeLayout() {
         >
           {/* 로딩 스피너 */}
           <div className="relative">
-            <div
-              className="animate-spin rounded-full h-16 w-16 border-4 mx-auto mb-6"
-              style={{ borderColor: "#24292E", borderTopColor: "#9297A2" }}
-            />
+            <div className="animate-spin rounded-full h-16 w-16 border-4 mx-auto mb-6 border-[#d4d8dd] border-t-[#7F838D]" />
           </div>
-          <p className="font-medium" style={{ color: "#ECEAEA" }}>
+          <p className="font-medium text-[#24292E]">
             Logging in...
           </p>
         </motion.div>
@@ -244,54 +238,30 @@ export default function HomeLayout() {
   // 에러 발생 시 표시
   if (error) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: "#3A4149" }}
-      >
+      <div className="min-h-screen flex items-center justify-center bg-[#8e97a1]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center max-w-md mx-auto px-6"
         >
-          <div
-            className="rounded-2xl shadow-xl p-10"
-            style={{
-              backgroundColor: "#9297A2",
-              borderColor: "#9297A2",
-              borderWidth: "1px",
-            }}
-          >
-            <div
-              className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-              style={{ backgroundColor: "#3A4149" }}
-            >
+          <div className="rounded-2xl shadow-xl p-10 bg-[#d4d8dd] border border-[#c4c9ce]">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-[#d87a7a]">
               <span className="text-3xl">⚠️</span>
             </div>
-            <h3 className="text-xl font-semibold mb-2" style={{ color: "#ECEAEA" }}>
+            <h3 className="text-xl font-semibold mb-2 text-[#24292E]">
               Login Error
             </h3>
-            <p className="mb-6" style={{ color: "#24292E" }}>{error}</p>
+            <p className="mb-6 text-[#586069]">{error}</p>
             <a
               href="/"
               className="
                 inline-block px-6 py-3
                 rounded-lg font-medium
-                shadow-lg
+                shadow-md
                 transition-all duration-200
+                bg-[#d87a7a] hover:bg-[#c76a6a]
+                text-white
               "
-              style={{
-                backgroundColor: "#3A4149",
-                color: "#ECEAEA",
-                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#24292E";
-                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.5)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "#3A4149";
-                e.currentTarget.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.3)";
-              }}
             >
               Try Again
             </a>
@@ -303,7 +273,7 @@ export default function HomeLayout() {
 
   return (
     <div
-      className="min-h-screen overflow-y-auto bg-[#5b646e]"
+      className="min-h-screen overflow-y-auto bg-[#8e97a1]"
     >
 
       <div className="relative max-w-6xl mx-auto px-8 py-12 space-y-8">
@@ -312,7 +282,7 @@ export default function HomeLayout() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="relative rounded-2xl shadow-xl p-8 bg-[#a4abb4]"
+          className="relative rounded-2xl shadow-xl p-8 bg-[#e2e6eb]"
         >
           <div className="flex items-start justify-between">
             {/* 왼쪽: 프로필 */}
@@ -333,17 +303,14 @@ export default function HomeLayout() {
               </div>
 
               <div className="space-y-2">
-                <h2 className="text-2xl font-semibold tracking-tight" style={{ color: "#ECEAEA" }}>
+                <h2 className="text-2xl font-semibold tracking-tight text-[#24292E]">
                   {user?.name || "Unknown User"}
                 </h2>
-                <p className="text-sm" style={{ color: "#24292E" }}>
+                <p className="text-sm text-[#586069]">
                   {user?.email || "No email provided"}
                 </p>
                 {user?.gitId && (
-                  <div
-                    className="flex items-center gap-1.5 text-sm mt-2"
-                    style={{ color: "#24292E" }}
-                  >
+                  <div className="flex items-center gap-1.5 text-sm mt-2 text-[#586069]">
                     <Github className="w-4 h-4" />
                     <span>{user.gitId}</span>
                   </div>
@@ -358,11 +325,11 @@ export default function HomeLayout() {
                 group flex items-center gap-2 px-5 py-2.5
                 rounded-lg font-medium text-sm
                 shadow-sm
-                transition-all duration-200 hover:bg-[#5f4e4e] bg-[#646e79]
+                transition-all duration-200
+                bg-[#c4c9ce] hover:bg-[#d87a7a]
+                text-[#24292E] hover:text-white
+                border border-[#b4b9be] hover:border-[#d87a7a]
               "
-              style={{
-                color: "#9da8b3",
-              }}
             >
               <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
               Logout
@@ -375,30 +342,19 @@ export default function HomeLayout() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
-          className="relative rounded-2xl shadow-xl p-8"
-          style={{
-            backgroundColor: "#9297A2",
-            borderColor: "#9297A2",
-            borderWidth: "1px",
-            boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
-          }}
+          className="relative rounded-2xl shadow-xl p-8 bg-[#d4d8dd]"
         >
           {/* 헤더 */}
           <div className="flex items-start justify-between mb-8">
             <div className="flex items-center gap-4">
-              <div
-                className="p-3 rounded-lg bg-[#7a6868]"
-              >
-                <Activity className="w-5 h-5" style={{ color: "#ECEAEA" }} />
+              <div className="p-3 rounded-lg bg-[#c49a9a]">
+                <Activity className="w-5 h-5 text-[#24292E]" />
               </div>
               <div>
-                <h3
-                  className="text-xl font-semibold mb-1 tracking-tight"
-                  style={{ color: "#ECEAEA" }}
-                >
+                <h3 className="text-xl font-semibold mb-1 tracking-tight text-[#24292E]">
                   Error Report Diary
                 </h3>
-                <p className="text-sm" style={{ color: "#24292E" }}>
+                <p className="text-sm text-[#586069]">
                   Track your debugging journey & growth
                 </p>
               </div>
@@ -407,23 +363,13 @@ export default function HomeLayout() {
             <button
               onClick={() => setIsCreateRoomOpen(true)}
               className="
-                group flex items-center gap-2 px-5 py-2.5
+                group flex items-center gap-2 px-5 py-3.5
                 rounded-lg font-medium text-sm
-                shadow-lg
-                transition-all duration-200 bg-[#405063]
+                shadow-md
+                transition-all duration-200
+                bg-[#729cc4] hover:bg-[#4A8BC2]
+                text-white
               "
-              style={{
-                color: "#ECEAEA",
-                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#24292E";
-                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.5)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "#3A4149";
-                e.currentTarget.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.3)";
-              }}
             >
               <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-200" />
               Create Room
@@ -431,28 +377,23 @@ export default function HomeLayout() {
           </div>
 
           {/* 통계 카드들 */}
-          <div className="grid grid-cols-3 gap-8 mb-8">
+          <div className="grid grid-cols-3 gap-12 my-5 mx-25">
             <motion.div
               key={`total-${selectedRoomId}-${stats.totalErrors}`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }}
-              className="p-6 rounded-xl shadow-sm transition-all duration-300 h-32"
-              style={{
-                backgroundColor: "#b8bcc4",
-                borderColor: "#b8bcc4",
-                borderWidth: "1px"
-              }}
+              className="p-6 rounded-xl shadow-sm transition-all duration-300 h-32 bg-[#e8ecf0] border border-[#b4b9be]"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-lg" style={{ backgroundColor: "#3A4149" }}>
-                  <Bug className="w-4 h-4" style={{ color: "#ECEAEA" }} />
+                <div className="p-2 rounded-lg bg-[#d87a7a]">
+                  <Bug className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-xs font-medium uppercase tracking-wider" style={{ color: "#24292E" }}>
+                <span className="text-xs font-medium uppercase tracking-wider text-[#586069]">
                   Total Errors
                 </span>
               </div>
-              <p className="text-3xl font-semibold tracking-tight" style={{ color: "#24292E" }}>
+              <p className="text-3xl font-semibold tracking-tight text-[#24292E]">
                 {stats.totalErrors}
               </p>
             </motion.div>
@@ -462,22 +403,17 @@ export default function HomeLayout() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
-              className="p-6 rounded-xl shadow-sm transition-all duration-300"
-              style={{
-                backgroundColor: "#b8bcc4",
-                borderColor: "#b8bcc4",
-                borderWidth: "1px"
-              }}
+              className="p-6 rounded-xl shadow-sm transition-all duration-300 bg-[#e8ecf0] border border-[#b4b9be]"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-lg" style={{ backgroundColor: "#3A4149" }}>
-                  <Calendar className="w-4 h-4" style={{ color: "#ECEAEA" }} />
+                <div className="p-2 rounded-lg bg-[#24292E]">
+                  <Calendar className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-xs font-medium uppercase tracking-wider" style={{ color: "#24292E" }}>
+                <span className="text-xs font-medium uppercase tracking-wider text-[#586069]">
                   Active Days
                 </span>
               </div>
-              <p className="text-3xl font-semibold tracking-tight" style={{ color: "#24292E" }}>
+              <p className="text-3xl font-semibold tracking-tight text-[#24292E]">
                 {stats.daysWithErrors}
               </p>
             </motion.div>
@@ -487,22 +423,17 @@ export default function HomeLayout() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.6, ease: "easeOut" }}
-              className="p-6 rounded-xl shadow-sm transition-all duration-300"
-              style={{
-                backgroundColor: "#b8bcc4",
-                borderColor: "#b8bcc4",
-                borderWidth: "1px"
-              }}
+              className="p-6 rounded-xl shadow-sm transition-all duration-300 bg-[#e8ecf0] border border-[#b4b9be]"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-lg" style={{ backgroundColor: "#3A4149" }}>
-                  <TrendingUp className="w-4 h-4" style={{ color: "#ECEAEA" }} />
+                <div className="p-2 rounded-lg bg-[#24292E]">
+                  <TrendingUp className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-xs font-medium uppercase tracking-wider" style={{ color: "#24292E" }}>
+                <span className="text-xs font-medium uppercase tracking-wider text-[#586069]">
                   Daily Average
                 </span>
               </div>
-              <p className="text-3xl font-semibold tracking-tight" style={{ color: "#24292E" }}>
+              <p className="text-3xl font-semibold tracking-tight text-[#24292E]">
                 {stats.avgErrorsPerDay}
               </p>
             </motion.div>
@@ -525,22 +456,14 @@ export default function HomeLayout() {
                 shadow-sm
                 transition-all duration-200
                 cursor-pointer
+                bg-[#f6f8fa]
+                border border-[#d1d5da]
+                text-[#24292E]
+                focus:border-[#0366d6]
+                focus:ring-2
+                focus:ring-[#0366d6]/20
+                outline-none
               "
-              style={{
-                backgroundColor: "#b8bcc4",
-                borderColor: "#b8bcc4",
-                borderWidth: "1px",
-                color: "#24292E",
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = "#24292E";
-                e.currentTarget.style.boxShadow =
-                  "0 0 0 3px rgba(26, 31, 36, 0.2)";
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = "#b8bcc4";
-                e.currentTarget.style.boxShadow = "none";
-              }}
             >
               <option value="all">All Rooms</option>
               {roomOptions.map((id) => (
@@ -557,13 +480,7 @@ export default function HomeLayout() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6, duration: 0.7 }}
-            className="p-7 rounded-xl"
-            style={{
-              backgroundColor: "#b8bcc4",
-              borderColor: "#b8bcc4",
-              borderWidth: "1px",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
-            }}
+            className="p-7 rounded-xl bg-[#f6f8fa] border border-[#e1e4e8] shadow-sm"
           >
             <ContributionGraph data={contributionData} />
           </motion.div>

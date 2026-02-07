@@ -267,7 +267,7 @@ export default function CodeEditor({
      🖥 Render
      ========================= */
   return (
-    <div className="h-full w-full flex flex-col bg-[#26282a]">
+    <div className="h-full w-full flex flex-col bg-[#0A080D]">
       <Codeeditoractions
         roomId={roomId}
         fileName={fileName}
@@ -276,7 +276,7 @@ export default function CodeEditor({
         onAppendTerminal={onAppendTerminal}
       />
 
-      <div className="flex-1 overflow-auto font-mono text-sm text-[#d4d4d4] relative">
+      <div className="flex-1 overflow-auto font-mono text-sm text-[#DCD8D8] relative">
         <Slate
           editor={editor}
           initialValue={initialValue}
