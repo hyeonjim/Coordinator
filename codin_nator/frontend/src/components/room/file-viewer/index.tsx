@@ -478,16 +478,16 @@ const FileViewer = ({
 
       {/* ===== 하단 상태바 (삭제 모드에 따라 UI 변경) ===== */}
       <div className="file-viewer-statusbar flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 text-[11px]">
           <span>master*</span>
           {roomIdSafe && <span>Room: {roomIdSafe}</span>}
         </div>
 
         {isDeleteMode ? (
           // 삭제 모드: 확인/취소 버튼 표시
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-[18px]">
             <VscCheck
-              className="cursor-pointer transition-colors text-green-500 hover:text-green-400 text-lg"
+              className="cursor-pointer transition-colors text-green-300 hover:text-green-300 text-lg"
               title="삭제 확인"
               onClick={(event) => {
                 event.stopPropagation();
@@ -495,7 +495,7 @@ const FileViewer = ({
               }}
             />
             <VscClose
-              className="cursor-pointer transition-colors text-red-500 hover:text-red-400 text-lg"
+              className="cursor-pointer transition-colors text-red-300 hover:text-red-300 text-lg"
               title="삭제 취소"
               onClick={(event) => {
                 event.stopPropagation();
@@ -506,7 +506,7 @@ const FileViewer = ({
         ) : (
           // 일반 모드: 삭제 버튼 표시
           <VscTrash
-            className="cursor-pointer transition-colors hover:text-red-500"
+            className="cursor-pointer transition-colors hover:text-red-400"
             title="삭제 모드 (파일/폴더 선택 삭제)"
             onClick={(event) => {
               event.stopPropagation();

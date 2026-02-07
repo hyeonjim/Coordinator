@@ -426,7 +426,7 @@ export default function CodeEditor({
       />
 
       <div className="flex-1 overflow-auto font-mono text-sm text-[#DCD8D8] relative">
-        <div className="absolute left-0 top-0 bottom-0 w-10 text-[#858585] select-none pointer-events-none">
+        <div className="absolute left-0 top-0 bottom-0 w-10 text-[#858585] select-none pointer-events-none pt-4">
           {currentCode.split("\n").map((_, i) => (
             <div
               key={i}

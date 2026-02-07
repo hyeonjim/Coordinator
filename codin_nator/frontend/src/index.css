@@ -390,7 +390,7 @@
 }
 
 .file-viewer-statusbar {
-  @apply h-[22px] text-[11px] flex items-center px-3 gap-3;
+  @apply h-[25px] flex items-center px-3 gap-2;
   background-color: #1e2225;
   color: #7F838D;
 }
@@ -404,9 +404,8 @@
 /* ===== 삭제 모드 배너 ===== */
 .delete-mode-banner {
   @apply px-3 py-2 text-xs font-semibold text-center;
-  background-color: #5c3d3d;
-  color: #f5b5b5;
-  border-bottom: 1px solid #7a4a4a;
+  background-color: #5a3535;
+  color: #d1c3c3;
 }
 
 /* ===== 삭제 모드 아이템 스타일 ===== */
