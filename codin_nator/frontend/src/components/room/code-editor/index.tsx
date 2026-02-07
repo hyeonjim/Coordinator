@@ -205,8 +205,7 @@ export default function CodeEditor({
 
   const renderElement = useCallback(
     (props: RenderElementProps) => {
-      const { attributes, children, element } = props;
-      const path = ReactEditor.findPath(editor as ReactEditor, element);
+      const { attributes, children } = props;
       return (
         <div {...attributes} className="flex code-line">
           {children}
