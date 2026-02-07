@@ -190,7 +190,7 @@ const FileViewer = ({
       await axios.post(
         `/api/v1/room/editor/${roomIdSafe}/new-file`,
         {
-          fileName: fileName,
+          fileName,
           type: "FILE",
           parentId: null,
           content: "",
@@ -209,8 +209,8 @@ const FileViewer = ({
   const handleCreateFolder = async () => {
     if (!roomIdSafe) return;
 
-    const folderName = prompt("새 폴더 이름을 입력하세요:");
-    if (!folderName) return;
+    const fileName = prompt("새 폴더 이름을 입력하세요:");
+    if (!fileName) return;
 
     try {
       const accessToken = localStorage.getItem("access_token");
@@ -224,7 +224,7 @@ const FileViewer = ({
       await axios.post(
         `/api/v1/room/editor/${roomIdSafe}/new-file`,
         {
-          fileName: folderName,
+          fileName,
           type: "DIR",
           parentId: null,
           content: "",
