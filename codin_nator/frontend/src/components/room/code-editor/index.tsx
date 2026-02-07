@@ -414,7 +414,7 @@ export default function CodeEditor({
      🖥 Render
      ========================= */
   return (
-    <div className="h-full w-full flex flex-col bg-[#0A080D]">
+    <div className="h-full w-full flex flex-col bg-[##2d2d2e]">
       <Codeeditoractions
         roomId={roomId}
         fileName={fileName}

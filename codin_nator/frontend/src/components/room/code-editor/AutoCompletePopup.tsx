@@ -98,13 +98,6 @@ export default function AutoCompletePopup({
               <span className="flex-1 text-[#D4D4D4] text-sm truncate">
                 {item.label}
               </span>
-
-              {/* 설명 (있으면) */}
-              {item.detail && (
-                <span className="text-xs text-[#808080] truncate max-w-[120px]">
-                  {item.detail}
-                </span>
-              )}
             </li>
           );
         })}
