@@ -152,7 +152,6 @@ export default function RoomTerminal({
         console.warn("Terminal resize 실패:", error);
       }
     };
-    window.addEventListener("resize", handleWindowResize);
 
     // 정리(cleanup) 함수: 컴포넌트 언마운트 시 실행
     return () => {
@@ -239,14 +238,21 @@ export default function RoomTerminal({
   }, []);
 
   useEffect(() => {
-    if (!fitAddonRef.current || !terminalRef.current) return;
+    if (!terminalContainerRef.current || !fitAddonRef.current) return;
 
-    try {
-      fitAddonRef.current.fit();
-    } catch (error) {
-      console.warn("Terminal fit 실패 (height 변경):", error);
-    }
-  }, [terminalHeight]);
+    const observer = new ResizeObserver(() => {
+      try {
+        fitAddonRef.current?.fit();
+        terminalRef.current?.scrollToBottom();
+      } catch (error) {
+        console.warn("Terminal ResizeObserver fit 실패:", error);
+      }
+    });
+
+    observer.observe(terminalContainerRef.current);
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <>
