@@ -19,6 +19,10 @@ import RemoteCursorOverlay from "./RemoteCursorOverlay";
 import useRemoteCursors from "./useRemoteCursors";
 import { getUserColor } from "./colorAssignment";
 
+/* 자동완성 */
+import AutoCompletePopup from "./AutoCompletePopup";
+import { filterAutoComplete, getCurrentWord, type AutoCompleteItem } from "./javaAutoComplete";
+
 interface CodeEditorProps {
   roomId: number;
   fileId: number;
@@ -93,6 +97,14 @@ export default function CodeEditor({
 
   const [currentCode, setCurrentCode] = useState("");
   const [localSelection, setLocalSelection] = useState<Range | null>(null);
+
+  // ===========================
+  // 🔤 자동완성 상태
+  // ===========================
+  const [autoCompleteItems, setAutoCompleteItems] = useState<AutoCompleteItem[]>([]);  // 매칭된 항목들
+  const [selectedIndex, setSelectedIndex] = useState(0);  // 선택된 인덱스
+  const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });  // 팝업 위치
+  const [currentWord, setCurrentWord] = useState({ word: "", start: 0 });  // 현재 입력 중인 단어
 
   const localUserData =
     userId && userName
@@ -204,6 +216,141 @@ export default function CodeEditor({
     [editor],
   );
 
+  // ===========================
+  // 🔤 자동완성: 커서 위치 계산
+  // ===========================
+  const updatePopupPosition = useCallback(() => {
+    try {
+      const domSelection = window.getSelection();
+      if (!domSelection || domSelection.rangeCount === 0) return;
+
+      const range = domSelection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+
+      // 팝업을 커서 아래에 표시
+      setPopupPosition({
+        top: rect.bottom + 4,
+        left: rect.left,
+      });
+    } catch (e) {
+      // 에러 무시
+    }
+  }, []);
+
+  // ===========================
+  // 🔤 자동완성: 입력 처리
+  // ===========================
+  const handleAutoComplete = useCallback(() => {
+    // 현재 선택 영역 확인
+    const { selection } = editor;
+    if (!selection || !Range.isCollapsed(selection)) {
+      setAutoCompleteItems([]);
+      return;
+    }
+
+    // 현재 노드에서 텍스트와 커서 위치 가져오기
+    const [node] = Editor.node(editor, selection.focus.path);
+    if (!Text.isText(node)) {
+      setAutoCompleteItems([]);
+      return;
+    }
+
+    const text = node.text;
+    const offset = selection.focus.offset;
+
+    // 현재 입력 중인 단어 추출
+    const wordInfo = getCurrentWord(text, offset);
+    setCurrentWord(wordInfo);
+
+    // 1글자 이상 입력되면 자동완성 표시
+    if (wordInfo.word.length >= 1) {
+      const items = filterAutoComplete(wordInfo.word);
+      setAutoCompleteItems(items);
+      setSelectedIndex(0);
+      updatePopupPosition();
+    } else {
+      setAutoCompleteItems([]);
+    }
+  }, [editor, updatePopupPosition]);
+
+  // ===========================
+  // 🔤 자동완성: 항목 선택 시 삽입
+  // ===========================
+  const insertAutoComplete = useCallback(
+    (item: AutoCompleteItem) => {
+      const { selection } = editor;
+      if (!selection) return;
+
+      // 현재 단어를 선택된 항목으로 교체
+      const insertText = item.insertText || item.label;
+
+      // 현재 단어의 시작점으로 이동해서 단어 삭제
+      Transforms.select(editor, {
+        anchor: { path: selection.focus.path, offset: currentWord.start },
+        focus: selection.focus,
+      });
+
+      // 선택된 텍스트 삭제 후 새 텍스트 삽입
+      Transforms.delete(editor);
+      Transforms.insertText(editor, insertText);
+
+      // 자동완성 팝업 닫기
+      setAutoCompleteItems([]);
+    },
+    [editor, currentWord],
+  );
+
+  // ===========================
+  // 🔤 자동완성: 키보드 핸들러
+  // ===========================
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent) => {
+      // 자동완성 팝업이 열려있을 때만 처리
+      if (autoCompleteItems.length === 0) return;
+
+      switch (event.key) {
+        case "ArrowDown":
+          // 아래 화살표: 다음 항목 선택
+          event.preventDefault();
+          setSelectedIndex((prev) =>
+            prev < autoCompleteItems.length - 1 ? prev + 1 : 0
+          );
+          break;
+
+        case "ArrowUp":
+          // 위 화살표: 이전 항목 선택
+          event.preventDefault();
+          setSelectedIndex((prev) =>
+            prev > 0 ? prev - 1 : autoCompleteItems.length - 1
+          );
+          break;
+
+        case "Enter":
+        case "Tab":
+          // Enter/Tab: 선택된 항목 삽입
+          event.preventDefault();
+          if (autoCompleteItems[selectedIndex]) {
+            insertAutoComplete(autoCompleteItems[selectedIndex]);
+          }
+          break;
+
+        case "Escape":
+          // Esc: 팝업 닫기
+          event.preventDefault();
+          setAutoCompleteItems([]);
+          break;
+      }
+    },
+    [autoCompleteItems, selectedIndex, insertAutoComplete],
+  );
+
+  // ===========================
+  // 🔤 자동완성: 팝업 닫기
+  // ===========================
+  const closeAutoComplete = useCallback(() => {
+    setAutoCompleteItems([]);
+  }, []);
+
   /* =========================
      🌱 Seed helper
      ========================= */
@@ -287,6 +434,9 @@ export default function CodeEditor({
             try {
               setLocalSelection(editor.selection as Range | null);
             } catch {}
+
+            // 🔤 자동완성 트리거
+            handleAutoComplete();
           }}
         >
           <Editable
@@ -294,10 +444,20 @@ export default function CodeEditor({
             decorate={decorate}
             renderLeaf={renderLeaf}
             renderElement={renderElement}
+            onKeyDown={handleKeyDown}
             className="min-h-full px-2 py-4 focus:outline-none"
           />
         </Slate>
         <RemoteCursorOverlay cursors={remoteCursors} editor={editor} />
+
+        {/* 🔤 자동완성 팝업 */}
+        <AutoCompletePopup
+          items={autoCompleteItems}
+          selectedIndex={selectedIndex}
+          position={popupPosition}
+          onSelect={insertAutoComplete}
+          onClose={closeAutoComplete}
+        />
       </div>
     </div>
   );
