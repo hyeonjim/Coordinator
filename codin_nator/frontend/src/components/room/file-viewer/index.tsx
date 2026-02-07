@@ -11,6 +11,7 @@ import {
   VscNewFile,
   VscNewFolder,
   VscRefresh,
+  VscTrash,
 } from "react-icons/vsc";
 
 import { FileTreeItem } from "./FileTreeItem";
@@ -171,6 +172,94 @@ const FileViewer = ({
     }
   };
 
+  const handleCreateFile = async () => {
+    if (!roomIdSafe) return;
+
+    const fileName = prompt("새 파일 이름을 입력하세요:");
+    if (!fileName) return;
+
+    try {
+      const accessToken = localStorage.getItem("access_token");
+      const headers = accessToken
+        ? { Authorization: `Bearer ${accessToken}` }
+        : undefined;
+
+      await axios.post(
+        `/api/v1/room/${roomIdSafe}/files`,
+        {
+          name: fileName,
+          type: "FILE",
+          parentId: null,
+        },
+        { headers }
+      );
+
+      await fetchFileTree();
+      setAlertMsg("파일이 생성되었습니다.");
+    } catch (error) {
+      console.error("파일 생성 실패:", error);
+      setAlertMsg("파일 생성에 실패했습니다.");
+    }
+  };
+
+  const handleCreateFolder = async () => {
+    if (!roomIdSafe) return;
+
+    const folderName = prompt("새 폴더 이름을 입력하세요:");
+    if (!folderName) return;
+
+    try {
+      const accessToken = localStorage.getItem("access_token");
+      const headers = accessToken
+        ? { Authorization: `Bearer ${accessToken}` }
+        : undefined;
+
+      await axios.post(
+        `/api/v1/room/${roomIdSafe}/files`,
+        {
+          name: folderName,
+          type: "DIR",
+          parentId: null,
+        },
+        { headers }
+      );
+
+      await fetchFileTree();
+      setAlertMsg("폴더가 생성되었습니다.");
+    } catch (error) {
+      console.error("폴더 생성 실패:", error);
+      setAlertMsg("폴더 생성에 실패했습니다.");
+    }
+  };
+
+  const handleDeleteFile = async () => {
+    if (!roomIdSafe || selectedId === null) {
+      setAlertMsg("삭제할 파일을 선택해주세요.");
+      return;
+    }
+
+    const confirmed = window.confirm("선택한 파일을 삭제하시겠습니까?");
+    if (!confirmed) return;
+
+    try {
+      const accessToken = localStorage.getItem("access_token");
+      const headers = accessToken
+        ? { Authorization: `Bearer ${accessToken}` }
+        : undefined;
+
+      await axios.delete(`/api/v1/room/${roomIdSafe}/files/${selectedId}`, {
+        headers,
+      });
+
+      setSelectedId(null);
+      await fetchFileTree();
+      setAlertMsg("파일이 삭제되었습니다.");
+    } catch (error) {
+      console.error("파일 삭제 실패:", error);
+      setAlertMsg("파일 삭제에 실패했습니다.");
+    }
+  };
+
   const uploadFileToServer = async (fileEntry: LocalFileSystemFileEntry) => {
     return new Promise<void>((resolve, reject) => {
       fileEntry.file(async (file: File) => {
@@ -259,10 +348,18 @@ const FileViewer = ({
           <VscNewFile
             className="cursor-pointer transition-colors"
             title="새 파일"
+            onClick={(event) => {
+              event.stopPropagation();
+              handleCreateFile();
+            }}
           />
           <VscNewFolder
             className="cursor-pointer transition-colors"
             title="새 폴더"
+            onClick={(event) => {
+              event.stopPropagation();
+              handleCreateFolder();
+            }}
           />
           <VscRefresh
             className="cursor-pointer transition-colors"
@@ -302,9 +399,19 @@ const FileViewer = ({
         )}
       </div>
 
-      <div className="file-viewer-statusbar">
-        <span>master*</span>
-        {roomIdSafe && <span>Room: {roomIdSafe}</span>}
+      <div className="file-viewer-statusbar flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span>master*</span>
+          {roomIdSafe && <span>Room: {roomIdSafe}</span>}
+        </div>
+        <VscTrash
+          className="cursor-pointer transition-colors hover:text-red-500"
+          title="선택한 파일 삭제"
+          onClick={(event) => {
+            event.stopPropagation();
+            handleDeleteFile();
+          }}
+        />
       </div>
       <Alert open={!!alertMsg} onConfirm={() => setAlertMsg(null)}>
         {alertMsg}
