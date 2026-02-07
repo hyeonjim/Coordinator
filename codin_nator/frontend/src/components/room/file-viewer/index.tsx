@@ -180,16 +180,20 @@ const FileViewer = ({
 
     try {
       const accessToken = localStorage.getItem("access_token");
-      const headers = accessToken
-        ? { Authorization: `Bearer ${accessToken}` }
-        : undefined;
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (accessToken) {
+        headers.Authorization = `Bearer ${accessToken}`;
+      }
 
       await axios.post(
-        `/api/v1/room/${roomIdSafe}/files`,
+        `/api/v1/room/editor/${roomIdSafe}/new-file`,
         {
-          name: fileName,
+          fileName: fileName,
           type: "FILE",
           parentId: null,
+          content: "",
         },
         { headers }
       );
@@ -210,16 +214,20 @@ const FileViewer = ({
 
     try {
       const accessToken = localStorage.getItem("access_token");
-      const headers = accessToken
-        ? { Authorization: `Bearer ${accessToken}` }
-        : undefined;
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (accessToken) {
+        headers.Authorization = `Bearer ${accessToken}`;
+      }
 
       await axios.post(
-        `/api/v1/room/${roomIdSafe}/files`,
+        `/api/v1/room/editor/${roomIdSafe}/new-file`,
         {
-          name: folderName,
+          fileName: folderName,
           type: "DIR",
           parentId: null,
+          content: "",
         },
         { headers }
       );
@@ -243,11 +251,12 @@ const FileViewer = ({
 
     try {
       const accessToken = localStorage.getItem("access_token");
-      const headers = accessToken
-        ? { Authorization: `Bearer ${accessToken}` }
-        : undefined;
+      const headers: Record<string, string> = {};
+      if (accessToken) {
+        headers.Authorization = `Bearer ${accessToken}`;
+      }
 
-      await axios.delete(`/api/v1/room/${roomIdSafe}/files/${selectedId}`, {
+      await axios.delete(`/api/v1/room/editor/${roomIdSafe}/delete-file/${selectedId}`, {
         headers,
       });
 
