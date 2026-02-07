@@ -3,7 +3,7 @@ import { createEditor, Editor, Node, Transforms, Text, Range } from "slate";
 import type { Descendant, NodeEntry } from "slate";
 import { useEffect, useMemo, useCallback, useState } from "react";
 import { WebsocketProvider } from "y-websocket";
-import { Slate, Editable, withReact, ReactEditor } from "slate-react";
+import { Slate, Editable, withReact } from "slate-react";
 import type { RenderElementProps, RenderLeafProps } from "slate-react";
 import { withYjs, withYHistory, withCursors, YjsEditor } from "@slate-yjs/core";
 import Prism from "prismjs";
