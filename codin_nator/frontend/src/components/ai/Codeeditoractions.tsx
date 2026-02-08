@@ -204,20 +204,20 @@ export default function Codeeditoractions({
 
   // ✅ 버튼 공통 Tailwind 스타일 (통일)
   const actionBtnBase =
-    "flex items-center gap-2 px-3 py-1.5 text-[11px] font-medium rounded-full h-5" +
+    "flex items-center gap-2 px-3 py-1.5 text-[12px] font-semibold rounded-full h-5" +
     "border border-[#2F363F] transition " +
     "active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-white/10";
 
   const actionBtnEnabled =
-    "bg-[#2F363F] text-[#DCD8D8] hover:bg-[#7F838D] hover:text-[#0A080D]";
+    "bg-[#424957] text-[#DCD8D8] hover:bg-[#7F838D] hover:text-[#0A080D]";
 
-  const actionBtnDisabled = "bg-[#1A1F24] text-[#7F838D] cursor-not-allowed";
+  const actionBtnDisabled = "bg-[#282f38] text-[#bac4d1] cursor-not-allowed";
 
   return (
-    <div className="flex items-center gap-2 px-6 py-2 bg-[#262b31] border-b border-[#2F363F] flex-shrink-0">
+    <div className="flex items-center gap-2 px-6 py-1.5 bg-[#1f2327] border-b border-[#2F363F] flex-shrink-0">
       {/* 파일명 표시 */}
       <div className="flex items-center gap-2 flex-1">
-        <span className="text-[13px] text-[#DCD8D8]">
+        <span className="text-[14px] text-[#DCD8D8]">
           {fileName || "파일을 선택하세요"}
         </span>
         {error && (

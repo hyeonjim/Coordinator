@@ -55,7 +55,7 @@ export default function Header({
     "transition active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#7F838D]/60";
 
   // 기본
-  const btnGray = `${btnBase} bg-[#2F363F] text-[#c6c7cc] hover:bg-[#7F838D] border border-[#7F838D]`;
+  const btnGray = `${btnBase} bg-[#404a57] text-[#c6c7cc] hover:bg-[#7F838D] border border-[#7F838D]`;
 
   // 강조(참여하기)
   const btnGrayStrong = `${btnBase} bg-[#93a0bf] text-[#0A080D] hover:bg-[#DCD8D8] border border-[#7F838D]`;

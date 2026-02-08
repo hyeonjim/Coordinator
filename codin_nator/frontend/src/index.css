@@ -258,9 +258,8 @@
    Room 헤더 스타일
    ============================================ */
 .room-header {
-  @apply h-10 flex items-center justify-between p-6 shrink-0;
-  background-color: #283036;
-  border-bottom: 1px solid #2F363F;
+  @apply h-10 flex items-center justify-between p-5.5 shrink-0;
+  background-color: #252f35;
 }
 
 .room-header-logo {
@@ -348,27 +347,27 @@
 }
 
 .file-viewer-header {
-  @apply flex items-center justify-between px-4 h-9;
-  background-color: #424d55;
-  border-bottom: 1px solid #0A080D;
+  @apply flex items-center justify-between px-3 h-8;
+  background-color: #242a2e;
+  border-bottom: 1px solid #24202b;
 }
 
 .file-viewer-header:hover {
-  background-color: #3d4550;
+  background-color: #3f4650;
 }
 
 .file-viewer-title {
   @apply flex items-center text-[11px] font-semibold tracking-widest uppercase cursor-pointer;
-  color: #DCD8D8;
+  color: #d8d7dd;
 }
 
 .file-viewer-actions {
-  @apply flex items-center gap-2 text-sm;
-  color: #7F838D;
+  @apply flex items-center gap-2 text-[16px];
+  color: #8c9099;
 }
 
 .file-viewer-actions svg:hover {
-  color: #DCD8D8;
+  color: #b9b7be;
 }
 
 .file-tree-item {
@@ -459,7 +458,7 @@
 
 .voice-chat-status-dot {
   @apply w-1.5 h-1.5 rounded-full;
-  background-color: #7ba87b;
+  background-color: #3ea03e;
   animation: pulse 2s ease-in-out infinite;
 }
 
@@ -469,7 +468,7 @@
 }
 
 .participant-row {
-  @apply flex items-center justify-between px-2;
+  @apply flex items-center justify-between px-2 py-1;
   transition: background-color 0.15s ease;
 }
 
@@ -487,21 +486,21 @@
 
 .participant-avatar-speaking {
   border-color: #7ba87b;
-  border-width: 3px;
+  border-width: 2px;
 }
 
 .participant-name {
-  @apply truncate text-[14px] font-semibold leading-tight;
-  color: #DCD8D8;
+  @apply truncate text-[16px] font-medium leading-tight;
+  color: #d3d3d6;
 }
 
 .participant-mic-btn {
-  @apply flex items-center pl-2 py-1 px-2 cursor-pointer;
+  @apply flex items-center cursor-pointer;
   transition: all 0.15s ease;
 }
 
 .mic-icon-on {
-  color: #7ba87b;
+  color: #5fad5f;
 }
 
 .mic-icon-off {
@@ -513,12 +512,11 @@
 }
 
 .mic-status-text {
-  @apply text-[11px] font-bold w-9 text-center;
-  /* color: #c7d2db; */
+  @apply text-[13px] font-bold w-9 text-center;
 }
 
 .voice-chat-empty {
-  @apply flex flex-col items-center justify-center py-8;
+  @apply flex flex-col items-center justify-center py-5;
   color: #7F838D;
 }
 
