@@ -204,8 +204,8 @@ export default function Codeeditoractions({
 
   // ✅ 버튼 공통 Tailwind 스타일 (통일)
   const actionBtnBase =
-    "flex items-center gap-2 px-4 py-1 text-[11px] font-medium rounded-full " +
-    "border border-transparent transition " +
+    "flex items-center gap-2 px-3 py-1.5 text-[11px] font-medium rounded-full h-5" +
+    "border border-[#2F363F] transition " +
     "active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-white/10";
 
   const actionBtnEnabled =
@@ -214,7 +214,7 @@ export default function Codeeditoractions({
   const actionBtnDisabled = "bg-[#1A1F24] text-[#7F838D] cursor-not-allowed";
 
   return (
-    <div className="flex items-center gap-2 px-6 py-2 bg-[#1A1F24] border-b border-[#2F363F] flex-shrink-0">
+    <div className="flex items-center gap-2 px-6 py-2 bg-[#262b31] border-b border-[#2F363F] flex-shrink-0">
       {/* 파일명 표시 */}
       <div className="flex items-center gap-2 flex-1">
         <span className="text-[13px] text-[#DCD8D8]">
@@ -226,7 +226,7 @@ export default function Codeeditoractions({
       </div>
 
       {/* AI 액션 버튼들 */}
-      <div className="flex items-center gap-3 px-2">
+      <div className="flex items-center gap-3">
         {/* 테스트 생성 버튼 */}
         <button
           onClick={handleGenerateTest}

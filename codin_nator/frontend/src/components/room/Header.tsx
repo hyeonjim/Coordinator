@@ -58,7 +58,7 @@ export default function Header({
   const btnGray = `${btnBase} bg-[#2F363F] text-[#c6c7cc] hover:bg-[#7F838D] border border-[#7F838D]`;
 
   // 강조(참여하기)
-  const btnGrayStrong = `${btnBase} bg-[#7F838D] text-[#0A080D] hover:bg-[#DCD8D8] border border-[#7F838D]`;
+  const btnGrayStrong = `${btnBase} bg-[#93a0bf] text-[#0A080D] hover:bg-[#DCD8D8] border border-[#7F838D]`;
 
   // 방 나가기 (채도 낮춘 경고색 - 구분용)
   const btnLeave = `${btnBase} bg-[#4d3737] text-[#DCD8D8] hover:bg-[#8B5A5A] border border-[#6B4A4A]`;
