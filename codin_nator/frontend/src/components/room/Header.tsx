@@ -1,7 +1,8 @@
 import axios from "axios";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import logo from "@/components/landing/logo2.png";
+import logo from "@/assets/images/logo2.png";
+
 import Alert from "@/components/common/Alert";
 
 interface HeaderProps {
