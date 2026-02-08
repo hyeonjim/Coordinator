@@ -174,7 +174,6 @@ export default function RoomPage() {
     navigate,
   });
 
-
   // 마이크 토글
   const handleToggleMic = useCallback(async () => {
     await webRTC.toggleMic();
@@ -239,9 +238,6 @@ export default function RoomPage() {
                 onChange={setCurrentEditorCode}
                 onTestGenerated={(code) => setGeneratedTestCode(code)}
                 onAppendTerminal={appendTerminal} // ✅ 네 기능
-                userId={userId}
-                userName={userName}
-                userImageUrl={userImageUrl}
               />
             ) : (
               <div className="flex items-center justify-center h-full text-[#858585]">

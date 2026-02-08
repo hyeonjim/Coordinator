@@ -5,7 +5,7 @@ import { useEffect, useMemo, useCallback, useState } from "react";
 import { WebsocketProvider } from "y-websocket";
 import { Slate, Editable, withReact } from "slate-react";
 import type { RenderElementProps, RenderLeafProps } from "slate-react";
-import { withYjs, withYHistory, withCursors, YjsEditor } from "@slate-yjs/core";
+import { withYjs, withYHistory, YjsEditor } from "@slate-yjs/core";
 import Prism from "prismjs";
 import axios from "axios";
 
@@ -15,9 +15,6 @@ import "prismjs/components/prism-java";
 import "prismjs/themes/prism-tomorrow.css";
 
 import Codeeditoractions from "@/components/ai/Codeeditoractions";
-import RemoteCursorOverlay from "./RemoteCursorOverlay";
-import useRemoteCursors from "./useRemoteCursors";
-import { getUserColor } from "./colorAssignment";
 
 /* 자동완성 */
 import AutoCompletePopup from "./AutoCompletePopup";
@@ -35,9 +32,6 @@ interface CodeEditorProps {
   onChange?: (code: string) => void;
   onTestGenerated?: (testCode: string) => void;
   onAppendTerminal?: (title: string, text: string) => void;
-  userId?: string;
-  userName?: string;
-  userImageUrl?: string;
 }
 
 const WS_BASE_URL =
@@ -50,9 +44,6 @@ export default function CodeEditor({
   onChange,
   onTestGenerated,
   onAppendTerminal,
-  userId,
-  userName,
-  userImageUrl,
 }: CodeEditorProps) {
   /* =========================
      🔑 file 단위 room
@@ -88,10 +79,7 @@ export default function CodeEditor({
   );
 
   const editor = useMemo(() => {
-    return withCursors(
-      withYHistory(withYjs(withReact(createEditor()), yjsSharedXmlText)),
-      provider.awareness,
-    );
+    return withYHistory(withYjs(withReact(createEditor()), yjsSharedXmlText));
   }, [provider, yjsSharedXmlText]);
 
   const initialValue: Descendant[] = useMemo(
@@ -100,7 +88,6 @@ export default function CodeEditor({
   );
 
   const [currentCode, setCurrentCode] = useState("");
-  const [localSelection, setLocalSelection] = useState<Range | null>(null);
 
   // ===========================
   // 🔤 자동완성 상태
@@ -112,36 +99,10 @@ export default function CodeEditor({
   const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 }); // 팝업 위치
   const [currentWord, setCurrentWord] = useState({ word: "", start: 0 }); // 현재 입력 중인 단어
 
-  const localUserData =
-    userId && userName
-      ? {
-          userId,
-          name: userName,
-          color: getUserColor(userId),
-          imageUrl: userImageUrl,
-        }
-      : undefined;
-  const remoteCursors = useRemoteCursors(
-    editor as any,
-    localUserData,
-    localSelection,
-  );
-
   /* =========================
      🔌 Yjs connect / cleanup
      ========================= */
   useEffect(() => {
-    try {
-      provider.awareness.setLocalStateField("user", {
-        userId: userId ?? "local",
-        name: userName ?? "You",
-        color: userId ? getUserColor(userId) : "#6366f1",
-        imageUrl: userImageUrl,
-      });
-    } catch (e) {
-      console.debug("[CodeEditor] setLocalStateField failed", e);
-    }
-
     YjsEditor.connect(editor);
 
     return () => {
@@ -150,18 +111,6 @@ export default function CodeEditor({
       yDocument.destroy();
     };
   }, [editor, provider, yDocument]);
-
-  useEffect(() => {
-    // update awareness data if user info changes
-    try {
-      provider.awareness.setLocalStateField("user", {
-        userId: userId ?? "local",
-        name: userName ?? "You",
-        color: userId ? getUserColor(userId) : "#6366f1",
-        imageUrl: userImageUrl,
-      });
-    } catch (e) {}
-  }, [provider, userId, userName, userImageUrl]);
 
   /* =========================
      ✨ Prism Highlight
@@ -444,7 +393,7 @@ export default function CodeEditor({
               const text = value.map((n) => Node.string(n)).join("\n");
               setCurrentCode(text);
               onChange?.(text);
-              setLocalSelection(editor.selection as Range | null);
+
               // 🔤 자동완성 트리거
               handleAutoComplete();
             } catch {
@@ -461,7 +410,6 @@ export default function CodeEditor({
             className="min-h-full px-2 py-4 focus:outline-none pl-12"
           />
         </Slate>
-        <RemoteCursorOverlay cursors={remoteCursors} editor={editor} />
 
         {/* 🔤 자동완성 팝업 */}
         <AutoCompletePopup
