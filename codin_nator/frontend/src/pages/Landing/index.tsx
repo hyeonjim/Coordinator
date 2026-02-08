@@ -2,6 +2,9 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useRef } from "react";
 import logo from "@/assets/images/logo_wh.png";
+import editorGif from "@/assets/images/landing/editor.gif";
+import gitGif from "@/assets/images/landing/git.gif";
+import errorGif from "@/assets/images/landing/error.gif";
 
 // GitHub OAuth 인증 시작 URL (백엔드에서 처리)
 const GITHUB_OAUTH_URL = "/oauth2/authorization/github";
@@ -66,8 +69,34 @@ export default function LandingPage() {
       {/* ================= PREVIEW AREA ================= */}
       <section ref={previewRef} className="mt-10 flex justify-center px-6">
         <div className="w-full max-w-5xl rounded-2xl bg-neutral-800/60 border border-neutral-700 shadow-xl p-6">
-          <div className="h-64 md:h-80 rounded-xl bg-neutral-900 flex items-center justify-center text-neutral-500">
-            Live Collaborative Editor Preview
+          <div className="overflow-hidden rounded-xl bg-neutral-900">
+            <img
+              src={editorGif}
+              alt="Live collaborative editor preview"
+              className="w-full h-auto object-cover"
+            />
+          </div>
+        </div>
+      </section>
+      <section ref={previewRef} className="mt-10 flex justify-center px-6">
+        <div className="w-full max-w-5xl rounded-2xl bg-neutral-800/60 border border-neutral-700 shadow-xl p-6">
+          <div className="overflow-hidden rounded-xl bg-neutral-900">
+            <img
+              src={gitGif}
+              alt="Live collaborative editor preview"
+              className="w-full h-auto object-cover"
+            />
+          </div>
+        </div>
+      </section>
+      <section ref={previewRef} className="mt-10 flex justify-center px-6">
+        <div className="w-full max-w-5xl rounded-2xl bg-neutral-800/60 border border-neutral-700 shadow-xl p-6">
+          <div className="overflow-hidden rounded-xl bg-neutral-900">
+            <img
+              src={errorGif}
+              alt="Live collaborative editor preview"
+              className="w-full h-auto object-cover"
+            />
           </div>
         </div>
       </section>
