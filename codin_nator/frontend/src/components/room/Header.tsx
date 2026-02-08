@@ -13,8 +13,6 @@ interface HeaderProps {
   editorContent: string;
 }
 
-type GitStage = "idle" | "added" | "committed";
-
 const gitActions = [
   { id: "add", label: "Add" },
   { id: "commit", label: "Commit" },
@@ -34,20 +32,16 @@ export default function Header({
 
   const [showCommit, setShowCommit] = useState(false);
   const [commitMsg, setCommitMsg] = useState("");
-  const [gitStage, setGitStage] = useState<GitStage>("idle");
-
-  const btnDisabled = "opacity-40 pointer-events-none";
 
   const shareLink = window.location.href;
+  const { roomId } = useParams<{ roomId: string }>();
+  const accessToken = localStorage.getItem("access_token");
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(shareLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
-
-  const { roomId } = useParams<{ roomId: string }>();
-  const accessToken = localStorage.getItem("access_token");
 
   // 공통 버튼 스타일
   const btnBase =
@@ -59,63 +53,42 @@ export default function Header({
 
   // 강조(참여하기)
   const btnGrayStrong = `${btnBase} bg-[#93a0bf] text-[#0A080D] hover:bg-[#DCD8D8] border border-[#7F838D]`;
-
-  // 방 나가기 (채도 낮춘 경고색 - 구분용)
   const btnLeave = `${btnBase} bg-[#4d3737] text-[#DCD8D8] hover:bg-[#8B5A5A] border border-[#6B4A4A]`;
 
   const handleGitAction = (action: string) => {
-    if (!selectedFileId) {
+    if (!selectedFileId && action === "add") {
       setAlertMsg("파일을 먼저 선택해주세요.");
       return;
     }
+
     if (action === "add") {
       axios
         .post(
           `/api/v1/room/git/${roomId}/add`,
-          [
-            {
-              fileId: selectedFileId,
-              content: editorContent,
-            },
-          ],
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          },
+          [{ fileId: selectedFileId, content: editorContent }],
+          { headers: { Authorization: `Bearer ${accessToken}` } },
         )
-        .then(() => {
-          setAlertMsg("Staging area에 파일을 추가합니다.");
-          setGitStage("added");
-        })
-        .catch(() => {
-          setAlertMsg("Staging area에 파일을 추가하는 데 실패했습니다.");
-        });
+        .then(() => setAlertMsg("Staging area에 파일을 추가합니다."))
+        .catch(() =>
+          setAlertMsg("Staging area에 파일을 추가하는 데 실패했습니다."),
+        );
       return;
     }
+
     if (action === "commit") {
       setShowCommit((v) => !v);
       setShowShare(false);
       return;
     }
+
     if (action === "push") {
       axios
         .get(`/api/v1/room/git/${roomId}/push`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+          headers: { Authorization: `Bearer ${accessToken}` },
         })
-        .then(() => {
-          setAlertMsg("리포지토리에 푸시되었습니다.");
-          setGitStage("idle");
-        })
-        .catch(() => {
-          setAlertMsg("리포지토리에 푸시하는 데 실패했습니다.");
-        });
-      return;
+        .then(() => setAlertMsg("리포지토리에 푸시되었습니다."))
+        .catch(() => setAlertMsg("리포지토리에 푸시하는 데 실패했습니다."));
     }
-
-    console.log("Git:", action);
   };
 
   const handleCommitSend = () => {
@@ -123,21 +96,15 @@ export default function Header({
       setAlertMsg("커밋 메시지를 입력해주세요.");
       return;
     }
+
     axios
       .post(
         `/api/v1/room/git/${roomId}/commit`,
         { message: commitMsg },
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        },
+        { headers: { Authorization: `Bearer ${accessToken}` } },
       )
-      .then(() => {
-        setAlertMsg("커밋이 성공적으로 완료되었습니다.");
-        setGitStage("committed");
-      })
-      .catch(() => {
-        setAlertMsg("커밋하는 데 실패했습니다.");
-      });
+      .then(() => setAlertMsg("커밋이 성공적으로 완료되었습니다."))
+      .catch(() => setAlertMsg("커밋하는 데 실패했습니다."));
 
     setCommitMsg("");
     setShowCommit(false);
@@ -148,26 +115,20 @@ export default function Header({
       {/* Logo */}
       <div className="flex items-center">
         <div className="room-header-logo">
-          <img
-            src={logo}
-            alt="CODIN'NATOR"
-            className="h-full w-auto object-contain"
-          />
+          <img src={logo} alt="CODIN'NATOR" className="h-full w-auto" />
         </div>
       </div>
 
       {/* Right */}
       <div className="flex items-center gap-4">
-        {/* ===== Share ===== */}
+        {/* Share */}
         <div className="relative">
           <button
             onClick={() => {
               setShowShare((v) => !v);
               setShowCommit(false);
             }}
-            // ✅ 둥글고 통일된 버튼
             className={`${btnGray} px-3`}
-            aria-label="share"
           >
             🔗
           </button>
@@ -175,73 +136,49 @@ export default function Header({
           {showShare && (
             <div className="room-dropdown">
               <p className="text-xs text-[#7F838D] mb-2">공유 링크</p>
-
-              <div className="flex items-center gap-1">
+              <div className="flex gap-1">
                 <input
                   value={shareLink}
                   readOnly
                   className="room-dropdown-input text-xs"
                 />
-                <button
-                  onClick={handleCopy}
-                  // ✅ Copy도 통일
-                  className={`${btnGray} px-4 py-2`}
-                >
+                <button onClick={handleCopy} className={`${btnGray} px-4 py-2`}>
                   {copied ? "✔" : "Copy"}
                 </button>
               </div>
-
-              {copied && (
-                <span className="text-[#7F838D] text-xs mt-2 block font-semibold">
-                  링크가 복사되었습니다!
-                </span>
-              )}
             </div>
           )}
         </div>
 
-        {/* ===== Git Buttons ===== */}
-        <div className="flex items-center gap-2 relative">
+        {/* Git Buttons */}
+        <div className="flex gap-2 relative">
           {gitActions.map(({ id, label }) => (
             <div key={id} className="relative">
-              <button
-                onClick={() => handleGitAction(id)}
-                // ✅ Add/Commit/Push 통일
-                className={`${btnGray}
-    ${id === "add" && gitStage !== "idle" ? btnDisabled : ""}
-    ${id === "commit" && gitStage !== "added" ? btnDisabled : ""}
-    ${id === "push" && gitStage !== "committed" ? btnDisabled : ""}
-  `}
-              >
+              <button onClick={() => handleGitAction(id)} className={btnGray}>
                 {label}
               </button>
 
-              {id === "commit" && showCommit && gitStage === "added" && (
+              {id === "commit" && showCommit && (
                 <div className="room-dropdown">
-                  <p className="text-xs text-[#7F838D] mb-2">Commit message</p>
-
-                  <div className="flex items-center gap-2">
-                    <input
-                      value={commitMsg}
-                      onChange={(e) => setCommitMsg(e.target.value)}
-                      placeholder="커밋 메시지를 입력하세요"
-                      className="room-dropdown-input text-xs"
-                    />
-                    <button
-                      onClick={handleCommitSend}
-                      // ✅ 전송 버튼도 통일
-                      className={`${btnGray} px-3 py-2`}
-                    >
-                      ➤
-                    </button>
-                  </div>
+                  <input
+                    value={commitMsg}
+                    onChange={(e) => setCommitMsg(e.target.value)}
+                    placeholder="커밋 메시지를 입력하세요"
+                    className="room-dropdown-input text-xs"
+                  />
+                  <button
+                    onClick={handleCommitSend}
+                    className={`${btnGray} px-3 py-2`}
+                  >
+                    ➤
+                  </button>
                 </div>
               )}
             </div>
           ))}
         </div>
 
-        {/* ===== Room Actions ===== */}
+        {/* Room Actions */}
         {isJoined ? (
           <button onClick={onLeave} className={btnLeave}>
             방 나가기
@@ -252,6 +189,7 @@ export default function Header({
           </button>
         )}
       </div>
+
       <Alert open={!!alertMsg} onConfirm={() => setAlertMsg(null)}>
         {alertMsg}
       </Alert>
