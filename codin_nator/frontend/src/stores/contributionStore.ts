@@ -1,28 +1,15 @@
 // src/utils/contributionStore.ts
-
-export type ErrorLog = {
-  id: string;
-  time: string; // "HH:mm"
-  display_name: string;
-  error: string;
-  stacktrace: string;
-  resolution: string;
-};
-
-export type StoredLog = ErrorLog & { date: string }; // "YYYY-MM-DD"
-
-export type ContributionData = Record<
-  string,
-  { count: number; logs: ErrorLog[] }
->;
+import type {
+  StoredLog,
+  ContributionData,
+  AppendLogInput,
+} from "@/types/room/contribution";
+import { CONTRIB_UPDATED_EVENT } from "@/types/room/contribution";
 
 const KEY = "codinnator_contrib_logs_v1";
 
-/**
- * ✅ 같은 탭에서도 즉시 그래프 갱신되게 하는 커스텀 이벤트
- * - MyPageTab에서 이 이벤트를 listen하면 저장 즉시 리렌더됨
- */
-export const CONTRIB_UPDATED_EVENT = "codinnator:contribution-updated" as const;
+export { CONTRIB_UPDATED_EVENT };
+export type { StoredLog, ContributionData };
 
 function nowDateStr(d = new Date()) {
   const yyyy = d.getFullYear();
@@ -59,14 +46,7 @@ function writeAll(list: StoredLog[]) {
  * ✅ 로그 추가
  * - Room에서 "AI 분석 결과"를 여기로 넣으면 잔디에 찍힘
  */
-export function appendContributionLog(input: {
-  display_name: string;
-  error: string;
-  resolution: string;
-  stacktrace?: string;
-  date?: string;
-  time?: string;
-}) {
+export function appendContributionLog(input: AppendLogInput) {
   const list = readAll();
 
   const log: StoredLog = {

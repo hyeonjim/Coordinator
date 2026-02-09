@@ -1,27 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, X } from "lucide-react";
-
-interface ErrorLog {
-  id: string;
-  roomId?: string; // ✅ 방 번호(없으면 unknown)
-  time: string; // "08:20" 같은 형태라고 가정
-  display_name: string;
-  error: string;
-  stacktrace: string;
-  resolution: string;
-}
-
-type ContributionData = Record<
-  string,
-  {
-    count: number;
-    logs: ErrorLog[];
-  }
->;
-
-interface ContributionGraphProps {
-  data?: ContributionData; // ✅ MyPage에서 주입
-}
+import type {
+  ErrorLog,
+  ContributionData,
+  ContributionGraphProps,
+} from "@/types/room/contribution";
 
 const formatDate = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
@@ -282,10 +265,10 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
             </div>
           </div>
           {/* 잔디 */}
-          <div className="flex gap-2 justify-center">
-            <div className="flex gap-[3px] mb-2">
+          <div className="flex gap-3 justify-center">
+            <div className="flex gap-[4px] mb-2">
               {weeks.map((week, wi) => (
-                <div key={wi} className="flex flex-col gap-[2px]">
+                <div key={wi} className="flex flex-col gap-[4px]">
                   {week.map((day, di) => (
                     <button
                       key={di}
@@ -317,13 +300,13 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
       </div>
       {/* ===== 범례 ===== */}
       <div className="flex justify-center mb-12">
-        <div className="flex items-center gap-3 text-xs font-medium px-5 py-2.5 rounded-lg text-[#24292E] bg-transparent border border-[#9297A2] shadow-md">
+        <div className="flex items-center gap-3 text-xs font-medium px-5 py-2.5 rounded-lg text-[#24292E] bg-transparent border border-[#afb4be] shadow-md">
           <span>Less</span>
           <div className="flex gap-2">
             {[0, 1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className={`w-4 h-4 rounded-sm contrib-level-${i} transition-all duration-200 hover:scale-150 hover:ring-2 hover:ring-offset-1 hover:ring-[#24292E] shadow-sm`}
+                className={`w-4 h-4 rounded-sm contrib-level-${i}`}
               />
             ))}
           </div>
