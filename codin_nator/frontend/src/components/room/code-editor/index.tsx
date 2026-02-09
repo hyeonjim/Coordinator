@@ -403,12 +403,13 @@ export default function CodeEditor({
         onAppendTerminal={onAppendTerminal}
       />
 
-      <div className="flex-1 overflow-auto font-mono text-sm text-[#DCD8D8] relative">
-        <div className="absolute left-0 top-0 bottom-0 w-10 text-[#858585] select-none pointer-events-none pt-4">
+      <div className="flex-1 overflow-auto font-mono text-sm text-[#DCD8D8] relative leading-6">
+        <div className="absolute left-0 top-0 bottom-0 w-10 text-[#858585] select-none pointer-events-none py-4">
           {currentCode.split("\n").map((_, i) => (
             <div
               key={i}
-              className="h-[1.4em] flex items-center justify-end pr-2"
+              className="leading-6 flex items-start justify-end pr-2"
+              style={{ minHeight: "1.5rem" }}
             >
               {i + 1}
             </div>
@@ -439,7 +440,7 @@ export default function CodeEditor({
             renderLeaf={renderLeaf}
             renderElement={renderElement}
             onKeyDown={handleKeyDown}
-            className="min-h-full px-2 py-4 focus:outline-none pl-12"
+            className="min-h-full px-2 py-4 focus:outline-none pl-12 leading-6"
           />
         </Slate>
 

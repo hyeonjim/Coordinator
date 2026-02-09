@@ -258,9 +258,10 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
               setActiveLog(null);
             }}
             className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 border shadow-md
-              ${year === selectedYear
-                ? "bg-[#7F838D] text-white border-[#7F838D]"
-                : "bg-white text-[#24292E] border-[#9297A2] hover:bg-[#DCD8D8] hover:text-[#24292E] hover:border-[#7F838D]"
+              ${
+                year === selectedYear
+                  ? "bg-[#7F838D] text-white border-[#7F838D]"
+                  : "bg-white text-[#24292E] border-[#9297A2] hover:bg-[#DCD8D8] hover:text-[#24292E] hover:border-[#7F838D]"
               }`}
           >
             {year}
@@ -288,7 +289,9 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
                   {week.map((day, di) => (
                     <button
                       key={di}
-                      title={day.date ? `${day.date} · ${day.count} errors` : ""}
+                      title={
+                        day.date ? `${day.date} · ${day.count} errors` : ""
+                      }
                       className={`w-3.5 h-4.5 rounded-sm ${getContribClass(day.count)}
                         hover:ring-2 hover:ring-offset-1
                         ${day.count > 0 ? "hover:ring-[#24292E]/40" : "hover:ring-[#9297A2]/40"}
@@ -314,9 +317,7 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
       </div>
       {/* ===== 범례 ===== */}
       <div className="flex justify-center mb-12">
-        <div
-          className="flex items-center gap-3 text-xs font-medium px-5 py-2.5 rounded-lg text-[#24292E] bg-transparent border border-[#9297A2] shadow-md"
-        >
+        <div className="flex items-center gap-3 text-xs font-medium px-5 py-2.5 rounded-lg text-[#24292E] bg-transparent border border-[#9297A2] shadow-md">
           <span>Less</span>
           <div className="flex gap-2">
             {[0, 1, 2, 3, 4].map((i) => (
@@ -341,9 +342,7 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
           >
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-[#24292E]" />
-              <span className="font-semibold text-white">
-                {selectedDate}
-              </span>
+              <span className="font-semibold text-white">{selectedDate}</span>
               <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-[#24292E] text-white">
                 {selectedLogs.length}건
               </span>

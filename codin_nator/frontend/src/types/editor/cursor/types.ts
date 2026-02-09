@@ -5,7 +5,7 @@
  */
 import type { Range } from "slate";
 
-// 6가지 커서 색상 (VSCode Live Share 스타일)
+// 10가지 커서 색상 (VSCode Live Share 스타일)
 export const CURSOR_COLORS = [
   "#E91E63", // Pink
   "#2196F3", // Blue
@@ -13,6 +13,10 @@ export const CURSOR_COLORS = [
   "#FF9800", // Orange
   "#9C27B0", // Purple
   "#00BCD4", // Cyan
+  "#F44336", // Red
+  "#FFEB3B", // Yellow
+  "#3F51B5", // Indigo
+  "#009688", // Teal
 ] as const;
 
 export type CursorColor = (typeof CURSOR_COLORS)[number];
