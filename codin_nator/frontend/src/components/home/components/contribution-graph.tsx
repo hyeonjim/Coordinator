@@ -4,7 +4,7 @@ import type {
   ErrorLog,
   ContributionData,
   ContributionGraphProps,
-} from "@/types/room/contribution";
+} from "@/types/home/contribution";
 
 const formatDate = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(

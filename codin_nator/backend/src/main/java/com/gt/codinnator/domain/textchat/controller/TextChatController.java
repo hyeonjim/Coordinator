@@ -34,6 +34,11 @@ public class TextChatController {
             message.setMessage(message.getSender() + "님이 입장하셨습니다.");
         }
 
+        // 1-1. 퇴장 메시지 처리
+        if (TextChatMessage.MessageType.LEAVE.equals(message.getType())) {
+            message.setMessage(message.getSender() + "님이 퇴장하셨습니다.");
+        }
+
         // 2. 해당 방을 구독 중인 모든 클라이언트에게 메시지 전송 (/sub/chat/room/{roomId})
         messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
 

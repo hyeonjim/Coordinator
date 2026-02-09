@@ -8,6 +8,7 @@ import type { ChatMessage, TextChatProps } from "@/types/chat/message";
 
 /**
  * 내 메시지는 오른쪽, 상대 메시지는 왼쪽에 표시
+ * 입장/퇴장 메시지는 중앙에 표시
  */
 
 function MessageBubble({ message }: { message: ChatMessage }) {
@@ -16,6 +17,20 @@ function MessageBubble({ message }: { message: ChatMessage }) {
     hour: "2-digit",
     minute: "2-digit",
   });
+
+  // 입장/퇴장 메시지는 별도로 표시
+  if (message.type === "ENTER" || message.type === "LEAVE") {
+    return (
+      <div className="message-system-notification">
+        <p className="message-system-text">
+          {message.type === "ENTER"
+            ? `${message.userName}님이 입장하셨습니다.`
+            : `${message.userName}님이 퇴장하셨습니다.`}
+        </p>
+        <span className="message-system-time">{time}</span>
+      </div>
+    );
+  }
 
   return (
     <div

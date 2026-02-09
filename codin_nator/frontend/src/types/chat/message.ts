@@ -16,6 +16,8 @@ export interface ChatMessage {
   imageUrl?: string;
   /** 내가 보낸 메시지인지 */
   isMe: boolean;
+  /** 메시지 타입: ENTER(입장), TALK(채팅), LEAVE(퇴장) */
+  type?: "ENTER" | "TALK" | "LEAVE";
 }
 
 /**
