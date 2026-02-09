@@ -95,6 +95,25 @@ export default function CodeEditor({
   const [currentCode, setCurrentCode] = useState("");
 
   // ===========================
+  // 📏 폰트 크기 조정
+  // ===========================
+  const [fontSize, setFontSize] = useState(14); // 기본 폰트 크기 14px
+  const MIN_FONT_SIZE = 10;
+  const MAX_FONT_SIZE = 24;
+
+  const increaseFontSize = useCallback(() => {
+    setFontSize((prev) => Math.min(prev + 2, MAX_FONT_SIZE));
+  }, []);
+
+  const decreaseFontSize = useCallback(() => {
+    setFontSize((prev) => Math.max(prev - 2, MIN_FONT_SIZE));
+  }, []);
+
+  const resetFontSize = useCallback(() => {
+    setFontSize(14);
+  }, []);
+
+  // ===========================
   // 👤 현재 사용자 정보
   // ===========================
   const authUser = useAuthStore((state) => state.user);
@@ -278,10 +297,32 @@ export default function CodeEditor({
   );
 
   // ===========================
-  // 🔤 자동완성: 키보드 핸들러
+  // 🔤 자동완성 + 폰트 크기 조정 키보드 핸들러
   // ===========================
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
+      // 📏 폰트 크기 조정 단축키 (Ctrl/Cmd + +/-/0)
+      if (event.ctrlKey || event.metaKey) {
+        if (event.key === "=" || event.key === "+") {
+          // Ctrl/Cmd + +: 폰트 크기 증가
+          event.preventDefault();
+          increaseFontSize();
+          return;
+        }
+        if (event.key === "-" || event.key === "_") {
+          // Ctrl/Cmd + -: 폰트 크기 감소
+          event.preventDefault();
+          decreaseFontSize();
+          return;
+        }
+        if (event.key === "0") {
+          // Ctrl/Cmd + 0: 폰트 크기 초기화
+          event.preventDefault();
+          resetFontSize();
+          return;
+        }
+      }
+
       // 자동완성 팝업이 열려있을 때만 처리
       if (autoCompleteItems.length === 0) return;
 
@@ -318,7 +359,14 @@ export default function CodeEditor({
           break;
       }
     },
-    [autoCompleteItems, selectedIndex, insertAutoComplete],
+    [
+      autoCompleteItems,
+      selectedIndex,
+      insertAutoComplete,
+      increaseFontSize,
+      decreaseFontSize,
+      resetFontSize,
+    ],
   );
 
   // ===========================
@@ -403,13 +451,53 @@ export default function CodeEditor({
         onAppendTerminal={onAppendTerminal}
       />
 
-      <div className="flex-1 overflow-auto font-mono text-sm text-[#DCD8D8] relative leading-6">
-        <div className="absolute left-0 top-0 bottom-0 w-10 text-[#858585] select-none pointer-events-none py-4">
+      {/* 폰트 크기 조정 버튼 */}
+      <div className="flex items-center justify-end gap-2 px-4 py-2 bg-[#1e1e1e] border-b border-[#3e3e42]">
+        <span className="text-xs text-[#858585]">{fontSize}px</span>
+        <button
+          onClick={decreaseFontSize}
+          disabled={fontSize <= MIN_FONT_SIZE}
+          className="px-2 py-1 text-xs font-bold text-[#DCD8D8] bg-[#2f363f] hover:bg-[#3e454d] disabled:opacity-30 disabled:cursor-not-allowed rounded transition-colors"
+          title="폰트 크기 축소 (Ctrl + -)"
+        >
+          -
+        </button>
+        <button
+          onClick={resetFontSize}
+          className="px-2 py-1 text-xs text-[#DCD8D8] bg-[#2f363f] hover:bg-[#3e454d] rounded transition-colors"
+          title="기본 크기로 재설정"
+        >
+          초기화
+        </button>
+        <button
+          onClick={increaseFontSize}
+          disabled={fontSize >= MAX_FONT_SIZE}
+          className="px-2 py-1 text-xs font-bold text-[#DCD8D8] bg-[#2f363f] hover:bg-[#3e454d] disabled:opacity-30 disabled:cursor-not-allowed rounded transition-colors"
+          title="폰트 크기 확대 (Ctrl + +)"
+        >
+          +
+        </button>
+      </div>
+
+      <div
+        className="flex-1 overflow-auto font-mono text-[#DCD8D8] relative"
+        style={{ fontSize: `${fontSize}px`, lineHeight: `${fontSize * 1.5}px` }}
+      >
+        <div
+          className="absolute left-0 top-0 bottom-0 w-10 text-[#858585] select-none pointer-events-none py-4"
+          style={{
+            fontSize: `${fontSize}px`,
+            lineHeight: `${fontSize * 1.5}px`,
+          }}
+        >
           {currentCode.split("\n").map((_, i) => (
             <div
               key={i}
-              className="leading-6 flex items-start justify-end pr-2"
-              style={{ minHeight: "1.5rem" }}
+              className="flex items-start justify-end pr-2"
+              style={{
+                minHeight: `${fontSize * 1.5}px`,
+                lineHeight: `${fontSize * 1.5}px`,
+              }}
             >
               {i + 1}
             </div>
@@ -440,7 +528,10 @@ export default function CodeEditor({
             renderLeaf={renderLeaf}
             renderElement={renderElement}
             onKeyDown={handleKeyDown}
-            className="min-h-full px-2 py-4 focus:outline-none pl-12 leading-6"
+            className="min-h-full px-2 py-4 focus:outline-none pl-12"
+            style={{
+              lineHeight: `${fontSize * 1.5}px`,
+            }}
           />
         </Slate>
 
