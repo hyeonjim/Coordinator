@@ -205,27 +205,27 @@
   background-color: oklch(0.93 0.05 25);
 }
 .contrib-level-2 {
-  background-color: oklch(0.85 0.10 25);
+  background-color: oklch(0.85 0.1 25);
 }
 .contrib-level-3 {
   background-color: oklch(0.75 0.14 25);
 }
 .contrib-level-4 {
-  background-color: oklch(0.60 0.18 25);
+  background-color: oklch(0.6 0.18 25);
 }
 
 /* ============================================
    Room 테마 - 색상 변수
    ============================================ */
 :root {
-  --room-darkest: #0A080D;
-  --room-dark: #1A1F24;
-  --room-accent: #7F838D;
-  --room-medium: #2F363F;
-  --room-light: #DCD8D8;
-  --room-lightest: #DCD8D8;
-  --room-editor-bg: #0A080D;
-  --room-sidebar-bg: #2F363F;
+  --room-darkest: #0a080d;
+  --room-dark: #1a1f24;
+  --room-accent: #7f838d;
+  --room-medium: #2f363f;
+  --room-light: #dcd8d8;
+  --room-lightest: #dcd8d8;
+  --room-editor-bg: #0a080d;
+  --room-sidebar-bg: #2f363f;
   --room-hover: rgba(127, 131, 141, 0.15);
   --room-active: rgba(127, 131, 141, 0.25);
   --room-error: #d87a7a;
@@ -237,7 +237,7 @@
    ============================================ */
 .room-container {
   @apply h-screen flex flex-col;
-  background-color: #0A080D;
+  background-color: #0a080d;
 }
 
 .room-main {
@@ -269,45 +269,45 @@
 
 .room-git-btn {
   @apply px-3 py-1.5 text-xs font-medium rounded;
-  background-color: #2F363F;
-  color: #DCD8D8;
-  border: 1px solid #7F838D;
+  background-color: #2f363f;
+  color: #dcd8d8;
+  border: 1px solid #7f838d;
   transition: all 0.15s ease;
 }
 
 .room-git-btn:hover {
-  background-color: #7F838D;
-  border-color: #DCD8D8;
+  background-color: #7f838d;
+  border-color: #dcd8d8;
 }
 
 .room-share-btn {
   @apply w-8 h-8 flex items-center justify-center rounded;
-  color: #DCD8D8;
+  color: #dcd8d8;
   transition: all 0.15s ease;
 }
 
 .room-share-btn:hover {
-  background-color: #2F363F;
-  color: #DCD8D8;
+  background-color: #2f363f;
+  color: #dcd8d8;
 }
 
 .room-dropdown {
   @apply absolute right-0 top-10 w-80 rounded-lg shadow-xl p-3 z-50;
-  background-color: #2F363F;
-  border: 1px solid #7F838D;
-  color: #DCD8D8;
+  background-color: #2f363f;
+  border: 1px solid #7f838d;
+  color: #dcd8d8;
 }
 
 .room-dropdown-input {
   @apply flex-1 px-3 py-2 rounded text-sm;
-  background-color: #1A1F24;
-  color: #DCD8D8;
-  border: 1px solid #7F838D;
+  background-color: #1a1f24;
+  color: #dcd8d8;
+  border: 1px solid #7f838d;
 }
 
 .room-dropdown-input:focus {
   outline: none;
-  border-color: #DCD8D8;
+  border-color: #dcd8d8;
   box-shadow: 0 0 0 2px rgba(220, 216, 216, 0.2);
 }
 
@@ -317,24 +317,24 @@
 }
 
 .room-action-btn-primary {
-  background-color: #7F838D;
-  color: #0A080D;
-  border: 1px solid #7F838D;
+  background-color: #7f838d;
+  color: #0a080d;
+  border: 1px solid #7f838d;
 }
 
 .room-action-btn-primary:hover {
-  background-color: #DCD8D8;
-  border-color: #DCD8D8;
+  background-color: #dcd8d8;
+  border-color: #dcd8d8;
 }
 
 .room-action-btn-secondary {
-  background-color: #2F363F;
-  color: #DCD8D8;
-  border: 1px solid #7F838D;
+  background-color: #2f363f;
+  color: #dcd8d8;
+  border: 1px solid #7f838d;
 }
 
 .room-action-btn-secondary:hover {
-  background-color: #7F838D;
+  background-color: #7f838d;
 }
 
 /* ============================================
@@ -342,8 +342,8 @@
    ============================================ */
 .file-viewer-container {
   @apply w-full h-full flex flex-col font-sans select-none;
-  background-color: #2F363F;
-  color: #DCD8D8;
+  background-color: #2f363f;
+  color: #dcd8d8;
 }
 
 .file-viewer-header {
@@ -372,31 +372,31 @@
 
 .file-tree-item {
   @apply flex items-center py-1 cursor-pointer select-none text-[13px] h-[26px];
-  color: #DCD8D8;
+  color: #dcd8d8;
   transition:
     background-color 0.1s ease,
     color 0.1s ease;
 }
 
 .file-tree-item:hover {
-  background-color: #1A1F24;
-  color: #DCD8D8;
+  background-color: #1a1f24;
+  color: #dcd8d8;
 }
 
 .file-tree-item-selected {
-  background-color: #7F838D !important;
-  color: #0A080D !important;
+  background-color: #7f838d !important;
+  color: #0a080d !important;
 }
 
 .file-viewer-statusbar {
-  @apply h-[25px] flex items-center px-3 gap-2;
-  background-color: #1e2225;
-  color: #7F838D;
+  @apply h-[21px] flex items-center px-2 gap-2;
+  background-color: #202427;
+  color: #7f838d;
 }
 
 .file-viewer-empty {
   @apply h-full min-h-[150px] flex flex-col items-center justify-center space-y-2;
-  color: #7F838D;
+  color: #7f838d;
   opacity: 0.7;
 }
 
@@ -437,14 +437,14 @@
    ============================================ */
 .voice-chat-container {
   @apply flex flex-col h-full overflow-hidden;
-  color: #7F838D;
+  color: #7f838d;
 }
 
 .voice-chat-header {
   @apply flex items-center justify-between p-1;
   background-color: #3e454d;
-  border-top: 1px solid #0A080D;
-  color: #DCD8D8;
+  border-top: 1px solid #0a080d;
+  color: #dcd8d8;
 }
 
 .voice-chat-title {
@@ -479,8 +479,8 @@
 
 .participant-avatar {
   @apply h-10 w-10 shrink-0 rounded-full flex items-center justify-center font-semibold overflow-hidden;
-  background-color: #7F838D;
-  color: #DCD8D8;
+  background-color: #7f838d;
+  color: #dcd8d8;
   transition: all 0.3s ease;
 }
 
@@ -517,7 +517,7 @@
 
 .voice-chat-empty {
   @apply flex flex-col items-center justify-center py-5;
-  color: #7F838D;
+  color: #7f838d;
 }
 
 /* ============================================
@@ -534,7 +534,7 @@
 .text-chat-panel {
   @apply h-full flex flex-col;
   width: 320px;
-  background-color: #1A1F24;
+  background-color: #1a1f24;
 }
 
 .text-chat-messages {
@@ -556,8 +556,8 @@
 
 .message-avatar {
   @apply h-8 w-8 rounded-full flex items-center justify-center font-semibold overflow-hidden shrink-0;
-  background-color: #7F838D;
-  color: #DCD8D8;
+  background-color: #7f838d;
+  color: #dcd8d8;
 }
 
 .message-content {
@@ -570,13 +570,13 @@
 
 .message-text-mine {
   background-color: #cfd2db;
-  color: #0A080D;
+  color: #0a080d;
   border-bottom-right-radius: 4px;
 }
 
 .message-text-other {
-  background-color: #5b6a79;
-  color: #DCD8D8;
+  background-color: #607385;
+  color: #dcd8d8;
   border-bottom-left-radius: 4px;
 }
 
@@ -602,20 +602,20 @@
 
 .text-chat-input:focus {
   outline: none;
-  border-color: #7F838D;
+  border-color: #7f838d;
   box-shadow: 0 0 0 2px rgba(127, 131, 141, 0.3);
 }
 
 .text-chat-input:disabled {
-  background-color: #1A1F24;
+  background-color: #1a1f24;
   cursor: not-allowed;
   opacity: 0.5;
 }
 
 .text-chat-send-btn {
   @apply rounded-lg px-4 py-2 text-sm font-semibold whitespace-nowrap;
-  background-color: #7F838D;
-  color: #0A080D;
+  background-color: #7f838d;
+  color: #0a080d;
   transition: all 0.15s ease;
 }
 
@@ -624,26 +624,26 @@
 }
 
 .text-chat-send-btn:disabled {
-  background-color: #1A1F24;
-  color: #7F838D;
+  background-color: #1a1f24;
+  color: #7f838d;
   cursor: not-allowed;
   opacity: 0.5;
 }
 
 .text-chat-toggle {
   @apply absolute -left-6 top-1/2 -translate-y-1/2 px-1 py-2 rounded text-sm z-20;
-  background-color: #2F363F;
-  color: #DCD8D8;
+  background-color: #2f363f;
+  color: #dcd8d8;
   transition: all 0.15s ease;
 }
 
 .text-chat-toggle:hover {
-  background-color: #7F838D;
+  background-color: #7f838d;
 }
 
 .text-chat-empty {
   @apply text-center py-8;
-  color: #7F838D;
+  color: #7f838d;
 }
 
 /* ============================================
@@ -651,24 +651,24 @@
    ============================================ */
 .terminal-container {
   @apply flex flex-col overflow-hidden;
-  background-color: #0A080D;
-  border-top: 1px solid #2F363F;
-  color: #DCD8D8;
+  background-color: #0a080d;
+  border-top: 1px solid #2f363f;
+  color: #dcd8d8;
 }
 
 /* 기존 단독 버튼용 (버튼 그룹 사용 시 아래 스타일 사용) */
 .terminal-toggle-btn {
   @apply px-3 py-1 text-xs flex items-center gap-2;
-  background-color: #2F363F;
-  color: #DCD8D8;
-  border: 1px solid #7F838D;
+  background-color: #2f363f;
+  color: #dcd8d8;
+  border: 1px solid #7f838d;
   border-bottom: none;
   border-radius: 4px 4px 0 0;
   transition: all 0.15s ease;
 }
 
 .terminal-toggle-btn:hover {
-  background-color: #7F838D;
+  background-color: #7f838d;
 }
 
 /* ===== 터미널 버튼 그룹 (Run + Terminal 버튼) ===== */
@@ -679,9 +679,9 @@
 /* ===== Java 실행 버튼 (IntelliJ 스타일) ===== */
 .run-java-btn {
   @apply px-3 py-1 text-xs flex items-center gap-1.5;
-  background-color: #2F363F;
-  color: #DCD8D8;
-  border: 1px solid #7F838D;
+  background-color: #2f363f;
+  color: #dcd8d8;
+  border: 1px solid #7f838d;
   border-bottom: none;
   border-radius: 4px 4px 0 0;
   transition: all 0.15s ease;
@@ -706,21 +706,21 @@
 }
 
 .run-java-btn-disabled:hover {
-  background-color: #2F363F;
+  background-color: #2f363f;
 }
 
 .terminal-resize-handle {
   @apply relative h-1 cursor-row-resize flex items-center justify-center;
-  background-color: #2F363F;
+  background-color: #2f363f;
 }
 
 .terminal-resize-handle:hover {
-  background-color: #7F838D;
+  background-color: #7f838d;
 }
 
 .terminal-resize-icon {
   @apply opacity-0 transition text-xs select-none pointer-events-none;
-  color: #DCD8D8;
+  color: #dcd8d8;
 }
 
 .terminal-resize-handle:hover .terminal-resize-icon {
@@ -729,7 +729,7 @@
 
 .terminal-content {
   @apply flex-1 min-h-0 p-2 overflow-auto;
-  background-color: #0A080D;
+  background-color: #0a080d;
 }
 
 /* ============================================
@@ -745,12 +745,12 @@
 }
 
 .room-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #2F363F;
+  background-color: #2f363f;
   border-radius: 5px;
 }
 
 .room-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: #7F838D;
+  background-color: #7f838d;
 }
 
 /* ============================================

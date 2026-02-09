@@ -76,7 +76,7 @@ export function useTextChatMessageHandler({
        * - 메시지 타입이 TALK인 경우
        * → 무시 (이미 로컬에 있음)
        *
-       * 반대로 ENTER 메시지는 로컬에 추가하지 않았으므로 모두 표시합니다.
+       * 반대로 ENTER, LEAVE 메시지는 로컬에 추가하지 않았으므로 모두 표시합니다.
        */
       if (
         receivedMessage.sender === userName &&

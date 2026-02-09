@@ -69,28 +69,50 @@ export function useRoomActions({
 
   /**
    * 방에서 퇴장합니다.
-   * 1. 퇴장 메시지 전송 (WebRTC 시그널링)
+   * 1. 퇴장 메시지 전송 (텍스트 채팅)
    * 2. 오디오 스트림 정지
    * 3. WebSocket 연결 종료 (WebRTC + 텍스트 채팅)
    * 4. 상태 초기화
    * 5. 홈 화면으로 이동
    */
   const handleLeave = useCallback(() => {
-    // 1. 오디오 스트림 정지
-    webRTC.stopAudio();
+    if (!currentRoomId) return;
 
-    // 2. WebSocket 연결 종료
-    textChatWebSocket.disconnect(); // 텍스트 채팅 STOMP
-    voiceChatWebSocket.disconnect(); // VoiceChat STOMP (WebRTC signaling 포함)
+    // 1. 텍스트 채팅 퇴장 메시지 (STOMP)
+    // message를 빈 문자열로 전송하면, 서버가 "{sender}님이 퇴장하셨습니다."로 자동 생성
+    try {
+      textChatWebSocket.sendMessage({
+        roomId: currentRoomId,
+        sender: userName,
+        message: "",
+        type: "LEAVE",
+        imageUrl: userImageUrl,
+      });
+    } catch (error) {
+      console.error("퇴장 메시지 전송 실패:", error);
+    }
 
-    // 4. 상태 초기화
-    setIsJoined(false);
-    setParticipants([]);
-    setChatMessages([]);
+    // 짧은 딜레이 후 퇴장 처리 (메시지 전송 완료 대기)
+    setTimeout(() => {
+      // 2. 오디오 스트림 정지
+      webRTC.stopAudio();
 
-    // 5. 홈 화면으로 이동
-    navigate("/home", { replace: true });
+      // 3. WebSocket 연결 종료
+      textChatWebSocket.disconnect(); // 텍스트 채팅 STOMP
+      voiceChatWebSocket.disconnect(); // VoiceChat STOMP (WebRTC signaling 포함)
+
+      // 4. 상태 초기화
+      setIsJoined(false);
+      setParticipants([]);
+      setChatMessages([]);
+
+      // 5. 홈 화면으로 이동
+      navigate("/home", { replace: true });
+    }, 100);
   }, [
+    currentRoomId,
+    userName,
+    userImageUrl,
     webRTC,
     textChatWebSocket,
     voiceChatWebSocket,

@@ -3,8 +3,9 @@
  * 백엔드 TextChatMessage.MessageType enum과 정확히 일치합니다.
  * - ENTER: 사용자가 방에 입장했을 때
  * - TALK: 일반 채팅 메시지
+ * - LEAVE: 사용자가 방에서 퇴장했을 때
  */
-export type TextChatMessageType = "ENTER" | "TALK";
+export type TextChatMessageType = "ENTER" | "TALK" | "LEAVE";
 
 /**
  * 백엔드로 전송하는 텍스트 채팅 메시지
@@ -17,7 +18,7 @@ export interface TextChatMessagePayload {
   /** 발신자 이름 */
   sender: string;
 
-  /** 메시지 내용 (ENTER 타입일 경우 빈 문자열로 전송, 서버가 자동 생성) */
+  /** 메시지 내용 (ENTER, LEAVE 타입일 경우 빈 문자열로 전송, 서버가 자동 생성) */
   message: string;
 
   /** 메시지 타입: ENTER(입장) 또는 TALK(채팅) */
@@ -35,6 +36,7 @@ export interface TextChatMessagePayload {
  * 서버가 브로드캐스트한 메시지입니다.
  *
  * ENTER 메시지의 경우, 서버가 "{sender}님이 입장하셨습니다." 형태로 message를 자동 생성합니다.
+ * LEAVE 메시지의 경우, 서버가 "{sender}님이 퇴장하셨습니다." 형태로 message를 자동 생성합니다.
  */
 export interface TextChatMessageReceived {
   /** 채팅방 ID */
