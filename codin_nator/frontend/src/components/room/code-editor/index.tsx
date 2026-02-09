@@ -449,35 +449,13 @@ export default function CodeEditor({
         code={currentCode}
         onTestGenerated={onTestGenerated}
         onAppendTerminal={onAppendTerminal}
+        fontSize={fontSize}
+        onIncreaseFontSize={increaseFontSize}
+        onDecreaseFontSize={decreaseFontSize}
+        onResetFontSize={resetFontSize}
+        minFontSize={MIN_FONT_SIZE}
+        maxFontSize={MAX_FONT_SIZE}
       />
-
-      {/* 폰트 크기 조정 버튼 */}
-      <div className="flex items-center justify-end gap-2 px-4 py-2 bg-[#1e1e1e] border-b border-[#3e3e42]">
-        <span className="text-xs text-[#858585]">{fontSize}px</span>
-        <button
-          onClick={decreaseFontSize}
-          disabled={fontSize <= MIN_FONT_SIZE}
-          className="px-2 py-1 text-xs font-bold text-[#DCD8D8] bg-[#2f363f] hover:bg-[#3e454d] disabled:opacity-30 disabled:cursor-not-allowed rounded transition-colors"
-          title="폰트 크기 축소 (Ctrl + -)"
-        >
-          -
-        </button>
-        <button
-          onClick={resetFontSize}
-          className="px-2 py-1 text-xs text-[#DCD8D8] bg-[#2f363f] hover:bg-[#3e454d] rounded transition-colors"
-          title="기본 크기로 재설정"
-        >
-          초기화
-        </button>
-        <button
-          onClick={increaseFontSize}
-          disabled={fontSize >= MAX_FONT_SIZE}
-          className="px-2 py-1 text-xs font-bold text-[#DCD8D8] bg-[#2f363f] hover:bg-[#3e454d] disabled:opacity-30 disabled:cursor-not-allowed rounded transition-colors"
-          title="폰트 크기 확대 (Ctrl + +)"
-        >
-          +
-        </button>
-      </div>
 
       <div
         className="flex-1 overflow-auto font-mono text-[#DCD8D8] relative"

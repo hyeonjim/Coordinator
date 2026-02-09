@@ -10,6 +10,14 @@ type CodeEditorActionsProps = {
 
   onTestGenerated?: (testCode: string) => void;
   onAppendTerminal?: (title: string, text: string) => void;
+
+  // 📏 폰트 크기 조정 props
+  fontSize?: number;
+  onIncreaseFontSize?: () => void;
+  onDecreaseFontSize?: () => void;
+  onResetFontSize?: () => void;
+  minFontSize?: number;
+  maxFontSize?: number;
 };
 
 export default function Codeeditoractions({
@@ -18,6 +26,12 @@ export default function Codeeditoractions({
   code,
   onTestGenerated,
   onAppendTerminal,
+  fontSize = 14,
+  onIncreaseFontSize,
+  onDecreaseFontSize,
+  onResetFontSize,
+  minFontSize = 10,
+  maxFontSize = 24,
 }: CodeEditorActionsProps) {
   const [alertMsg, setAlertMsg] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -227,6 +241,36 @@ export default function Codeeditoractions({
 
       {/* AI 액션 버튼들 */}
       <div className="flex items-center gap-3">
+        {/* 📏 폰트 크기 조정 버튼 */}
+        <div className="flex items-center gap-1 px-2 py-1 bg-[#282f38] rounded border border-[#2F363F]">
+          <span className="text-[10px] text-[#858585] min-w-[24px] text-right">
+            {fontSize}px
+          </span>
+          <button
+            onClick={onDecreaseFontSize}
+            disabled={fontSize <= minFontSize || !onDecreaseFontSize}
+            className="px-1.5 py-0.5 text-[11px] font-bold text-[#DCD8D8] hover:bg-[#3e454d] disabled:opacity-30 disabled:cursor-not-allowed rounded transition-colors"
+            title="폰트 크기 축소 (Ctrl + -)"
+          >
+            −
+          </button>
+          <button
+            onClick={onResetFontSize}
+            className="px-1.5 py-0.5 text-[10px] text-[#DCD8D8] hover:bg-[#3e454d] rounded transition-colors"
+            title="기본 크기로 재설정"
+          >
+            R
+          </button>
+          <button
+            onClick={onIncreaseFontSize}
+            disabled={fontSize >= maxFontSize || !onIncreaseFontSize}
+            className="px-1.5 py-0.5 text-[11px] font-bold text-[#DCD8D8] hover:bg-[#3e454d] disabled:opacity-30 disabled:cursor-not-allowed rounded transition-colors"
+            title="폰트 크기 확대 (Ctrl + +)"
+          >
+            +
+          </button>
+        </div>
+
         {/* 테스트 생성 버튼 */}
         <button
           onClick={handleGenerateTest}
