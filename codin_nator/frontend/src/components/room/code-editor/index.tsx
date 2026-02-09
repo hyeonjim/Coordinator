@@ -24,6 +24,11 @@ import {
   type AutoCompleteItem,
 } from "./javaAutoComplete";
 
+/* 커서 오버레이 */
+import RemoteCursorOverlay from "./RemoteCursorOverlay";
+import { useCursorAwareness } from "./useCursorAwareness";
+import { useAuthStore } from "@/stores/authStore";
+
 interface CodeEditorProps {
   roomId: number;
   fileId: number;
@@ -88,6 +93,30 @@ export default function CodeEditor({
   );
 
   const [currentCode, setCurrentCode] = useState("");
+
+  // ===========================
+  // 👤 현재 사용자 정보
+  // ===========================
+  const authUser = useAuthStore((state) => state.user);
+  const cursorUser = useMemo(
+    () =>
+      authUser
+        ? {
+            userId: authUser.gitId,
+            name: authUser.name,
+            imageUrl: authUser.imageUrl,
+          }
+        : null,
+    [authUser],
+  );
+
+  // ===========================
+  // 🎯 커서 동기화
+  // ===========================
+  const { remoteCursors, updateCursorPosition } = useCursorAwareness({
+    provider,
+    user: cursorUser,
+  });
 
   // ===========================
   // 🔤 자동완성 상태
@@ -394,6 +423,9 @@ export default function CodeEditor({
               setCurrentCode(text);
               onChange?.(text);
 
+              // 🎯 커서 위치 업데이트
+              updateCursorPosition(editor.selection);
+
               // 🔤 자동완성 트리거
               handleAutoComplete();
             } catch {
@@ -410,6 +442,9 @@ export default function CodeEditor({
             className="min-h-full px-2 py-4 focus:outline-none pl-12"
           />
         </Slate>
+
+        {/* 🎯 원격 커서 오버레이 */}
+        <RemoteCursorOverlay cursors={remoteCursors} editor={editor} />
 
         {/* 🔤 자동완성 팝업 */}
         <AutoCompletePopup

@@ -5,6 +5,23 @@
  */
 import type { Range } from "slate";
 
+// 6가지 커서 색상 (VSCode Live Share 스타일)
+export const CURSOR_COLORS = [
+  "#E91E63", // Pink
+  "#2196F3", // Blue
+  "#4CAF50", // Green
+  "#FF9800", // Orange
+  "#9C27B0", // Purple
+  "#00BCD4", // Cyan
+] as const;
+
+export type CursorColor = (typeof CURSOR_COLORS)[number];
+
+// clientId 기반으로 색상 할당
+export function getCursorColor(clientId: number): CursorColor {
+  return CURSOR_COLORS[clientId % CURSOR_COLORS.length];
+}
+
 // Yjs awareness에 저장되는 사용자 정보 타입
 export interface CursorUserData {
   userId: string; // 사용자 고유 ID (git id 등)
