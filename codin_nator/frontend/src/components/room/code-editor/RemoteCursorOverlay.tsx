@@ -24,8 +24,12 @@ export default function RemoteCursorOverlay({
       const editorEl = ReactEditor.toDOMNode(
         editor,
         editor.children[0],
-      )?.parentElement;
+      );
       if (!editorEl) return;
+
+      // 실제 스크롤 컨테이너 찾기 (overflow-auto 클래스를 가진 부모)
+      const scrollContainer = editorEl.closest('.overflow-auto') as HTMLElement;
+      if (!scrollContainer) return;
 
       const updatePositions = () => {
         requestAnimationFrame(() => {
@@ -34,14 +38,14 @@ export default function RemoteCursorOverlay({
       };
 
       const resizeObserver = new ResizeObserver(updatePositions);
-      resizeObserver.observe(editorEl);
+      resizeObserver.observe(scrollContainer);
 
       // 스크롤 이벤트 감지 - 스크롤 시에도 위치 재계산
-      editorEl.addEventListener('scroll', updatePositions, { passive: true });
+      scrollContainer.addEventListener('scroll', updatePositions, { passive: true });
 
       return () => {
         resizeObserver.disconnect();
-        editorEl.removeEventListener('scroll', updatePositions);
+        scrollContainer.removeEventListener('scroll', updatePositions);
       };
     } catch {
       // 에디터가 마운트되지 않은 경우 무시
@@ -84,13 +88,18 @@ function CursorCaret({
       const editorEl = ReactEditor.toDOMNode(
         editor,
         editor.children[0],
-      )?.parentElement;
+      );
       if (!editorEl) return null;
-      const editorRect = editorEl.getBoundingClientRect();
+
+      // 실제 스크롤 컨테이너 찾기
+      const scrollContainer = editorEl.closest('.overflow-auto') as HTMLElement;
+      if (!scrollContainer) return null;
+
+      const containerRect = scrollContainer.getBoundingClientRect();
       // 스크롤 위치를 포함한 절대 위치 계산
       return {
-        top: rect.top - editorRect.top + editorEl.scrollTop,
-        left: rect.left - editorRect.left + editorEl.scrollLeft,
+        top: rect.top - containerRect.top + scrollContainer.scrollTop,
+        left: rect.left - containerRect.left + scrollContainer.scrollLeft,
         height: rect.height,
       };
     } catch {
@@ -112,7 +121,7 @@ function CursorCaret({
           backgroundColor: cursor.color ?? "#111",
           fontSize: `${Math.max(10, position.height * 0.8)}px`,
           bottom: `${position.height + 4}px`,
-          opacity: 0.8,
+          opacity: 0.9,
           lineHeight: "1",
           height: "fit-content",
         }}
@@ -162,13 +171,18 @@ function SelectionHighlight({
       const editorEl = ReactEditor.toDOMNode(
         editor,
         editor.children[0],
-      )?.parentElement;
+      );
       if (!editorEl) return [];
-      const editorRect = editorEl.getBoundingClientRect();
+
+      // 실제 스크롤 컨테이너 찾기
+      const scrollContainer = editorEl.closest('.overflow-auto') as HTMLElement;
+      if (!scrollContainer) return [];
+
+      const containerRect = scrollContainer.getBoundingClientRect();
       // 스크롤 위치를 포함한 절대 위치 계산
       return clientRects.map((rect) => ({
-        top: rect.top - editorRect.top + editorEl.scrollTop,
-        left: rect.left - editorRect.left + editorEl.scrollLeft,
+        top: rect.top - containerRect.top + scrollContainer.scrollTop,
+        left: rect.left - containerRect.left + scrollContainer.scrollLeft,
         width: rect.width,
         height: rect.height,
       }));
