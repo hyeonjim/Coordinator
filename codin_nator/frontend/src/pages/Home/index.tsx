@@ -25,25 +25,7 @@ import {
   Calendar,
   Activity,
 } from "lucide-react";
-
-/** contribution-graph.tsx와 동일한 형태로 맞춤 */
-interface ErrorLog {
-  id: string;
-  roomId: string;
-  time: string;
-  display_name: string;
-  error: string;
-  stacktrace: string;
-  resolution: string;
-}
-
-type ContributionData = Record<
-  string,
-  {
-    count: number;
-    logs: ErrorLog[];
-  }
->;
+import type { ContributionData } from "@/types/home/contribution";
 
 const KST_TZ = "Asia/Seoul";
 
@@ -227,9 +209,7 @@ export default function HomeLayout() {
           <div className="relative">
             <div className="animate-spin rounded-full h-16 w-16 border-4 mx-auto mb-6 border-[#d4d8dd] border-t-[#7F838D]" />
           </div>
-          <p className="font-medium text-[#24292E]">
-            Logging in...
-          </p>
+          <p className="font-medium text-[#24292E]">Logging in...</p>
         </motion.div>
       </div>
     );
@@ -272,10 +252,7 @@ export default function HomeLayout() {
   }
 
   return (
-    <div
-      className="min-h-screen overflow-y-auto bg-[#8e97a1]"
-    >
-
+    <div className="min-h-screen overflow-y-auto bg-[#8e97a1]">
       <div className="relative max-w-6xl mx-auto px-8 py-12 space-y-8">
         {/* 프로필 섹션 */}
         <motion.div
