@@ -6,6 +6,12 @@
  * - "/api" → "http://i14e205.p.ssafy.io:8081"
  */
 
+import type {
+  ApiErrorResponse,
+  GenerateTestCodeResponse,
+  TestReportResponse,
+} from "@/types/ai/types";
+
 // ========================================
 // ✅ Vite Proxy 사용 - 상대 경로!
 // ========================================
@@ -46,45 +52,6 @@ async function readBodySmart(response: Response): Promise<{
   }
 
   return { contentType, rawText, json };
-}
-
-/**
- * AI 서비스 응답 타입
- */
-export interface GenerateTestCodeResponse {
-  roomId: number;
-  fileName: string;
-  testCode: string;
-}
-
-export interface AnalyzeResultResponse {
-  display_name: string;
-  error: string;
-  resolution: string;
-}
-
-/** ✅ 백엔드 analyze-result는 실제로 이 형태로 내려옴 */
-export interface TestReportResponse {
-  id: number;
-  roomId: number;
-  timestamp: string; // LocalDateTime.toString() 형태
-  stacktrace: string;
-  display_name: string;
-  error: string;
-  resolution: string;
-}
-
-/** ✅ 백엔드 에러(JSON) 형태 */
-export interface ApiErrorResponse {
-  timestamp?: string;
-  status?: number;
-  error?: string;
-  message?: string;
-  exception?: string;
-  traceId?: string;
-  stacktrace?: string;
-  roomId?: number;
-  fileName?: string;
 }
 
 /**

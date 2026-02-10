@@ -126,7 +126,13 @@ export interface FileTreeItemProps {
   onSelect?: (node: FileNode) => void; // 삭제 모드에서는 undefined 가능
   fileLocations: FileLocationState[]; // 모든 파일의 사용자 위치 정보
   // ===== 삭제 모드 관련 props =====
-  isDeleteMode?: boolean;           // 삭제 모드 활성화 여부
-  deleteTargetIds?: Set<number>;    // 삭제 대상 파일 ID Set (하위 노드에도 전달)
+  isDeleteMode?: boolean; // 삭제 모드 활성화 여부
+  deleteTargetIds?: Set<number>; // 삭제 대상 파일 ID Set (하위 노드에도 전달)
   onToggleDeleteTarget?: (fileId: number) => void; // 삭제 대상 토글 핸들러
+}
+
+export interface FileClickState {
+  clickedFiles: Record<string, number>;
+  markClicked: (fileName: string) => void;
+  getClickCount: (fileName: string) => number;
 }

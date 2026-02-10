@@ -1,10 +1,5 @@
+import type { FileClickState } from "@/types/file/types";
 import { create } from "zustand";
-
-interface FileClickState {
-  clickedFiles: Record<string, number>;
-  markClicked: (fileName: string) => void;
-  getClickCount: (fileName: string) => number;
-}
 
 export const useFileClickStore = create<FileClickState>((set, get) => ({
   clickedFiles: {},
