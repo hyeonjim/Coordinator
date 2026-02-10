@@ -3,7 +3,6 @@ import { ReactEditor } from "slate-react";
 import type {
   RemoteCursorOverlayProps,
   CursorCaretProps,
-  RemoteCursor,
 } from "@/types/editor/cursor/types";
 import type { BaseRange } from "slate/dist/interfaces/range";
 
@@ -16,48 +15,12 @@ export default function RemoteCursorOverlay({
   cursors,
   editor,
 }: RemoteCursorOverlayProps) {
-  const [resizeKey, setResizeKey] = useState(0);
-
-  // 에디터 크기 변경 및 스크롤 감지 (모든 커서에 대해 공유)
-  useEffect(() => {
-    try {
-      const editorEl = ReactEditor.toDOMNode(
-        editor,
-        editor.children[0],
-      );
-      if (!editorEl) return;
-
-      // 실제 스크롤 컨테이너 찾기 (overflow-auto 클래스를 가진 부모)
-      const scrollContainer = editorEl.closest('.overflow-auto') as HTMLElement;
-      if (!scrollContainer) return;
-
-      const updatePositions = () => {
-        requestAnimationFrame(() => {
-          setResizeKey((prev) => prev + 1);
-        });
-      };
-
-      const resizeObserver = new ResizeObserver(updatePositions);
-      resizeObserver.observe(scrollContainer);
-
-      // 스크롤 이벤트 감지 - 스크롤 시에도 위치 재계산
-      scrollContainer.addEventListener('scroll', updatePositions, { passive: true });
-
-      return () => {
-        resizeObserver.disconnect();
-        scrollContainer.removeEventListener('scroll', updatePositions);
-      };
-    } catch {
-      // 에디터가 마운트되지 않은 경우 무시
-    }
-  }, [editor]);
-
   return (
     <div className="absolute inset-0 pointer-events-none z-20">
       {cursors.map((cursor) => (
         <div key={cursor.clientId}>
-          <SelectionHighlight cursor={cursor} editor={editor} resizeKey={resizeKey} />
-          <CursorCaret cursor={cursor} editor={editor} resizeKey={resizeKey} />
+          <SelectionHighlight cursor={cursor} editor={editor} />
+          <CursorCaret cursor={cursor} editor={editor} />
         </div>
       ))}
     </div>
@@ -67,39 +30,67 @@ export default function RemoteCursorOverlay({
 /**
  * 개별 커서 캐럿 (이름 라벨 + 세로 막대)
  */
-function CursorCaret({
-  cursor,
-  editor,
-  resizeKey,
-}: {
-  cursor: RemoteCursor;
-  editor: CursorCaretProps["editor"];
-  resizeKey: number;
-}) {
+function CursorCaret({ cursor, editor }: CursorCaretProps) {
+  const [resizeKey, setResizeKey] = useState(0);
+
+  // 에디터 크기 변경 및 스크롤 감지
+  useEffect(() => {
+    try {
+      const editorEl = ReactEditor.toDOMNode(editor, editor);
+      if (!editorEl) return;
+
+      // 실제 스크롤 컨테이너 찾기
+      const scrollContainer = editorEl.closest('.overflow-auto') as HTMLElement;
+      if (!scrollContainer) return;
+
+      const updatePosition = () => {
+        setResizeKey((prev) => prev + 1);
+      };
+
+      const resizeObserver = new ResizeObserver(updatePosition);
+      // 스크롤 컨테이너와 에디터 요소 모두 관찰
+      resizeObserver.observe(scrollContainer);
+      resizeObserver.observe(editorEl);
+
+      // 스크롤 시에도 위치 업데이트
+      scrollContainer.addEventListener('scroll', updatePosition, { passive: true });
+
+      // 윈도우 리사이즈 이벤트도 감지
+      window.addEventListener('resize', updatePosition);
+
+      return () => {
+        resizeObserver.disconnect();
+        scrollContainer.removeEventListener('scroll', updatePosition);
+        window.removeEventListener('resize', updatePosition);
+      };
+    } catch {
+      // 에디터가 마운트되지 않은 경우 무시
+    }
+  }, [editor]);
+
   const position = useMemo(() => {
     if (!cursor.selection) return null;
     try {
-      // ResizeObserver가 트리거되면 resizeKey가 변경되어 재계산됨
+      const editorEl = ReactEditor.toDOMNode(editor, editor);
+      if (!editorEl) return null;
+
       const domRange = ReactEditor.toDOMRange(
         editor,
         cursor.selection as BaseRange,
       );
       const rect = domRange.getBoundingClientRect();
-      const editorEl = ReactEditor.toDOMNode(
-        editor,
-        editor.children[0],
-      );
-      if (!editorEl) return null;
 
-      // 실제 스크롤 컨테이너 찾기
+      // 스크롤 컨테이너 찾기 (overlay의 부모)
       const scrollContainer = editorEl.closest('.overflow-auto') as HTMLElement;
       if (!scrollContainer) return null;
 
       const containerRect = scrollContainer.getBoundingClientRect();
-      // 스크롤 위치를 포함한 절대 위치 계산
+      const scrollTop = scrollContainer.scrollTop;
+      const scrollLeft = scrollContainer.scrollLeft;
+
       return {
-        top: rect.top - containerRect.top + scrollContainer.scrollTop,
-        left: rect.left - containerRect.left + scrollContainer.scrollLeft,
+        top: rect.top - containerRect.top + scrollTop,
+        left: rect.left - containerRect.left + scrollLeft,
         height: rect.height,
       };
     } catch {
@@ -142,15 +133,44 @@ function CursorCaret({
 /**
  * 선택 영역 하이라이트 렌더러
  */
-function SelectionHighlight({
-  cursor,
-  editor,
-  resizeKey,
-}: {
-  cursor: RemoteCursor;
-  editor: CursorCaretProps["editor"];
-  resizeKey: number;
-}) {
+function SelectionHighlight({ cursor, editor }: CursorCaretProps) {
+  const [resizeKey, setResizeKey] = useState(0);
+
+  // 에디터 크기 변경 및 스크롤 감지
+  useEffect(() => {
+    try {
+      const editorEl = ReactEditor.toDOMNode(editor, editor);
+      if (!editorEl) return;
+
+      // 실제 스크롤 컨테이너 찾기
+      const scrollContainer = editorEl.closest('.overflow-auto') as HTMLElement;
+      if (!scrollContainer) return;
+
+      const updatePosition = () => {
+        setResizeKey((prev) => prev + 1);
+      };
+
+      const resizeObserver = new ResizeObserver(updatePosition);
+      // 스크롤 컨테이너와 에디터 요소 모두 관찰
+      resizeObserver.observe(scrollContainer);
+      resizeObserver.observe(editorEl);
+
+      // 스크롤 시에도 위치 업데이트
+      scrollContainer.addEventListener('scroll', updatePosition, { passive: true });
+
+      // 윈도우 리사이즈 이벤트도 감지
+      window.addEventListener('resize', updatePosition);
+
+      return () => {
+        resizeObserver.disconnect();
+        scrollContainer.removeEventListener('scroll', updatePosition);
+        window.removeEventListener('resize', updatePosition);
+      };
+    } catch {
+      // 에디터가 마운트되지 않은 경우 무시
+    }
+  }, [editor]);
+
   const rects = useMemo(() => {
     if (!cursor.selection) return [];
     // collapsed selection(=캐럿만 있는 경우)은 하이라이트하지 않음
@@ -162,27 +182,26 @@ function SelectionHighlight({
     )
       return [];
     try {
-      // ResizeObserver가 트리거되면 resizeKey가 변경되어 재계산됨
+      const editorEl = ReactEditor.toDOMNode(editor, editor);
+      if (!editorEl) return [];
+
       const domRange = ReactEditor.toDOMRange(
         editor,
         cursor.selection as import("slate").Range,
       );
       const clientRects = Array.from(domRange.getClientRects());
-      const editorEl = ReactEditor.toDOMNode(
-        editor,
-        editor.children[0],
-      );
-      if (!editorEl) return [];
 
-      // 실제 스크롤 컨테이너 찾기
+      // 스크롤 컨테이너 찾기 (overlay의 부모)
       const scrollContainer = editorEl.closest('.overflow-auto') as HTMLElement;
       if (!scrollContainer) return [];
 
       const containerRect = scrollContainer.getBoundingClientRect();
-      // 스크롤 위치를 포함한 절대 위치 계산
+      const scrollTop = scrollContainer.scrollTop;
+      const scrollLeft = scrollContainer.scrollLeft;
+
       return clientRects.map((rect) => ({
-        top: rect.top - containerRect.top + scrollContainer.scrollTop,
-        left: rect.left - containerRect.left + scrollContainer.scrollLeft,
+        top: rect.top - containerRect.top + scrollTop,
+        left: rect.left - containerRect.left + scrollLeft,
         width: rect.width,
         height: rect.height,
       }));
