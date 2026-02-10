@@ -15,7 +15,6 @@ export const CURSOR_COLORS = [
   "#9C27B0", // Purple
   "#00BCD4", // Cyan
   "#F44336", // Red
-  "#FFEB3B", // Yellow
   "#3F51B5", // Indigo
   "#009688", // Teal
 ] as const;

@@ -829,8 +829,8 @@
 .room-container.room-light .file-viewer-actions { color: #E6D8E1; }
 .room-container.room-light .file-viewer-actions svg:hover { color: #ffffff; }
 .room-container.room-light .file-tree-item { color: #ffffff; }
-.room-container.room-light .file-tree-item:hover { background-color: #B492BA; color: #ffffff; }
-.room-container.room-light .file-tree-item-selected { background-color: #3A4663 !important; color: #ffffff !important; }
+.room-container.room-light .file-tree-item:hover { background-color: #c5a6ca; color: #ffffff; }
+.room-container.room-light .file-tree-item-selected { background-color: #5e6c8c !important; color: #ffffff !important; }
 .room-container.room-light .file-viewer-statusbar { background-color: #94accc; color: #E6D8E1; }
 .room-container.room-light .file-viewer-empty { color: #E6D8E1; }
 .room-container.room-light .delete-mode-banner { background-color: #6A5D8A; color: #E6D8E1; }
@@ -848,7 +848,7 @@
 .room-container.room-light .text-chat-panel { background-color: #b9aadf; }
 .room-container.room-light .text-chat-messages { background-color: #E6D8E1; }
 .room-container.room-light .message-text-mine { background-color: #9AABD2; color: #ffffff; }
-.room-container.room-light .message-text-other { background-color: #B492BA; color: #ffffff; }
+.room-container.room-light .message-text-other { background-color: #be9ec4; color: #ffffff; }
 .room-container.room-light .message-meta { color: #527099; }
 .room-container.room-light .text-chat-input-form { background-color: #d9cff1; border-top: 1px solid #c6ccda; }
 .room-container.room-light .text-chat-input { background-color: #eee6eb; color: #2e2a2a; }
