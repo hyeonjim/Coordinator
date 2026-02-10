@@ -16,7 +16,7 @@ export default function Alert({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[999]">
+    <div className="fixed inset-0 z-999">
       {/* 배경 오버레이 */}
       <div className="absolute inset-0 bg-black/40" />
 

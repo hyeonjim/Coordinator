@@ -253,12 +253,12 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
       </div>
       {/* ===== 월 & 잔디 (가로 스크롤 영역) ===== */}
       <div className="overflow-x-auto">
-        <div className="min-w-[720px]">
+        <div className="min-w-180">
           {/* 월 */}
           <div className="flex justify-center mb-4">
-            <div className="flex ml-[28px] text-xs font-medium tracking-wide text-[#24292E]">
+            <div className="flex ml-7 text-xs font-medium tracking-wide text-[#24292E]">
               {months.map((m) => (
-                <span key={m} className="w-[70px]">
+                <span key={m} className="w-17.5">
                   {m}
                 </span>
               ))}
@@ -266,9 +266,9 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
           </div>
           {/* 잔디 */}
           <div className="flex gap-3 justify-center">
-            <div className="flex gap-[4px] mb-2">
+            <div className="flex gap-1 mb-2">
               {weeks.map((week, wi) => (
-                <div key={wi} className="flex flex-col gap-[4px]">
+                <div key={wi} className="flex flex-col gap-1">
                   {week.map((day, di) => (
                     <button
                       key={di}
