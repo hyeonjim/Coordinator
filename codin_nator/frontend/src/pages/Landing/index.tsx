@@ -20,19 +20,15 @@ export default function LandingPage() {
     window.location.href = GITHUB_OAUTH_URL;
   };
   return (
-    <div className="min-h-screen bg-[#0d1c2a] from-neutral-950 to-neutral-900 text-white overflow-hidden">
+    <div className="min-h-screen bg-[#192028] from-neutral-950 to-neutral-900 text-white overflow-hidden">
       {/* ================= HEADER ================= */}
-      <header className="flex items-center justify-between px-10 py-6">
+      <header className="flex items-center justify-between mb-40">
         <Link to="/">
-          <img
-            src={logo}
-            alt="CODIN'NATOR"
-            className="w-54 h-32 overflow-hidden rounded-xl"
-          />
+          <img src={logo} alt="CODIN'NATOR" className="w-80" />
         </Link>
         {/* GitHub 로그인 버튼 */}
         <button
-          className="px-5 py-2 rounded-lg border bg-[#05192b] hover:bg-[#324e69] flex items-center gap-2"
+          className="px-5 py-3 mr-30 mt-20 rounded-lg border border-[#5c656d] bg-[#2b2d33] hover:bg-[#2a3f52] flex items-center gap-2"
           onClick={handleGitHubLogin}
         >
           {/* GitHub 아이콘 (SVG) */}
