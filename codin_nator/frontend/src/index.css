@@ -665,9 +665,6 @@
    ============================================ */
 .terminal-container {
   @apply flex flex-col overflow-hidden;
-  background-color: #0a080d;
-  border-top: 1px solid #2f363f;
-  color: #dcd8d8;
 }
 
 /* 기존 단독 버튼용 (버튼 그룹 사용 시 아래 스타일 사용) */
@@ -675,7 +672,7 @@
   @apply px-3 py-1 text-xs flex items-center gap-2;
   background-color: #2f363f;
   color: #dcd8d8;
-  border: 1px solid #7f838d;
+  border: 1px solid #9b9faa;
   border-bottom: none;
   border-radius: 4px 4px 0 0;
   transition: all 0.15s ease;
@@ -742,8 +739,7 @@
 }
 
 .terminal-content {
-  @apply flex-1 min-h-0 p-2 overflow-auto;
-  background-color: #0a080d;
+  @apply flex-1 overflow-auto;
 }
 
 /* ============================================
@@ -829,8 +825,8 @@
 .room-container.room-light .file-viewer-actions { color: #E6D8E1; }
 .room-container.room-light .file-viewer-actions svg:hover { color: #ffffff; }
 .room-container.room-light .file-tree-item { color: #ffffff; }
-.room-container.room-light .file-tree-item:hover { background-color: #c5a6ca; color: #ffffff; }
-.room-container.room-light .file-tree-item-selected { background-color: #5e6c8c !important; color: #ffffff !important; }
+.room-container.room-light .file-tree-item:hover { background-color: #cbafcf; color: #ffffff; }
+.room-container.room-light .file-tree-item-selected { background-color: #6c7ea8 !important; color: #ffffff !important; }
 .room-container.room-light .file-viewer-statusbar { background-color: #94accc; color: #E6D8E1; }
 .room-container.room-light .file-viewer-empty { color: #E6D8E1; }
 .room-container.room-light .delete-mode-banner { background-color: #6A5D8A; color: #E6D8E1; }
