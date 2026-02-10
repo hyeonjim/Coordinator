@@ -53,3 +53,20 @@ export interface SavedReport {
   resolution: string;
   stacktrace: string;
 }
+
+export type CodeEditorActionsProps = {
+  roomId: number;
+  fileName?: string;
+  code: string;
+
+  onTestGenerated?: (testCode: string) => void;
+  onAppendTerminal?: (title: string, text: string) => void;
+
+  // 📏 폰트 크기 조정 props
+  fontSize?: number;
+  onIncreaseFontSize?: () => void;
+  onDecreaseFontSize?: () => void;
+  onResetFontSize?: () => void;
+  minFontSize?: number;
+  maxFontSize?: number;
+};
