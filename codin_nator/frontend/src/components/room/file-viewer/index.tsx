@@ -19,7 +19,6 @@ import {
 import { FileTreeItem } from "./FileTreeItem";
 import { getFileTree } from "@/lib/utils";
 import { useFileLocations } from "./useFileLocations";
-import { getUserColor } from "../code-editor/colorAssignment";
 import type {
   FileNode,
   LocalFileSystemFileEntry,
@@ -105,7 +104,6 @@ const FileViewer = ({
     userId,
     userName,
     userImageUrl,
-    userId ? getUserColor(userId) : undefined,
   );
 
   const fetchFileTree = useCallback(async () => {

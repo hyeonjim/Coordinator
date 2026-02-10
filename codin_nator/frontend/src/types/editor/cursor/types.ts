@@ -32,7 +32,6 @@ export interface CursorUserData {
   userId: string; // 사용자 고유 ID (git id 등)
   name: string; // 표시할 사용자 이름
   color?: string; // 할당된 색상 (옵션)
-  imageUrl?: string; // 아바타 URL (옵션)
 }
 
 // Remote cursor를 렌더링하기 위한 정보
@@ -41,7 +40,6 @@ export interface RemoteCursor {
   userId: string; // 사용자 고유 ID
   name: string; // 표시 이름
   color?: string; // 라벨/캐럿 색상
-  imageUrl?: string; // 아바타 URL
   selection: Range | null; // Slate selection (없으면 null)
 }
 

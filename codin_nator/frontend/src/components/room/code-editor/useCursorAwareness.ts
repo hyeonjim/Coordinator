@@ -78,7 +78,6 @@ export function useCursorAwareness({
           userId: state.user.userId,
           name: state.user.name,
           color: cursorColor,
-          imageUrl: state.user.imageUrl,
           selection: state.selection ?? null,
         });
       });

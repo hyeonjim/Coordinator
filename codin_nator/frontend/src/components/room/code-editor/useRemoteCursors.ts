@@ -4,9 +4,19 @@
  * - @slate-yjs/core의 CursorEditor API를 사용합니다.
  */
 import { useEffect, useState, useRef } from "react";
-import { CursorEditor, relativeRangeToSlateRange } from "@slate-yjs/core";
+import {
+  CursorEditor,
+  relativeRangeToSlateRange,
+  type RelativeRange,
+} from "@slate-yjs/core";
 import type { Node } from "slate";
 import type { CursorUserData, RemoteCursor } from "@/types/editor/cursor/types";
+
+interface CursorState {
+  data?: CursorUserData;
+  relativeSelection?: RelativeRange;
+  clientId?: number;
+}
 
 export function useRemoteCursors(
   editor: CursorEditor,
@@ -26,9 +36,9 @@ export function useRemoteCursors(
   useEffect(() => {
     const handle = () => {
       // CursorEditor.cursorStates()로부터 모든 클라이언트 상태를 읽어옵니다.
-      let states: Record<string, any> = {};
+      let states: Record<string, CursorState> = {};
       try {
-        states = CursorEditor.cursorStates(editor) as any;
+        states = CursorEditor.cursorStates(editor) as Record<string, CursorState>;
       } catch (e) {
         console.debug("[useRemoteCursors] cursorStates failed", e);
       }
@@ -61,7 +71,6 @@ export function useRemoteCursors(
           userId: data.userId,
           name: data.name,
           color: data.color,
-          imageUrl: data.imageUrl,
           selection: sel,
         });
       }
@@ -75,7 +84,6 @@ export function useRemoteCursors(
           userId: local.userId,
           name: local.name,
           color: local.color,
-          imageUrl: local.imageUrl,
           selection: localSel,
         });
       }

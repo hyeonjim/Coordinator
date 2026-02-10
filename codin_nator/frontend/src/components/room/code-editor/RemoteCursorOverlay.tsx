@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { ReactEditor } from "slate-react";
 import type {
   RemoteCursorOverlayProps,
@@ -31,6 +31,31 @@ export default function RemoteCursorOverlay({
  * 개별 커서 캐럿 (이름 라벨 + 세로 막대)
  */
 function CursorCaret({ cursor, editor }: CursorCaretProps) {
+  const [resizeKey, setResizeKey] = useState(0);
+
+  // 에디터 크기 변경 감지
+  useEffect(() => {
+    try {
+      const editorEl = ReactEditor.toDOMNode(
+        editor,
+        editor.children[0],
+      )?.parentElement;
+      if (!editorEl) return;
+
+      const resizeObserver = new ResizeObserver(() => {
+        setResizeKey((prev) => prev + 1);
+      });
+
+      resizeObserver.observe(editorEl);
+
+      return () => {
+        resizeObserver.disconnect();
+      };
+    } catch (e) {
+      // 에디터가 마운트되지 않은 경우 무시
+    }
+  }, [editor]);
+
   const position = useMemo(() => {
     if (!cursor.selection) return null;
     try {
@@ -48,11 +73,12 @@ function CursorCaret({ cursor, editor }: CursorCaretProps) {
       return {
         top: rect.top - editorRect.top,
         left: rect.left - editorRect.left,
+        height: rect.height,
       };
     } catch (e) {
       return null;
     }
-  }, [cursor.selection, editor]);
+  }, [cursor.selection, editor, resizeKey]);
 
   if (!position) return null;
 
@@ -70,7 +96,7 @@ function CursorCaret({ cursor, editor }: CursorCaretProps) {
       <div
         style={{
           width: 2,
-          height: 20,
+          height: position.height,
           backgroundColor: cursor.color ?? "#111",
         }}
       />
@@ -82,6 +108,31 @@ function CursorCaret({ cursor, editor }: CursorCaretProps) {
  * 선택 영역 하이라이트 렌더러
  */
 function SelectionHighlight({ cursor, editor }: CursorCaretProps) {
+  const [resizeKey, setResizeKey] = useState(0);
+
+  // 에디터 크기 변경 감지
+  useEffect(() => {
+    try {
+      const editorEl = ReactEditor.toDOMNode(
+        editor,
+        editor.children[0],
+      )?.parentElement;
+      if (!editorEl) return;
+
+      const resizeObserver = new ResizeObserver(() => {
+        setResizeKey((prev) => prev + 1);
+      });
+
+      resizeObserver.observe(editorEl);
+
+      return () => {
+        resizeObserver.disconnect();
+      };
+    } catch (e) {
+      // 에디터가 마운트되지 않은 경우 무시
+    }
+  }, [editor]);
+
   const rects = useMemo(() => {
     if (!cursor.selection) return [];
     // collapsed selection(=캐럿만 있는 경우)은 하이라이트하지 않음
@@ -113,7 +164,7 @@ function SelectionHighlight({ cursor, editor }: CursorCaretProps) {
     } catch (e) {
       return [];
     }
-  }, [cursor.selection, editor]);
+  }, [cursor.selection, editor, resizeKey]);
 
   return (
     <>
