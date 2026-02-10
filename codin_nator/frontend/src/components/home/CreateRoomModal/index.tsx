@@ -2,10 +2,7 @@ import { useNavigate } from "react-router-dom";
 import FormInput from "./components/FormInput";
 import axios from "axios";
 import { useState } from "react";
-
-interface CreateRoomModalProps {
-  onClose: () => void;
-}
+import type { CreateRoomModalProps } from "@/types/home/creatRoomModal";
 
 export default function CreateRoomModal({ onClose }: CreateRoomModalProps) {
   const navigate = useNavigate();

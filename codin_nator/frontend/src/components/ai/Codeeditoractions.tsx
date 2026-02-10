@@ -2,23 +2,7 @@ import { useMemo, useState } from "react";
 import { VscBeaker, VscPlay, VscGraph } from "react-icons/vsc";
 import { aiService } from "@/services/ai/aiService";
 import Alert from "../common/Alert";
-
-type CodeEditorActionsProps = {
-  roomId: number;
-  fileName?: string;
-  code: string;
-
-  onTestGenerated?: (testCode: string) => void;
-  onAppendTerminal?: (title: string, text: string) => void;
-
-  // 📏 폰트 크기 조정 props
-  fontSize?: number;
-  onIncreaseFontSize?: () => void;
-  onDecreaseFontSize?: () => void;
-  onResetFontSize?: () => void;
-  minFontSize?: number;
-  maxFontSize?: number;
-};
+import type { CodeEditorActionsProps } from "@/types/ai/types";
 
 export default function Codeeditoractions({
   roomId,
@@ -228,7 +212,7 @@ export default function Codeeditoractions({
   const actionBtnDisabled = "bg-[#282f38] text-[#bac4d1] cursor-not-allowed";
 
   return (
-    <div className="flex items-center gap-2 px-6 py-1.5 bg-[#1f2327] border-b border-[#2F363F] flex-shrink-0">
+    <div className="flex items-center gap-2 px-6 py-1.5 bg-[#1f2327] border-b border-[#2F363F] shrink-0">
       {/* 파일명 표시 */}
       <div className="flex items-center gap-2 flex-1">
         <span className="text-[14px] text-[#DCD8D8]">
@@ -243,7 +227,7 @@ export default function Codeeditoractions({
       <div className="flex items-center gap-3">
         {/* 📏 폰트 크기 조정 버튼 */}
         <div className="flex items-center gap-1 px-2 py-1 bg-[#282f38] rounded border border-[#2F363F]">
-          <span className="text-[10px] text-[#858585] min-w-[24px] text-right">
+          <span className="text-[10px] text-[#858585] min-w-6 text-right">
             {fontSize}px
           </span>
           <button
