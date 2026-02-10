@@ -8,9 +8,7 @@
 import { useEffect, useRef } from "react";
 import type { AutoCompleteItem } from "./javaAutoComplete";
 
-// ===========================
 // Props 타입 정의
-// ===========================
 interface AutoCompletePopupProps {
   items: AutoCompleteItem[];       // 표시할 항목들
   selectedIndex: number;           // 현재 선택된 인덱스
@@ -19,9 +17,7 @@ interface AutoCompletePopupProps {
   onClose: () => void;             // 팝업 닫기 콜백
 }
 
-// ===========================
 // 타입별 아이콘/색상 정의
-// ===========================
 const TYPE_STYLES: Record<AutoCompleteItem["type"], { icon: string; color: string }> = {
   keyword: { icon: "K", color: "#C586C0" },   // 보라색 - 키워드
   class: { icon: "C", color: "#4EC9B0" },     // 청록색 - 클래스
@@ -38,9 +34,7 @@ export default function AutoCompletePopup({
   const listRef = useRef<HTMLUListElement>(null);
   const selectedRef = useRef<HTMLLIElement>(null);
 
-  // ===========================
   // 선택된 항목이 보이도록 스크롤
-  // ===========================
   useEffect(() => {
     if (selectedRef.current && listRef.current) {
       selectedRef.current.scrollIntoView({
@@ -64,9 +58,7 @@ export default function AutoCompletePopup({
         maxHeight: "200px",
       }}
     >
-      {/* ===========================
-          항목 리스트
-          =========================== */}
+      {/* 항목 리스트 */}
       <ul
         ref={listRef}
         className="overflow-y-auto max-h-[200px] py-1"
@@ -103,9 +95,7 @@ export default function AutoCompletePopup({
         })}
       </ul>
 
-      {/* ===========================
-          하단 힌트
-          =========================== */}
+      {/* 하단 힌트 */}
       <div className="border-t border-[#454545] px-2 py-1 text-xs text-[#808080]">
         ↑↓ 이동 · Enter 선택 · Esc 닫기
       </div>

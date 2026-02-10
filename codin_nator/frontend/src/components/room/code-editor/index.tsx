@@ -50,14 +50,10 @@ export default function CodeEditor({
   onTestGenerated,
   onAppendTerminal,
 }: CodeEditorProps) {
-  /* =========================
-     🔑 file 단위 room
-     ========================= */
+  /* 🔑 file 단위 room */
   const roomName = useMemo(() => `${roomId}/${fileId}`, [roomId, fileId]);
 
-  /* =========================
-     🔑 fileId 기준 Y.Doc 분리
-     ========================= */
+  /* 🔑 fileId 기준 Y.Doc 분리 */
   const yDocument = useMemo(() => new Y.Doc(), [fileId]);
 
   const provider = useMemo(() => {
@@ -94,10 +90,8 @@ export default function CodeEditor({
 
   const [currentCode, setCurrentCode] = useState("");
 
-  // ===========================
   // 📏 폰트 크기 조정
-  // ===========================
-  const [fontSize, setFontSize] = useState(14); // 기본 폰트 크기 14px
+  const [fontSize, setFontSize] = useState(16); // 기본 폰트 크기 16px
   const MIN_FONT_SIZE = 10;
   const MAX_FONT_SIZE = 24;
 
@@ -110,12 +104,10 @@ export default function CodeEditor({
   }, []);
 
   const resetFontSize = useCallback(() => {
-    setFontSize(14);
+    setFontSize(16);
   }, []);
 
-  // ===========================
   // 👤 현재 사용자 정보
-  // ===========================
   const authUser = useAuthStore((state) => state.user);
   const cursorUser = useMemo(
     () =>
@@ -123,23 +115,18 @@ export default function CodeEditor({
         ? {
             userId: authUser.gitId,
             name: authUser.name,
-            imageUrl: authUser.imageUrl,
           }
         : null,
     [authUser],
   );
 
-  // ===========================
   // 🎯 커서 동기화
-  // ===========================
   const { remoteCursors, updateCursorPosition } = useCursorAwareness({
     provider,
     user: cursorUser,
   });
 
-  // ===========================
   // 🔤 자동완성 상태
-  // ===========================
   const [autoCompleteItems, setAutoCompleteItems] = useState<
     AutoCompleteItem[]
   >([]); // 매칭된 항목들
@@ -160,9 +147,7 @@ export default function CodeEditor({
     };
   }, [editor, provider, yDocument]);
 
-  /* =========================
-     ✨ Prism Highlight
-     ========================= */
+  /* ✨ Prism Highlight */
   const decorate = useCallback(([node, path]: NodeEntry) => {
     if (!node || !Text.isText(node)) return [];
 
@@ -212,9 +197,7 @@ export default function CodeEditor({
     [editor],
   );
 
-  // ===========================
   // 🔤 자동완성: 커서 위치 계산
-  // ===========================
   const updatePopupPosition = useCallback(() => {
     try {
       const domSelection = window.getSelection();
@@ -233,9 +216,7 @@ export default function CodeEditor({
     }
   }, []);
 
-  // ===========================
   // 🔤 자동완성: 입력 처리
-  // ===========================
   const handleAutoComplete = useCallback(() => {
     // 현재 선택 영역 확인
     const { selection } = editor;
@@ -269,9 +250,7 @@ export default function CodeEditor({
     }
   }, [editor, updatePopupPosition]);
 
-  // ===========================
   // 🔤 자동완성: 항목 선택 시 삽입
-  // ===========================
   const insertAutoComplete = useCallback(
     (item: AutoCompleteItem) => {
       const { selection } = editor;
@@ -296,9 +275,7 @@ export default function CodeEditor({
     [editor, currentWord],
   );
 
-  // ===========================
   // 🔤 자동완성 + 폰트 크기 조정 키보드 핸들러
-  // ===========================
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
       // 📏 폰트 크기 조정 단축키 (Ctrl/Cmd + +/-/0)
@@ -369,16 +346,12 @@ export default function CodeEditor({
     ],
   );
 
-  // ===========================
   // 🔤 자동완성: 팝업 닫기
-  // ===========================
   const closeAutoComplete = useCallback(() => {
     setAutoCompleteItems([]);
   }, []);
 
-  /* =========================
-     🌱 Seed helper
-     ========================= */
+  /* 🌱 Seed helper */
   const seedFromText = useCallback(
     (text: string) => {
       const lines = String(text ?? "").split(/\r?\n/);
@@ -438,9 +411,7 @@ export default function CodeEditor({
     return () => provider.off("sync", handleSync);
   }, [provider, roomId, fileId, metaMap, seedFromText, yjsSharedXmlText]);
 
-  /* =========================
-     🖥 Render
-     ========================= */
+  /* 🖥 Render */
   return (
     <div className="h-full w-full flex flex-col bg-[#272729]">
       <Codeeditoractions

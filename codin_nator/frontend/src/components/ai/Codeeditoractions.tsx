@@ -227,7 +227,7 @@ export default function Codeeditoractions({
       <div className="flex items-center gap-3">
         {/* 📏 폰트 크기 조정 버튼 */}
         <div className="flex items-center gap-1 px-2 py-1 bg-[#282f38] rounded border border-[#2F363F]">
-          <span className="text-[10px] text-[#858585] min-w-6 text-right">
+          <span className="text-[12px] text-[#858585] min-w-6 text-right">
             {fontSize}px
           </span>
           <button

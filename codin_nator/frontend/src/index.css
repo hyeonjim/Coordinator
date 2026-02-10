@@ -348,7 +348,7 @@
 
 .file-viewer-header {
   @apply flex items-center justify-between px-3 h-8;
-  background-color: #242a2e;
+  background-color: #152027;
   border-bottom: 1px solid #24202b;
 }
 

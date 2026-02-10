@@ -142,7 +142,7 @@ export default function Header({
                   readOnly
                   className="room-dropdown-input text-xs"
                 />
-                <button onClick={handleCopy} className={`${btnGray} px-4 py-2`}>
+                <button onClick={handleCopy} className={`${btnGray} px-4 py-1`}>
                   {copied ? "✔" : "Copy"}
                 </button>
               </div>

@@ -4,18 +4,14 @@
  * - 입력에 따라 매칭되는 항목을 필터링
  */
 
-// ===========================
 // Java 자동완성 항목 타입
-// ===========================
 export interface AutoCompleteItem {
   label: string;      // 표시될 텍스트 (예: "public")
   type: "keyword" | "class" | "method" | "snippet";  // 종류
   insertText?: string; // 실제 삽입될 텍스트 (없으면 label 사용)
 }
 
-// ===========================
 // Java 키워드 목록
-// ===========================
 const JAVA_KEYWORDS: AutoCompleteItem[] = [
   // 접근 제어자
   { label: "public", type: "keyword" },
@@ -64,9 +60,7 @@ const JAVA_KEYWORDS: AutoCompleteItem[] = [
   { label: "instanceof", type: "keyword" },
 ];
 
-// ===========================
 // Java 기본 타입
-// ===========================
 const JAVA_TYPES: AutoCompleteItem[] = [
   { label: "int", type: "keyword" },
   { label: "long", type: "keyword" },
@@ -78,9 +72,7 @@ const JAVA_TYPES: AutoCompleteItem[] = [
   { label: "char", type: "keyword" },
 ];
 
-// ===========================
 // Java 내장 클래스
-// ===========================
 const JAVA_CLASSES: AutoCompleteItem[] = [
   // 기본 래퍼 클래스
   { label: "String", type: "class" },
@@ -122,9 +114,7 @@ const JAVA_CLASSES: AutoCompleteItem[] = [
   { label: "IOException", type: "class" },
 ];
 
-// ===========================
 // 자주 사용하는 메서드/스니펫
-// ===========================
 const JAVA_METHODS: AutoCompleteItem[] = [
   // 출력
   { label: "println", type: "method", insertText: "System.out.println();" },
@@ -149,9 +139,7 @@ const JAVA_METHODS: AutoCompleteItem[] = [
   { label: "isEmpty", type: "method" },
 ];
 
-// ===========================
 // 전체 자동완성 항목
-// ===========================
 export const ALL_ITEMS: AutoCompleteItem[] = [
   ...JAVA_KEYWORDS,
   ...JAVA_TYPES,
@@ -159,9 +147,7 @@ export const ALL_ITEMS: AutoCompleteItem[] = [
   ...JAVA_METHODS,
 ];
 
-// ===========================
 // 자동완성 필터링 함수
-// ===========================
 /**
  * 입력된 접두사로 시작하는 항목들을 필터링
  * @param prefix - 사용자가 입력한 문자열 (예: "pr")
@@ -212,9 +198,7 @@ export function filterAutoComplete(
   return matches.slice(0, maxResults);
 }
 
-// ===========================
 // 현재 입력 중인 단어 추출
-// ===========================
 /**
  * 커서 위치에서 현재 입력 중인 단어를 추출
  * @param text - 전체 텍스트
