@@ -19,7 +19,15 @@ export interface User {
   /** GitHub 고유 사용자 ID */
   gitId: string;
 }
-
+/**
+ * OAuth 콜백 처리 결과 타입
+ */
+export interface UseOAuthCallbackResult {
+  /** 로그인 처리 중 여부 */
+  isProcessing: boolean;
+  /** 에러 메시지 (에러 발생 시) */
+  error: string | null;
+}
 /**
  * OAuth 인증 토큰 정보 타입
  */
