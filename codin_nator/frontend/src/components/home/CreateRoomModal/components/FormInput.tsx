@@ -1,14 +1,6 @@
+import type { FormInputProps } from "@/types/home/creatRoomModal";
 import { useState } from "react";
 
-interface FormInputProps {
-  label: string;
-  placeholder: string;
-  type?: string;
-  required?: boolean;
-  note?: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
 //지라
 export default function FormInput({
   label,
