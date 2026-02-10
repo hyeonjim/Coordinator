@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import logo from "@/assets/images/logo2.png";
 
 import Alert from "@/components/common/Alert";
+import ThemeToggle from "@/components/room/ThemeToggle";
 
 interface HeaderProps {
   isJoined: boolean;
@@ -11,6 +12,8 @@ interface HeaderProps {
   onLeave: () => void;
   selectedFileId: number | null;
   editorContent: string;
+  isLightMode: boolean;
+  onToggleTheme: () => void;
 }
 
 const gitActions = [
@@ -25,6 +28,8 @@ export default function Header({
   onLeave,
   selectedFileId,
   editorContent,
+  isLightMode,
+  onToggleTheme,
 }: HeaderProps) {
   const [alertMsg, setAlertMsg] = useState<string | null>(null);
   const [showShare, setShowShare] = useState(false);
@@ -46,14 +51,20 @@ export default function Header({
   // 공통 버튼 스타일
   const btnBase =
     "inline-flex items-center justify-center rounded-full px-4 py-1.5 mt-4 mb-4 text-xs font-semibold " +
-    "transition active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#7F838D]/60";
+    "transition active:scale-[0.98] focus:outline-none focus:ring-2";
 
   // 기본
-  const btnGray = `${btnBase} bg-[#404a57] text-[#c6c7cc] hover:bg-[#7F838D] border border-[#7F838D]`;
+  const btnGray = isLightMode
+    ? `${btnBase} bg-[#778abd] text-white hover:bg-[#527099] border border-[#6988b3] focus:ring-[#9AABD2]/60`
+    : `${btnBase} bg-[#404a57] text-[#c6c7cc] hover:bg-[#7F838D] border border-[#7F838D] focus:ring-[#7F838D]/60`;
 
   // 강조(참여하기)
-  const btnGrayStrong = `${btnBase} bg-[#93a0bf] text-[#0A080D] hover:bg-[#DCD8D8] border border-[#7F838D]`;
-  const btnLeave = `${btnBase} bg-[#4d3737] text-[#DCD8D8] hover:bg-[#8B5A5A] border border-[#6B4A4A]`;
+  const btnGrayStrong = isLightMode
+    ? `${btnBase} bg-[#B492BA] text-white hover:bg-[#6A5D8A] border border-[#778abd] focus:ring-[#B492BA]/60`
+    : `${btnBase} bg-[#7f8cad] text-[#0A080D] hover:bg-[#DCD8D8] border border-[#7F838D] focus:ring-[#7F838D]/60`;
+  const btnLeave = isLightMode
+    ? `${btnBase} bg-[#9284b5] text-white hover:bg-[#6A5D8A] border border-[#6A5D8A] focus:ring-[#6A5D8A]/60`
+    : `${btnBase} bg-[#4d3737] text-[#DCD8D8] hover:bg-[#8B5A5A] border border-[#6B4A4A] focus:ring-[#6B4A4A]/60`;
 
   const handleGitAction = (action: string) => {
     if (!selectedFileId && action === "add") {
@@ -121,6 +132,9 @@ export default function Header({
 
       {/* Right */}
       <div className="flex items-center gap-4">
+        {/* Theme Toggle */}
+        <ThemeToggle isLight={isLightMode} onToggle={onToggleTheme} />
+
         {/* Share */}
         <div className="relative">
           <button
@@ -136,13 +150,13 @@ export default function Header({
           {showShare && (
             <div className="room-dropdown">
               <p className="text-xs text-[#7F838D] mb-2">공유 링크</p>
-              <div className="flex gap-1">
+              <div className="flex gap-3">
                 <input
                   value={shareLink}
                   readOnly
                   className="room-dropdown-input text-xs"
                 />
-                <button onClick={handleCopy} className={`${btnGray} px-4 py-1`}>
+                <button onClick={handleCopy} className={`border border-[#7F838D] rounded-lg text-[12px] px-3 h-7 text-[#b7bac0] hover:bg-[#7F838D] hover:text-white`}>
                   {copied ? "✔" : "Copy"}
                 </button>
               </div>

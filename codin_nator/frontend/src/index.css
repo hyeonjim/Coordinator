@@ -292,14 +292,14 @@
 }
 
 .room-dropdown {
-  @apply absolute right-0 top-10 w-80 rounded-lg shadow-xl p-3 z-50;
+  @apply absolute h-18 right-0 top-13 w-80 rounded-lg shadow-xl p-2 z-50;
   background-color: #2f363f;
   border: 1px solid #7f838d;
   color: #dcd8d8;
 }
 
 .room-dropdown-input {
-  @apply flex-1 px-3 py-2 rounded text-sm;
+  @apply flex-1 px-2 py-1.5 rounded;
   background-color: #1a1f24;
   color: #dcd8d8;
   border: 1px solid #7f838d;
@@ -783,3 +783,95 @@
 .speaking-glow {
   animation: speaking-glow 1.5s ease-in-out infinite;
 }
+
+/* ============================================
+   Room 테마 토글 버튼
+   ============================================ */
+.room-theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding: 0.375rem 0.75rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: #404a57;
+  color: #c6c7cc;
+  border: 1px solid #7f838d;
+  transition: all 0.15s ease;
+}
+
+.room-theme-toggle-btn:hover {
+  background-color: #7f838d;
+}
+
+/* ============================================
+   Room 라이트 모드
+   #9AABD2 #527099 #3A4663 #6A5D8A #B492BA #E6D8E1
+   ============================================ */
+.room-container.room-light { background-color: #E6D8E1; }
+.room-container.room-light .room-header { background-color: #9cabcc; border-bottom: 1px solid #85a1c7; }
+.room-container.room-light .room-sidebar-left { background-color: #E6D8E1; }
+.room-container.room-light .room-content { background-color: #c7bfc4; }
+.room-container.room-light .room-dropdown { background-color: #9AABD2; border-color: #527099; color: #ffffff; }
+.room-container.room-light .room-dropdown-input { background-color: #E6D8E1; color: #2e2a2a; border-color: #527099; }
+.room-container.room-light .room-dropdown-input:focus { border-color: #3A4663; box-shadow: 0 0 0 2px rgba(58,70,99,0.25); }
+.room-container.room-light .room-theme-toggle-btn { background-color: #9399a7; color: #ffffff; border-color: #91a4be; }
+.room-container.room-light .room-theme-toggle-btn:hover { background-color: #7492bb; }
+
+/* 파일뷰어 — 블루 계열 (채팅/음성과 다름) */
+.room-container.room-light .file-viewer-container { background-color: #bbc5db; color: #ffffff; }
+.room-container.room-light .file-viewer-header { background-color: #8aa1c2; border-bottom-color: #8c99b6; }
+.room-container.room-light .file-viewer-header:hover { background-color: #4f5f83; }
+.room-container.room-light .file-viewer-title { color: #ffffff; }
+.room-container.room-light .file-viewer-actions { color: #E6D8E1; }
+.room-container.room-light .file-viewer-actions svg:hover { color: #ffffff; }
+.room-container.room-light .file-tree-item { color: #ffffff; }
+.room-container.room-light .file-tree-item:hover { background-color: #B492BA; color: #ffffff; }
+.room-container.room-light .file-tree-item-selected { background-color: #3A4663 !important; color: #ffffff !important; }
+.room-container.room-light .file-viewer-statusbar { background-color: #94accc; color: #E6D8E1; }
+.room-container.room-light .file-viewer-empty { color: #E6D8E1; }
+.room-container.room-light .delete-mode-banner { background-color: #6A5D8A; color: #E6D8E1; }
+
+/* 음성채팅 — 퍼플 계열 (텍스트 채팅과 동일 배경) */
+.room-container.room-light .voice-chat-container { color: #E6D8E1; }
+.room-container.room-light .voice-chat-header { background-color: #d9cff1; border-top-color: #909bb6; color: #ffffff; }
+.room-container.room-light .voice-chat-participants { background-color: #e9dbe4; }
+.room-container.room-light .participant-row:hover { background-color: #9AABD2; border-radius: 15px; }
+.room-container.room-light .participant-avatar { background-color: #6A5D8A; color: #ffffff; }
+.room-container.room-light .participant-name { color: #76717a; }
+.room-container.room-light .voice-chat-empty { color: #E6D8E1; }
+
+/* 텍스트 채팅 — 퍼플 계열 (음성채팅과 동일 배경 #B492BA) */
+.room-container.room-light .text-chat-panel { background-color: #b9aadf; }
+.room-container.room-light .text-chat-messages { background-color: #E6D8E1; }
+.room-container.room-light .message-text-mine { background-color: #9AABD2; color: #ffffff; }
+.room-container.room-light .message-text-other { background-color: #B492BA; color: #ffffff; }
+.room-container.room-light .message-meta { color: #527099; }
+.room-container.room-light .text-chat-input-form { background-color: #d9cff1; border-top: 1px solid #c6ccda; }
+.room-container.room-light .text-chat-input { background-color: #eee6eb; color: #2e2a2a; }
+.room-container.room-light .text-chat-input::placeholder { color: #9AABD2; }
+.room-container.room-light .text-chat-input:disabled { background-color: #B492BA; }
+.room-container.room-light .text-chat-send-btn { background-color: #9AABD2; color: #ffffff; }
+.room-container.room-light .text-chat-send-btn:hover { background-color: #527099; }
+.room-container.room-light .text-chat-send-btn:disabled { background-color: #B492BA; color: #E6D8E1; }
+.room-container.room-light .text-chat-toggle { background-color: #bbafdb; color: #ffffff; }
+.room-container.room-light .text-chat-toggle:hover { background-color: #7a8bb3; }
+.room-container.room-light .text-chat-empty { color: #527099; }
+.room-container.room-light .message-system-text,
+.room-container.room-light .message-system-time { color: #527099; }
+
+/* 터미널 */
+.room-container.room-light .terminal-container { background-color: #E6D8E1; border-top-color: #9AABD2; color: #2e2a2a; }
+.room-container.room-light .terminal-toggle-btn,
+.room-container.room-light .run-java-btn { background-color: #9AABD2; color: #ffffff; border-color: #527099; }
+.room-container.room-light .terminal-toggle-btn:hover,
+.room-container.room-light .run-java-btn:hover { background-color: #527099; }
+.room-container.room-light .run-java-btn-active { background-color: #b8ddb8; border-color: #7ab87a; color: #1e4a1e; }
+.room-container.room-light .run-java-btn-active:hover { background-color: #a0cca0; }
+.room-container.room-light .terminal-resize-handle { background-color: #9AABD2; }
+.room-container.room-light .terminal-resize-handle:hover { background-color: #527099; }
+.room-container.room-light .terminal-resize-icon { color: #ffffff; }
+.room-container.room-light .terminal-content { background-color: #E6D8E1; }

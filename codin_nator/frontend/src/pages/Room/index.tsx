@@ -22,6 +22,7 @@ import { useVoiceChatMessageHandler } from "./hooks/useVoiceChatMessageHandler";
 import { getSocketBaseUrl } from "@/utils/socketUtils";
 
 export default function RoomPage() {
+  const [isLightMode, setIsLightMode] = useState(false);
   const [currentEditorCode, setCurrentEditorCode] = useState<string>("");
   const { roomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
@@ -186,13 +187,15 @@ export default function RoomPage() {
   }, [webRTC, voiceChatWebSocket, currentRoomId, userId]);
 
   return (
-    <div className="room-container">
+    <div className={`room-container${isLightMode ? " room-light" : ""}`}>
       <Header
         isJoined={isJoined}
         onJoin={handleJoin}
         onLeave={handleLeave}
         selectedFileId={selectedFile?.id ?? null}
         editorContent={currentEditorCode}
+        isLightMode={isLightMode}
+        onToggleTheme={() => setIsLightMode((v) => !v)}
       />
 
       <div className="room-main">
