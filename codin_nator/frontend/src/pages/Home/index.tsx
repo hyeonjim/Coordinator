@@ -12,7 +12,8 @@ import {
 } from "@/components/home/components/avatar";
 import { ContributionGraph } from "@/components/home/components/contribution-graph";
 import { useAuthStore } from "@/stores/authStore";
-import { aiService, type TestReportResponse } from "@/services/ai/aiService";
+import { aiService } from "@/services/ai/aiService";
+
 import { useOAuthCallback } from "@/hooks/user/useOAuthCallback";
 import { useNavigate } from "react-router-dom";
 import CreateRoomModal from "@/components/home/CreateRoomModal";
@@ -26,6 +27,7 @@ import {
   Activity,
 } from "lucide-react";
 import type { ContributionData } from "@/types/home/contribution";
+import type { TestReportResponse } from "@/types/ai/types";
 
 const KST_TZ = "Asia/Seoul";
 
