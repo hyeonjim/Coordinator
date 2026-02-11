@@ -65,22 +65,22 @@ export default function Header({
     ? `${btnBase} bg-[#9284b5] text-white hover:bg-[#6A5D8A] border border-[#6A5D8A] focus:ring-[#6A5D8A]/60`
     : `${btnBase} bg-[#4d3737] text-[#DCD8D8] hover:bg-[#8B5A5A] border border-[#6B4A4A] focus:ring-[#6B4A4A]/60`;
 
-  const handleGitAction = (action: string) => {
+  const handleGitAction = async (action: string) => {
     if (!selectedFileId && action === "add") {
       setAlertMsg("파일을 먼저 선택해주세요.");
       return;
     }
 
     if (action === "add") {
-      axiosInstance
-        .post(`/v1/room/git/${roomId}/add`, [
+      try {
+        await axiosInstance.post(`/v1/room/git/${roomId}/add`, [
           { fileId: selectedFileId, content: editorContent },
-        ])
-        .then(() => setAlertMsg("Staging area에 파일을 추가합니다."))
-        .catch(() =>
-          setAlertMsg("Staging area에 파일을 추가하는 데 실패했습니다."),
-        );
-      return;
+        ]);
+        setAlertMsg("Staging area에 파일을 추가합니다.");
+      } catch {
+        setAlertMsg("Staging area에 파일을 추가하는 데 실패했습니다.");
+        return;
+      }
     }
 
     if (action === "commit") {
@@ -90,23 +90,30 @@ export default function Header({
     }
 
     if (action === "push") {
-      axiosInstance
-        .get(`/v1/room/git/${roomId}/push`, {})
-        .then(() => setAlertMsg("리포지토리에 푸시되었습니다."))
-        .catch(() => setAlertMsg("리포지토리에 푸시하는 데 실패했습니다."));
+      try {
+        await axiosInstance.get(`/v1/room/git/${roomId}/push`, {});
+        setAlertMsg("리포지토리에 푸시되었습니다.");
+      } catch {
+        setAlertMsg("리포지토리 푸시 중 오류가 발생했습니다.");
+        return;
+      }
     }
   };
 
-  const handleCommitSend = () => {
+  const handleCommitSend = async () => {
     if (!commitMsg.trim()) {
       setAlertMsg("커밋 메시지를 입력해주세요.");
       return;
     }
-
-    axiosInstance
-      .post(`/v1/room/git/${roomId}/commit`, { message: commitMsg })
-      .then(() => setAlertMsg("커밋이 성공적으로 완료되었습니다."))
-      .catch(() => setAlertMsg("커밋하는 데 실패했습니다."));
+    try {
+      await axiosInstance.post(`/v1/room/git/${roomId}/commit`, {
+        message: commitMsg,
+      });
+      setAlertMsg("커밋이 성공적으로 완료되었습니다.");
+    } catch {
+      setAlertMsg("커밋하는 데 실패했습니다.");
+      return;
+    }
 
     setCommitMsg("");
     setShowCommit(false);
