@@ -6,6 +6,21 @@ import type {
   ContributionGraphProps,
 } from "@/types/home/contribution";
 
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
 const formatDate = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
     d.getDate(),
@@ -77,7 +92,7 @@ function splitResolutionToBullets(text: string): string[] {
 }
 
 export function ContributionGraph({ data }: ContributionGraphProps) {
-  const today = new Date();
+  const today = useMemo(() => new Date(), []);
 
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -87,12 +102,11 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
   const [activeLog, setActiveLog] = useState<ErrorLog | null>(null);
 
   // ✅ 긴 출력 때문에 모달이 터지는 것 방지: 원본 출력 접기/펴기
-  const [showRaw, setShowRaw] = useState(false);
-
-  useEffect(() => {
-    // activeLog 바뀔 때마다 원본 출력 접힘 상태로 리셋
-    setShowRaw(false);
-  }, [activeLog?.id]);
+  // activeLog가 바뀔 때마다 접힘 상태로 리셋 (파생 state 패턴)
+  const [showRawLogId, setShowRawLogId] = useState<string | null>(null);
+  const showRaw = showRawLogId === activeLog?.id;
+  const setShowRaw = (v: boolean) =>
+    setShowRawLogId(v ? (activeLog?.id ?? null) : null);
 
   useEffect(() => {
     // ESC로 모달 닫기
@@ -170,20 +184,29 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
     today.getFullYear() - 1,
     today.getFullYear() - 2,
   ];
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
+
+  /**
+   * 각 week 열마다 표시할 월 레이블 (월이 바뀌는 첫 번째 열에만 표시, 나머지는 null)
+   */
+  const monthLabels = useMemo<(string | null)[]>(() => {
+    const labels: (string | null)[] = [];
+    let lastMonth = -1;
+    for (const week of weeks) {
+      const firstReal = week.find((d) => d.date !== "");
+      if (!firstReal) {
+        labels.push(null);
+        continue;
+      }
+      const month = new Date(firstReal.date).getMonth();
+      if (month !== lastMonth) {
+        labels.push(MONTHS[month]);
+        lastMonth = month;
+      } else {
+        labels.push(null);
+      }
+    }
+    return labels;
+  }, [weeks]);
 
   const rawText = activeLog?.stacktrace ?? "";
   const rawPreview =
@@ -251,34 +274,35 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
           </button>
         ))}
       </div>
-      {/* ===== 월 & 잔디 (가로 스크롤 영역) ===== */}
-      <div className="overflow-x-auto">
-        <div className="min-w-180">
-          {/* 월 */}
-          <div className="flex justify-center mb-4">
-            <div className="flex ml-7 text-xs font-medium tracking-wide text-[#24292E]">
-              {months.map((m) => (
-                <span key={m} className="w-17.5">
-                  {m}
-                </span>
+      {/* ===== 월 & 잔디 (큰 화면: 중앙 정렬 / 작은 화면: 가로 스크롤) ===== */}
+      <div className="w-full overflow-x-auto pb-3">
+        <div style={{ display: "table", margin: "0 auto" }}>
+          <div className="inline-flex flex-col" style={{ padding: "0 15px" }}>
+            {/* 월 레이블 — week 열과 1:1 매핑 */}
+            <div className="flex gap-[3px] mb-3">
+              {weeks.map((_, wi) => (
+                <div
+                  key={wi}
+                  className="w-[11px] text-[12px] font-medium text-[#586069] overflow-visible whitespace-nowrap"
+                >
+                  {monthLabels[wi] ?? ""}
+                </div>
               ))}
             </div>
-          </div>
-          {/* 잔디 */}
-          <div className="flex gap-3 justify-center">
-            <div className="flex gap-1 mb-2">
+            {/* 잔디 */}
+            <div className="flex gap-[4px]">
               {weeks.map((week, wi) => (
-                <div key={wi} className="flex flex-col gap-1">
+                <div key={wi} className="flex flex-col gap-[2px]">
                   {week.map((day, di) => (
                     <button
                       key={di}
                       title={
                         day.date ? `${day.date} · ${day.count} errors` : ""
                       }
-                      className={`w-3.5 h-4.5 rounded-sm ${getContribClass(day.count)}
-                        hover:ring-2 hover:ring-offset-1
-                        ${day.count > 0 ? "hover:ring-[#24292E]/40" : "hover:ring-[#9297A2]/40"}
-                        hover:scale-125 transition-all duration-200`}
+                      className={`w-[11px] h-[15px] rounded-sm ${getContribClass(day.count)}
+                      hover:ring-1 hover:ring-offset-1
+                      ${day.count > 0 ? "hover:ring-[#24292E]/40" : "hover:ring-[#9297A2]/40"}
+                      hover:scale-125 transition-all duration-200`}
                       onClick={() => {
                         if (!day.date) return;
                         setSelectedDate(day.date);
@@ -443,7 +467,7 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
                     원본 출력/Stacktrace
                   </div>
                   <button
-                    onClick={() => setShowRaw((v) => !v)}
+                    onClick={() => setShowRaw(!showRaw)}
                     className="text-xs px-4 py-2 rounded-lg font-medium transition-all duration-200 bg-[#24292E] text-white border border-[#24292E] hover:bg-[#3A4149]"
                   >
                     {showRaw ? "접기" : "펼치기"}

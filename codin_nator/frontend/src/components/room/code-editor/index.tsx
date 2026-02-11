@@ -3,7 +3,7 @@ import { createEditor, Editor, Node, Transforms, Text, Range } from "slate";
 import type { Descendant, NodeEntry } from "slate";
 import { useEffect, useMemo, useCallback, useState } from "react";
 import { WebsocketProvider } from "y-websocket";
-import { Slate, Editable, withReact } from "slate-react";
+import { Slate, Editable, withReact, ReactEditor } from "slate-react";
 import type { RenderElementProps, RenderLeafProps } from "slate-react";
 import { withYjs, withYHistory, YjsEditor } from "@slate-yjs/core";
 
@@ -92,6 +92,12 @@ export default function CodeEditor({
 
   // 📏 폰트 크기 조정
   const [fontSize, setFontSize] = useState(16); // 기본 폰트 크기 16px
+
+  // 📏 줄번호 너비 (자릿수에 따라 동적 계산)
+  const lineNumberWidth = useMemo(() => {
+    const digits = Math.max(String(currentCode.split("\n").length).length, 2);
+    return digits * fontSize * 0.65 + 16;
+  }, [currentCode, fontSize]);
   const MIN_FONT_SIZE = 10;
   const MAX_FONT_SIZE = 24;
 
@@ -187,14 +193,28 @@ export default function CodeEditor({
 
   const renderElement = useCallback(
     (props: RenderElementProps) => {
-      const { attributes, children } = props;
+      const { attributes, children, element } = props;
+      const path = ReactEditor.findPath(editor, element);
+      const lineNumber = path[0] + 1;
       return (
-        <div {...attributes} className="flex code-line">
-          {children}
+        <div {...attributes} className="flex items-stretch code-line">
+          <span
+            contentEditable={false}
+            className="code-line-number shrink-0 text-right select-none text-[#858585] flex items-start justify-end"
+            style={{
+              width: `${lineNumberWidth}px`,
+              paddingRight: "8px",
+              userSelect: "none",
+              whiteSpace: "normal",
+            }}
+          >
+            {lineNumber}
+          </span>
+          <span className="flex-1 min-w-0">{children}</span>
         </div>
       );
     },
-    [editor],
+    [editor, lineNumberWidth],
   );
 
   // 🔤 자동완성: 커서 위치 계산
@@ -411,7 +431,7 @@ export default function CodeEditor({
 
   /* 🖥 Render */
   return (
-    <div className="h-full w-full flex flex-col bg-[#272729]">
+    <div className="code-editor-container h-full w-full flex flex-col">
       <Codeeditoractions
         roomId={roomId}
         fileName={fileName}
@@ -430,26 +450,6 @@ export default function CodeEditor({
         className="flex-1 overflow-auto font-mono text-[#DCD8D8] relative"
         style={{ fontSize: `${fontSize}px`, lineHeight: `${fontSize * 1.5}px` }}
       >
-        <div
-          className="absolute left-0 top-0 bottom-0 w-10 text-[#858585] select-none pointer-events-none py-4"
-          style={{
-            fontSize: `${fontSize}px`,
-            lineHeight: `${fontSize * 1.5}px`,
-          }}
-        >
-          {currentCode.split("\n").map((_, i) => (
-            <div
-              key={i}
-              className="flex items-start justify-end pr-2"
-              style={{
-                minHeight: `${fontSize * 1.5}px`,
-                lineHeight: `${fontSize * 1.5}px`,
-              }}
-            >
-              {i + 1}
-            </div>
-          ))}
-        </div>
         <Slate
           editor={editor}
           initialValue={initialValue}
@@ -475,9 +475,12 @@ export default function CodeEditor({
             renderLeaf={renderLeaf}
             renderElement={renderElement}
             onKeyDown={handleKeyDown}
-            className="min-h-full px-2 py-4 focus:outline-none pl-12"
+            className="min-h-full px-2 py-4 focus:outline-none"
             style={{
               lineHeight: `${fontSize * 1.5}px`,
+              whiteSpace: "pre",
+              overflowWrap: "normal",
+              wordBreak: "normal",
             }}
           />
         </Slate>

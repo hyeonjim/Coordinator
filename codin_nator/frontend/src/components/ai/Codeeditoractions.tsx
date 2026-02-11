@@ -212,7 +212,7 @@ export default function Codeeditoractions({
   const actionBtnDisabled = "bg-[#282f38] text-[#bac4d1] cursor-not-allowed";
 
   return (
-    <div className="flex items-center gap-2 px-6 py-1.5 bg-[#1f2327] border-b border-[#2F363F] shrink-0">
+    <div className="code-editor-header flex items-center gap-2 px-6 py-1 bg-[#1f2327] border-b border-[#2F363F] shrink-0">
       {/* 파일명 표시 */}
       <div className="flex items-center gap-2 flex-1">
         <span className="text-[14px] text-[#DCD8D8]">
