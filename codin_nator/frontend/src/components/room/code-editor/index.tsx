@@ -6,10 +6,9 @@ import { WebsocketProvider } from "y-websocket";
 import { Slate, Editable, withReact } from "slate-react";
 import type { RenderElementProps, RenderLeafProps } from "slate-react";
 import { withYjs, withYHistory, YjsEditor } from "@slate-yjs/core";
-import Prism from "prismjs";
-import axios from "axios";
 
 /* Prism */
+import Prism from "prismjs";
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-java";
 import "prismjs/themes/prism-tomorrow.css";
@@ -28,6 +27,7 @@ import {
 import RemoteCursorOverlay from "./RemoteCursorOverlay";
 import { useCursorAwareness } from "./useCursorAwareness";
 import { useAuthStore } from "@/stores/authStore";
+import axiosInstance from "@/api/axios";
 
 interface CodeEditorProps {
   roomId: number;
@@ -391,10 +391,8 @@ export default function CodeEditor({
       try {
         console.log("[CodeEditor] API seed 1회 실행", fileId);
 
-        const token = localStorage.getItem("access_token");
-        const res = await axios.get(`/api/v1/room/${roomId}/${fileId}`, {
+        const res = await axiosInstance.get(`/v1/room/${roomId}/${fileId}`, {
           responseType: "text",
-          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         });
 
         seedFromText(res.data ?? "");

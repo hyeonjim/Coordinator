@@ -1,10 +1,10 @@
-import axios from "axios";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import logo from "@/assets/images/logo2.png";
 
 import Alert from "@/components/common/Alert";
 import ThemeToggle from "@/components/room/ThemeToggle";
+import axiosInstance from "@/api/axios";
 
 interface HeaderProps {
   isJoined: boolean;
@@ -40,7 +40,6 @@ export default function Header({
 
   const shareLink = window.location.href;
   const { roomId } = useParams<{ roomId: string }>();
-  const accessToken = localStorage.getItem("access_token");
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(shareLink);
@@ -73,12 +72,10 @@ export default function Header({
     }
 
     if (action === "add") {
-      axios
-        .post(
-          `/api/v1/room/git/${roomId}/add`,
-          [{ fileId: selectedFileId, content: editorContent }],
-          { headers: { Authorization: `Bearer ${accessToken}` } },
-        )
+      axiosInstance
+        .post(`/v1/room/git/${roomId}/add`, [
+          { fileId: selectedFileId, content: editorContent },
+        ])
         .then(() => setAlertMsg("Staging area에 파일을 추가합니다."))
         .catch(() =>
           setAlertMsg("Staging area에 파일을 추가하는 데 실패했습니다."),
@@ -93,10 +90,8 @@ export default function Header({
     }
 
     if (action === "push") {
-      axios
-        .get(`/api/v1/room/git/${roomId}/push`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        })
+      axiosInstance
+        .get(`/v1/room/git/${roomId}/push`, {})
         .then(() => setAlertMsg("리포지토리에 푸시되었습니다."))
         .catch(() => setAlertMsg("리포지토리에 푸시하는 데 실패했습니다."));
     }
@@ -108,12 +103,8 @@ export default function Header({
       return;
     }
 
-    axios
-      .post(
-        `/api/v1/room/git/${roomId}/commit`,
-        { message: commitMsg },
-        { headers: { Authorization: `Bearer ${accessToken}` } },
-      )
+    axiosInstance
+      .post(`/v1/room/git/${roomId}/commit`, { message: commitMsg })
       .then(() => setAlertMsg("커밋이 성공적으로 완료되었습니다."))
       .catch(() => setAlertMsg("커밋하는 데 실패했습니다."));
 
@@ -156,7 +147,10 @@ export default function Header({
                   readOnly
                   className="room-dropdown-input text-xs"
                 />
-                <button onClick={handleCopy} className={`border border-[#7F838D] rounded-lg text-[12px] px-3 h-7 text-[#b7bac0] hover:bg-[#7F838D] hover:text-white`}>
+                <button
+                  onClick={handleCopy}
+                  className={`border border-[#7F838D] rounded-lg text-[12px] px-3 h-7 text-[#b7bac0] hover:bg-[#7F838D] hover:text-white`}
+                >
                   {copied ? "✔" : "Copy"}
                 </button>
               </div>

@@ -1,6 +1,3 @@
-// 규성코드 전면수정함(리팩토링 예정)
-
-import axios from "axios";
 import type { FileViewerProps } from "@/types/file/types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { DragEvent } from "react";
@@ -12,8 +9,8 @@ import {
   VscNewFolder,
   VscRefresh,
   VscTrash,
-  VscCheck,    // 삭제 확인 버튼용 아이콘
-  VscClose,    // 삭제 취소 버튼용 아이콘
+  VscCheck, // 삭제 확인 버튼용 아이콘
+  VscClose, // 삭제 취소 버튼용 아이콘
 } from "react-icons/vsc";
 
 import { FileTreeItem } from "./FileTreeItem";
@@ -25,6 +22,7 @@ import type {
   RawNode,
 } from "@/types/file/types";
 import Alert from "@/components/common/Alert";
+import axiosInstance from "@/api/axios";
 
 // Helper Functions (데이터 처리 로직)
 let tempIdSequence = 1;
@@ -89,7 +87,9 @@ const FileViewer = ({
   // 삭제 모드 활성화 여부
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   // 삭제할 파일/폴더 ID 목록 (다중 선택 지원)
-  const [deleteTargetIds, setDeleteTargetIds] = useState<Set<number>>(new Set());
+  const [deleteTargetIds, setDeleteTargetIds] = useState<Set<number>>(
+    new Set(),
+  );
 
   const roomIdSafe = useMemo(() => {
     const numericRoomId = Number(roomId);
@@ -115,15 +115,7 @@ const FileViewer = ({
     try {
       setLoading(true);
 
-      // ✅ 토큰은 요청 시점에 읽기 + 없으면 헤더를 생략 (Bearer null 방지)
-      const accessToken = localStorage.getItem("access_token");
-      const headers = accessToken
-        ? { Authorization: `Bearer ${accessToken}` }
-        : undefined;
-
-      const response = await axios.get(`/api/v1/room/${roomIdSafe}/files`, {
-        headers,
-      });
+      const response = await axiosInstance.get(`/v1/room/${roomIdSafe}/files`);
 
       const normalized = normalizeFileTree(response.data);
       setFiles(sanitizeTree(normalized));
@@ -152,16 +144,10 @@ const FileViewer = ({
 
     // content까지 전달
     try {
-      const accessToken = localStorage.getItem("access_token");
-      const headers = accessToken
-        ? { Authorization: `Bearer ${accessToken}` }
-        : undefined;
-
-      const response = await axios.get(
-        `/api/v1/room/${roomIdSafe}/${node.fileId}`,
+      const response = await axiosInstance.get(
+        `/v1/room/${roomIdSafe}/${node.fileId}`,
         {
           responseType: "text",
-          headers,
         },
       );
 
@@ -185,24 +171,12 @@ const FileViewer = ({
     if (!fileName) return;
 
     try {
-      const accessToken = localStorage.getItem("access_token");
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-      if (accessToken) {
-        headers.Authorization = `Bearer ${accessToken}`;
-      }
-
-      await axios.post(
-        `/api/v1/room/editor/${roomIdSafe}/new-file`,
-        {
-          fileName,
-          type: "FILE",
-          parentId: null,
-          content: "",
-        },
-        { headers }
-      );
+      await axiosInstance.post(`/v1/room/editor/${roomIdSafe}/new-file`, {
+        fileName,
+        type: "FILE",
+        parentId: null,
+        content: "",
+      });
 
       await fetchFileTree();
       setAlertMsg("파일이 생성되었습니다.");
@@ -219,24 +193,12 @@ const FileViewer = ({
     if (!fileName) return;
 
     try {
-      const accessToken = localStorage.getItem("access_token");
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-      if (accessToken) {
-        headers.Authorization = `Bearer ${accessToken}`;
-      }
-
-      await axios.post(
-        `/api/v1/room/editor/${roomIdSafe}/new-file`,
-        {
-          fileName,
-          type: "DIR",
-          parentId: null,
-          content: "",
-        },
-        { headers }
-      );
+      await axiosInstance.post(`/v1/room/editor/${roomIdSafe}/new-file`, {
+        fileName,
+        type: "DIR",
+        parentId: null,
+        content: "",
+      });
 
       await fetchFileTree();
       setAlertMsg("폴더가 생성되었습니다.");
@@ -285,22 +247,15 @@ const FileViewer = ({
 
     const targetCount = deleteTargetIds.size;
     const confirmed = window.confirm(
-      `선택한 ${targetCount}개의 항목을 삭제하시겠습니까?`
+      `선택한 ${targetCount}개의 항목을 삭제하시겠습니까?`,
     );
     if (!confirmed) return;
 
     try {
-      const accessToken = localStorage.getItem("access_token");
-      const headers: Record<string, string> = {};
-      if (accessToken) {
-        headers.Authorization = `Bearer ${accessToken}`;
-      }
-
       // 선택된 모든 파일/폴더 삭제 (순차 처리)
       for (const fileId of deleteTargetIds) {
-        await axios.delete(
-          `/api/v1/room/editor/${roomIdSafe}/delete-file/${fileId}`,
-          { headers }
+        await axiosInstance.delete(
+          `/v1/room/editor/${roomIdSafe}/delete-file/${fileId}`,
         );
       }
 
@@ -339,14 +294,7 @@ const FileViewer = ({
         try {
           if (!roomIdSafe) throw new Error("유효하지 않은 방 ID입니다.");
 
-          const accessToken = localStorage.getItem("access_token");
-          const headers = accessToken
-            ? { Authorization: `Bearer ${accessToken}` }
-            : undefined;
-
-          await axios.post(`/api/v1/room/${roomIdSafe}/uploads`, formData, {
-            headers,
-          });
+          await axiosInstance.post(`/v1/room/${roomIdSafe}/uploads`, formData);
 
           resolve();
         } catch (error) {
@@ -439,7 +387,9 @@ const FileViewer = ({
       {/* ===== 삭제 모드 안내 배너 ===== */}
       {isDeleteMode && (
         <div className="delete-mode-banner">
-          <span>삭제할 파일/폴더를 선택하세요 ({deleteTargetIds.size}개 선택됨)</span>
+          <span>
+            삭제할 파일/폴더를 선택하세요 ({deleteTargetIds.size}개 선택됨)
+          </span>
         </div>
       )}
 
