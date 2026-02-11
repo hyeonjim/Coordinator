@@ -640,12 +640,28 @@
 
 .text-chat-toggle {
   @apply absolute -left-6 top-1/2 -translate-y-1/2 px-1 py-2 rounded text-sm z-20;
-  background-color: #2f363f;
+  background-color: #424a55;
   color: #dcd8d8;
   transition: all 0.15s ease;
 }
 
 .text-chat-toggle:hover {
+  background-color: #7f838d;
+}
+
+.left-sidebar-toggle {
+  @apply absolute px-1 rounded text-[10px] z-20;
+  right: -18px;
+  top: 3px;
+  height: 27px; /* file-viewer-header h-8 */
+  display: flex;
+  align-items: center;
+  background-color: #424a55;
+  color: #dcd8d8;
+  transition: all 0.15s ease;
+}
+
+.left-sidebar-toggle:hover {
   background-color: #7f838d;
 }
 
@@ -1021,6 +1037,13 @@
 }
 .room-container.room-light .text-chat-toggle:hover {
   background-color: #7a8bb3;
+}
+.room-container.room-light .left-sidebar-toggle {
+  background-color: #b0a4d1;
+  color: #ffffff;
+}
+.room-container.room-light .left-sidebar-toggle:hover {
+  background-color: #527099;
 }
 .room-container.room-light .text-chat-empty {
   color: #527099;

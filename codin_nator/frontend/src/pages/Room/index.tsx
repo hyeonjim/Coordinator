@@ -24,6 +24,7 @@ import axiosInstance from "@/api/axios";
 
 export default function RoomPage() {
   const [isLightMode, setIsLightMode] = useState(false);
+  const [isLeftSidebarCollapsed, setIsLeftSidebarCollapsed] = useState(false);
   const [currentEditorCode, setCurrentEditorCode] = useState<string>("");
   const { roomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
@@ -194,35 +195,47 @@ export default function RoomPage() {
       />
 
       <div className="room-main">
-        <aside className="room-sidebar-left">
-          <div className="flex-1 overflow-auto room-scrollbar">
-            {/* 사용자 정보 전달하여 실시간 위치 추적 */}
-            <FileViewer
-              roomId={Number(currentRoomId)}
-              onFileSelect={(fileId, content, fileName) => {
-                setSelectedFile({ id: fileId, content, name: fileName });
-                // 필요하면 여기서 terminalText 초기화도 가능
-                setTerminalText("");
-              }}
-              userId={userId}
-              userName={userName}
-              userImageUrl={userImageUrl}
-            />
-          </div>
-
-          <div className="h-1/3 flex flex-col">
-            <div className="flex-1 overflow-hidden">
-              <VoiceChat
-                participants={participants}
-                myUserId={userId}
-                onToggleMic={handleToggleMic}
-                onTogglePeerMute={webRTC.togglePeerMute}
-                isPeerMuted={webRTC.isPeerMuted}
-                isWebSocketConnected={voiceChatWebSocket.isConnected}
+        <div className="relative self-stretch">
+          <aside
+            className="room-sidebar-left transition-all duration-300 overflow-hidden h-full"
+            style={{ width: isLeftSidebarCollapsed ? 0 : undefined }}
+          >
+            <div className="flex-1 overflow-auto room-scrollbar">
+              {/* 사용자 정보 전달하여 실시간 위치 추적 */}
+              <FileViewer
+                roomId={Number(currentRoomId)}
+                onFileSelect={(fileId, content, fileName) => {
+                  setSelectedFile({ id: fileId, content, name: fileName });
+                  setTerminalText("");
+                }}
+                userId={userId}
+                userName={userName}
+                userImageUrl={userImageUrl}
               />
             </div>
-          </div>
-        </aside>
+
+            <div className="h-1/3 flex flex-col">
+              <div className="flex-1 overflow-hidden">
+                <VoiceChat
+                  participants={participants}
+                  myUserId={userId}
+                  onToggleMic={handleToggleMic}
+                  onTogglePeerMute={webRTC.togglePeerMute}
+                  isPeerMuted={webRTC.isPeerMuted}
+                  isWebSocketConnected={voiceChatWebSocket.isConnected}
+                />
+              </div>
+            </div>
+          </aside>
+
+          {/* 왼쪽 사이드바 토글 버튼 — 파일뷰어 헤더(h-8) 세로 중앙 */}
+          <button
+            onClick={() => setIsLeftSidebarCollapsed((prev) => !prev)}
+            className="left-sidebar-toggle"
+          >
+            {isLeftSidebarCollapsed ? "▶" : "◀"}
+          </button>
+        </div>
 
         <main className="room-content">
           <div className="flex-1 min-h-0 overflow-hidden">
