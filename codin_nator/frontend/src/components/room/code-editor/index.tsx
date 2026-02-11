@@ -411,7 +411,7 @@ export default function CodeEditor({
 
   /* 🖥 Render */
   return (
-    <div className="h-full w-full flex flex-col bg-[#272729]">
+    <div className="code-editor-container h-full w-full flex flex-col">
       <Codeeditoractions
         roomId={roomId}
         fileName={fileName}
@@ -431,7 +431,7 @@ export default function CodeEditor({
         style={{ fontSize: `${fontSize}px`, lineHeight: `${fontSize * 1.5}px` }}
       >
         <div
-          className="absolute left-0 top-0 bottom-0 w-10 text-[#858585] select-none pointer-events-none py-4"
+          className="code-line-numbers absolute left-0 top-0 bottom-0 w-10 text-[#858585] select-none pointer-events-none py-4"
           style={{
             fontSize: `${fontSize}px`,
             lineHeight: `${fontSize * 1.5}px`,
