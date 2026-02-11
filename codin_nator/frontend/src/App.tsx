@@ -6,8 +6,13 @@ import HomeLayout from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import PublicRoute from "./components/routes/PublicRoute";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
+import { useEffect } from "react";
+import { bootstrapAuth } from "./auth/bootstrapAuth";
 
 export default function App() {
+  useEffect(() => {
+    bootstrapAuth();
+  }, []);
   return (
     <BrowserRouter>
       <Routes>
