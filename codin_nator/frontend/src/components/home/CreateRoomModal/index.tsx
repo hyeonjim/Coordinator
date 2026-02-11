@@ -9,17 +9,17 @@ export default function CreateRoomModal({ onClose }: CreateRoomModalProps) {
   const [roomTitle, setRoomTitle] = useState("");
   const [branchName, setBranchName] = useState("");
 
-  const roomCreate = () => {
-    axiosInstance
-      .post("/v1/room", {
+  const roomCreate = async () => {
+    try {
+      const res = await axiosInstance.post("/v1/room", {
         name: roomTitle,
         branch: branchName,
-      })
-      .then((res) => {
-        const roomId = res.data;
-        navigate(`/room/${roomId}`);
-      })
-      .catch((err) => console.log(err));
+      });
+      const roomId = res.data;
+      navigate(`/room/${roomId}`);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
