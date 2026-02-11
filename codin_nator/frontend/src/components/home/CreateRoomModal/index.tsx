@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import FormInput from "./components/FormInput";
-import axios from "axios";
 import { useState } from "react";
 import type { CreateRoomModalProps } from "@/types/home/creatRoomModal";
+import axiosInstance from "@/api/axios";
 
 export default function CreateRoomModal({ onClose }: CreateRoomModalProps) {
   const navigate = useNavigate();
@@ -10,21 +10,11 @@ export default function CreateRoomModal({ onClose }: CreateRoomModalProps) {
   const [branchName, setBranchName] = useState("");
 
   const roomCreate = () => {
-    const accessToken = localStorage.getItem("access_token");
-
-    axios
-      .post(
-        "/api/v1/room",
-        {
-          name: roomTitle,
-          branch: branchName,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-      )
+    axiosInstance
+      .post("/v1/room", {
+        name: roomTitle,
+        branch: branchName,
+      })
       .then((res) => {
         const roomId = res.data;
         navigate(`/room/${roomId}`);
