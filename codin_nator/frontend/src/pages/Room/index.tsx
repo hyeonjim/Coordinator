@@ -20,6 +20,7 @@ import { useVoiceChatMessageHandler } from "./hooks/useVoiceChatMessageHandler";
 
 // 연결 테스트용
 import { getSocketBaseUrl } from "@/utils/socketUtils";
+import axiosInstance from "@/api/axios";
 
 export default function RoomPage() {
   const [isLightMode, setIsLightMode] = useState(false);
@@ -89,17 +90,11 @@ export default function RoomPage() {
     if (!isJoined) return;
     if (!currentRoomId) return;
 
-    const token = localStorage.getItem("access_token");
-    if (!token) return;
-
-    fetch(`/api/v1/room/${currentRoomId}/participants/me`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }).catch((e) => {
-      console.error("[RoomPage] participant join failed", e);
-    });
+    axiosInstance
+      .post(`/v1/room/${currentRoomId}/participants/me`)
+      .catch((e) => {
+        console.error("[RoomPage] participant join failed", e);
+      });
   }, [isJoined, currentRoomId]);
 
   // WebSocket 연결 (✅ master 유지: STOMP 2개)
