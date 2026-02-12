@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import logo from "@/assets/images/logo2.png";
+import logo2 from "@/assets/images/logo_nobg.png";
 
 import Alert from "@/components/common/Alert";
 import ThemeToggle from "@/components/room/ThemeToggle";
@@ -12,8 +13,8 @@ interface HeaderProps {
   onLeave: () => void;
   selectedFileId: number | null;
   editorContent: string;
-  isLightMode: boolean;
-  onToggleTheme: () => void;
+  theme: "dark" | "light" | "light2";
+  onSetTheme: (theme: "dark" | "light" | "light2") => void;
 }
 
 const gitActions = [
@@ -28,9 +29,10 @@ export default function Header({
   onLeave,
   selectedFileId,
   editorContent,
-  isLightMode,
-  onToggleTheme,
+  theme,
+  onSetTheme,
 }: HeaderProps) {
+  const isLightMode = theme !== "dark";
   const [alertMsg, setAlertMsg] = useState<string | null>(null);
   const [showShare, setShowShare] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -124,14 +126,18 @@ export default function Header({
       {/* Logo */}
       <div className="flex items-center">
         <div className="room-header-logo">
-          <img src={logo} alt="CODIN'NATOR" className="h-full w-auto" />
+          <img
+            src={theme === "light2" ? logo2 : logo}
+            alt="CODIN'NATOR"
+            className="h-8 w-auto"
+          />
         </div>
       </div>
 
       {/* Right */}
       <div className="flex items-center gap-4">
         {/* Theme Toggle */}
-        <ThemeToggle isLight={isLightMode} onToggle={onToggleTheme} />
+        <ThemeToggle theme={theme} onSetTheme={onSetTheme} />
 
         {/* Share */}
         <div className="relative">

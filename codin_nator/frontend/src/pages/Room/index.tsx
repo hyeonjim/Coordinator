@@ -23,7 +23,7 @@ import { getSocketBaseUrl } from "@/utils/socketUtils";
 import axiosInstance from "@/api/axios";
 
 export default function RoomPage() {
-  const [isLightMode, setIsLightMode] = useState(false);
+  const [theme, setTheme] = useState<"dark" | "light" | "light2">("dark");
   const [isLeftSidebarCollapsed, setIsLeftSidebarCollapsed] = useState(false);
   const [currentEditorCode, setCurrentEditorCode] = useState<string>("");
   const { roomId } = useParams<{ roomId: string }>();
@@ -183,15 +183,17 @@ export default function RoomPage() {
   }, [webRTC, voiceChatWebSocket, currentRoomId, userId]);
 
   return (
-    <div className={`room-container${isLightMode ? " room-light" : ""}`}>
+    <div
+      className={`room-container${theme === "light" ? " room-light" : theme === "light2" ? " room-light2" : ""}`}
+    >
       <Header
         isJoined={isJoined}
         onJoin={handleJoin}
         onLeave={handleLeave}
         selectedFileId={selectedFile?.id ?? null}
         editorContent={currentEditorCode}
-        isLightMode={isLightMode}
-        onToggleTheme={() => setIsLightMode((v) => !v)}
+        theme={theme}
+        onSetTheme={setTheme}
       />
 
       <div className="room-main">
