@@ -19,11 +19,11 @@ import Codeeditoractions from "@/components/ai/Codeeditoractions";
 import AutoCompletePopup, {
   filterAutoComplete,
   getCurrentWord,
-} from "./AutoCompletePopup";
+} from "./components/AutoCompletePopup";
 import type { AutoCompleteItem } from "@/types/room/editor/javaAutoComplete";
 
 /* 커서 오버레이 */
-import RemoteCursorOverlay from "./RemoteCursorOverlay";
+import RemoteCursorOverlay from "./components/RemoteCursorOverlay";
 import { useCursorAwareness } from "../../../hooks/room/code-editor/useCursorAwareness";
 import { useAuthStore } from "@/stores/authStore";
 import axiosInstance from "@/api/axios";
@@ -40,10 +40,10 @@ export default function CodeEditor({
   onTestGenerated,
   onAppendTerminal,
 }: CodeEditorProps) {
-  /* 🔑 file 단위 room */
+  /* file 단위 room */
   const roomName = useMemo(() => `${roomId}/${fileId}`, [roomId, fileId]);
 
-  /* 🔑 fileId 기준 Y.Doc 분리 */
+  /* fileId 기준 Y.Doc 분리 */
   const yDocument = useMemo(() => new Y.Doc(), [fileId]);
 
   const provider = useMemo(() => {
@@ -68,10 +68,10 @@ export default function CodeEditor({
 
   const [currentCode, setCurrentCode] = useState("");
 
-  // 📏 폰트 크기 조정
+  // 폰트 크기 조정
   const [fontSize, setFontSize] = useState(16); // 기본 폰트 크기 16px
 
-  // 📏 줄번호 너비 (자릿수에 따라 동적 계산)
+  // 줄번호 너비 (자릿수에 따라 동적 계산)
   const lineNumberWidth = useMemo(() => {
     const digits = Math.max(String(currentCode.split("\n").length).length, 2);
     return digits * fontSize * 0.65 + 16;
