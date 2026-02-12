@@ -97,7 +97,7 @@ function ParticipantRow({
         {/* 말하는 중이면 아바타 테두리 강조 */}
         <div
           className={`
-            relative rounded-full p-[2px] transition-all duration-100 shrink-0 border-2
+            relative rounded-full p-0.5 transition-all duration-100 shrink-0 border-2
             ${
               isSpeaking
                 ? "border-[#76b976] speaking-glow"
