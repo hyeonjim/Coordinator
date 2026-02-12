@@ -1,35 +1,36 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { lazy, Suspense, useEffect } from "react";
 
-import LandingPage from "./pages/Landing";
-import RoomPage from "./pages/Room";
-import HomeLayout from "./pages/Home";
-import NotFound from "./pages/NotFound";
 import PublicRoute from "./components/routes/PublicRoute";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
-import { useEffect } from "react";
 import { bootstrapAuth } from "./auth/bootstrapAuth";
+
+const LandingPage = lazy(() => import("./pages/Landing"));
+const RoomPage = lazy(() => import("./pages/Room"));
+const HomeLayout = lazy(() => import("./pages/Home"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 export default function App() {
   useEffect(() => {
     bootstrapAuth();
   }, []);
+
   return (
     <BrowserRouter>
-      <Routes>
-        {/* 로그인한 유저는 Landing 못 오게 */}
-        <Route element={<PublicRoute />}>
-          <Route path="/" element={<LandingPage />} />
-        </Route>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Routes>
+          <Route element={<PublicRoute />}>
+            <Route path="/" element={<LandingPage />} />
+          </Route>
 
-        {/* 로그인 필요 라우트 */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/home" element={<HomeLayout />} />
-          <Route path="/room/:roomId" element={<RoomPage />} />
-        </Route>
+          <Route element={<ProtectedRoute />}>
+            <Route path="/home" element={<HomeLayout />} />
+            <Route path="/room/:roomId" element={<RoomPage />} />
+          </Route>
 
-        {/* 404 */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }
