@@ -2,20 +2,12 @@ import { useState } from "react";
 import type { MouseEvent } from "react";
 import { FaJava } from "react-icons/fa";
 import {
-  SiCss3,
-  SiHtml5,
-  SiJavascript,
-  SiJson,
-  SiReact,
-  SiTypescript,
-} from "react-icons/si";
-import {
   VscChevronDown,
   VscChevronRight,
   VscFile,
   VscFolder,
   VscFolderOpened,
-  VscCheck,  // 삭제 모드 체크 아이콘
+  VscCheck, // 삭제 모드 체크 아이콘
 } from "react-icons/vsc";
 import type {
   FileNode,
@@ -26,19 +18,7 @@ import type {
 // 별도의 유틸 파일로 분리하지 않고 직관적으로 찾을 수 있도록 여기에 배치했습니다.
 const getFileIcon = (filename: string) => {
   const lowerName = filename.toLowerCase();
-
   if (lowerName.endsWith(".java")) return <FaJava className="text-[#e76f00]" />;
-  if (lowerName.endsWith(".ts"))
-    return <SiTypescript className="text-[#3178c6]" />;
-  if (lowerName.endsWith(".tsx")) return <SiReact className="text-[#3178c6]" />;
-  if (lowerName.endsWith(".js"))
-    return <SiJavascript className="text-[#f7df1e]" />;
-  if (lowerName.endsWith(".jsx")) return <SiReact className="text-[#f7df1e]" />;
-  if (lowerName.endsWith(".html"))
-    return <SiHtml5 className="text-[#e34c26]" />;
-  if (lowerName.endsWith(".css")) return <SiCss3 className="text-[#264de4]" />;
-  if (lowerName.endsWith(".json")) return <SiJson className="text-[#cbcb41]" />;
-
   // 기본 파일 아이콘
   return <VscFile className="text-gray-400" />;
 };
@@ -53,7 +33,7 @@ export const FileTreeItem = ({
   fileLocations,
   // ===== 삭제 모드 관련 props =====
   isDeleteMode = false,
-  deleteTargetIds,  // 삭제 대상 Set (하위 노드에도 전달)
+  deleteTargetIds, // 삭제 대상 Set (하위 노드에도 전달)
   onToggleDeleteTarget,
 }: FileTreeItemPropsType) => {
   // 현재 노드가 삭제 대상인지 확인
@@ -180,7 +160,9 @@ export const FileTreeItem = ({
         </span>
 
         {/* 파일명 표시 (글자가 길면 툴팁으로 전체 이름 표시) */}
-        <span className="truncate leading-6 flex-1" title={node.name}>{node.name}</span>
+        <span className="truncate leading-6 flex-1" title={node.name}>
+          {node.name}
+        </span>
       </div>
 
       {/* 폴더가 열려있고 자식이 있다면 재귀적으로 렌더링합니다. */}
