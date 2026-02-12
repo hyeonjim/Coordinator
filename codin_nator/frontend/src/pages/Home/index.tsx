@@ -255,7 +255,7 @@ export default function HomeLayout() {
 
   return (
     <div className="min-h-screen overflow-y-auto bg-[#8e97a1]">
-      <div className="relative max-w-6xl mx-auto px-8 py-12 space-y-8">
+      <div className="relative max-w-5xl mx-auto px-8 py-12 space-y-8">
         {/* 프로필 섹션 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -356,23 +356,23 @@ export default function HomeLayout() {
           </div>
 
           {/* 통계 카드들 */}
-          <div className="grid grid-cols-3 gap-13 my-5 mx-25">
+          <div className="grid grid-cols-3 gap-12 my-7 mx-20">
             <motion.div
               key={`total-${selectedRoomId}-${stats.totalErrors}`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }}
-              className="p-6 rounded-xl shadow-sm transition-all duration-300 h-32 bg-[#e8ecf0] border border-[#b4b9be]"
+              className="p-5 rounded-xl shadow-sm transition-all duration-300 min-w-0 bg-[#e8ecf0] border border-[#b4b9be]"
             >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-lg bg-[#b66a6a]">
-                  <Bug className="w-4 h-4 text-white" />
+              <div className="flex items-center gap-2 mb-3 min-w-0">
+                <div className="p-1.5 rounded-lg shrink-0 bg-[#b66a6a]">
+                  <Bug className="w-3.5 h-3.5 text-white" />
                 </div>
-                <span className="text-xs font-medium uppercase tracking-wider text-[#586069]">
+                <span className="text-[10px] font-medium uppercase tracking-wider truncate text-[#586069]">
                   Total Errors
                 </span>
               </div>
-              <p className="text-3xl font-semibold tracking-tight text-[#24292E]">
+              <p className="text-2xl font-semibold tracking-tight text-[#24292E]">
                 {stats.totalErrors}
               </p>
             </motion.div>
@@ -382,17 +382,17 @@ export default function HomeLayout() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
-              className="p-6 rounded-xl shadow-sm transition-all duration-300 bg-[#e8ecf0] border border-[#b4b9be]"
+              className="p-5 rounded-xl shadow-sm transition-all duration-300 min-w-0 bg-[#e8ecf0] border border-[#b4b9be]"
             >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-lg bg-[#67707a]">
-                  <Calendar className="w-4 h-4 text-white" />
+              <div className="flex items-center gap-2 mb-3 min-w-0">
+                <div className="p-1.5 rounded-lg shrink-0 bg-[#67707a]">
+                  <Calendar className="w-3.5 h-3.5 text-white" />
                 </div>
-                <span className="text-xs font-medium uppercase tracking-wider text-[#586069]">
+                <span className="text-[10px] font-medium uppercase tracking-wider truncate text-[#586069]">
                   Active Days
                 </span>
               </div>
-              <p className="text-3xl font-semibold tracking-tight text-[#24292E]">
+              <p className="text-2xl font-semibold tracking-tight text-[#24292E]">
                 {stats.daysWithErrors}
               </p>
             </motion.div>
@@ -402,17 +402,17 @@ export default function HomeLayout() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.6, ease: "easeOut" }}
-              className="p-6 rounded-xl shadow-sm transition-all duration-300 bg-[#e8ecf0] border border-[#b4b9be]"
+              className="p-5 rounded-xl shadow-sm transition-all duration-300 min-w-0 bg-[#e8ecf0] border border-[#b4b9be]"
             >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-lg bg-[#548364]">
-                  <TrendingUp className="w-4 h-4 text-white" />
+              <div className="flex items-center gap-2 mb-3 min-w-0">
+                <div className="p-1.5 rounded-lg shrink-0 bg-[#548364]">
+                  <TrendingUp className="w-3.5 h-3.5 text-white" />
                 </div>
-                <span className="text-xs font-medium uppercase tracking-wider text-[#586069]">
+                <span className="text-[10px] font-medium uppercase tracking-wider truncate text-[#586069]">
                   Daily Average
                 </span>
               </div>
-              <p className="text-3xl font-semibold tracking-tight text-[#24292E]">
+              <p className="text-2xl font-semibold tracking-tight text-[#24292E]">
                 {stats.avgErrorsPerDay}
               </p>
             </motion.div>
