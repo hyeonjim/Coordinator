@@ -200,24 +200,16 @@ export default function Codeeditoractions({
     }
   };
 
-  // ✅ 버튼 공통 Tailwind 스타일 (통일)
-  const actionBtnBase =
-    "flex items-center gap-2 px-3 py-1.5 text-[12px] font-semibold rounded-full h-5" +
-    "border border-[#2F363F] transition " +
-    "active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-white/10";
-
-  const actionBtnEnabled =
-    "bg-[#424957] text-[#DCD8D8] hover:bg-[#7F838D] hover:text-[#0A080D]";
-
-  const actionBtnDisabled = "bg-[#282f38] text-[#bac4d1] cursor-not-allowed";
+  // ✅ CSS 클래스 기반 스타일 (라이트모드 지원)
+  const actionBtnBase = "ai-action-btn";
+  const actionBtnEnabled = "ai-action-btn-enabled";
+  const actionBtnDisabled = "ai-action-btn-disabled";
 
   return (
-    <div className="code-editor-header flex items-center gap-2 px-6 py-1 bg-[#1f2327] border-b border-[#2F363F] shrink-0">
+    <div className="code-editor-header flex items-center gap-2 px-6 py-1 shrink-0">
       {/* 파일명 표시 */}
       <div className="flex items-center gap-2 flex-1">
-        <span className="text-[14px] text-[#DCD8D8]">
-          {fileName || "파일을 선택하세요"}
-        </span>
+        <span className="text-[14px]">{fileName || "파일을 선택하세요"}</span>
         {error && (
           <span className="text-[11px] text-[#d87a7a] ml-2">⚠️ {error}</span>
         )}
@@ -226,21 +218,19 @@ export default function Codeeditoractions({
       {/* AI 액션 버튼들 */}
       <div className="flex items-center gap-3">
         {/* 📏 폰트 크기 조정 버튼 */}
-        <div className="flex items-center gap-1 px-2 py-1 bg-[#282f38] rounded border border-[#2F363F]">
-          <span className="text-[12px] text-[#858585] min-w-6 text-right">
-            {fontSize}px
-          </span>
+        <div className="font-size-control">
+          <span className="text-[12px] min-w-6 text-right">{fontSize}px</span>
           <button
             onClick={onDecreaseFontSize}
             disabled={fontSize <= minFontSize || !onDecreaseFontSize}
-            className="px-1.5 py-0.5 text-[11px] font-bold text-[#DCD8D8] hover:bg-[#3e454d] disabled:opacity-30 disabled:cursor-not-allowed rounded transition-colors"
+            className="text-[11px] font-bold"
             title="폰트 크기 축소 (Ctrl + -)"
           >
             −
           </button>
           <button
             onClick={onResetFontSize}
-            className="px-1.5 py-0.5 text-[10px] text-[#DCD8D8] hover:bg-[#3e454d] rounded transition-colors"
+            className="text-[10px]"
             title="기본 크기로 재설정"
           >
             R
@@ -248,7 +238,7 @@ export default function Codeeditoractions({
           <button
             onClick={onIncreaseFontSize}
             disabled={fontSize >= maxFontSize || !onIncreaseFontSize}
-            className="px-1.5 py-0.5 text-[11px] font-bold text-[#DCD8D8] hover:bg-[#3e454d] disabled:opacity-30 disabled:cursor-not-allowed rounded transition-colors"
+            className="text-[11px] font-bold"
             title="폰트 크기 확대 (Ctrl + +)"
           >
             +

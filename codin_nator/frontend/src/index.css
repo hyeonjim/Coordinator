@@ -171,6 +171,59 @@
 .room-content .code-editor-container .code-editor-header {
   background-color: #2b323f;
   border-bottom: 1px solid #484d52;
+  color: rgb(219, 219, 220);
+}
+
+/* ============================================
+   AI 액션 버튼 스타일 (코드 에디터 헤더)
+   ============================================ */
+.ai-action-btn {
+  @apply flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold rounded-full;
+  border: 1px solid #2f363f;
+  transition: all 0.15s ease;
+}
+.ai-action-btn:active {
+  transform: scale(0.98);
+}
+.ai-action-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.ai-action-btn-enabled {
+  background-color: #424957;
+  color: #dcd8d8;
+}
+.ai-action-btn-enabled:hover {
+  background-color: #7f838d;
+  color: #0a080d;
+}
+
+.ai-action-btn-disabled {
+  background-color: #38404a;
+  color: #bac4d1;
+  cursor: not-allowed;
+}
+
+/* 폰트 사이즈 컨트롤 */
+.font-size-control {
+  @apply flex items-center gap-1 px-2 py-1 rounded;
+  background-color: #282f38;
+  border: 1px solid #2f363f;
+}
+.font-size-control span {
+  color: #858585;
+}
+.font-size-control button {
+  @apply px-1.5 py-0.5 rounded transition-colors;
+  color: #dcd8d8;
+}
+.font-size-control button:hover:not(:disabled) {
+  background-color: #3e454d;
+}
+.font-size-control button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
 /* VSCode 스타일 스크롤바 (코드 에디터용) */
@@ -266,7 +319,7 @@
    Room 헤더 스타일
    ============================================ */
 .room-header {
-  @apply h-10 flex items-center justify-between p-5 shrink-0;
+  @apply h-10 flex items-center justify-between p-3 shrink-0;
   background-color: #252f35;
 }
 
@@ -639,7 +692,7 @@
 }
 
 .text-chat-toggle {
-  @apply absolute -left-6 top-1/2 -translate-y-1/2 px-1 py-2 rounded text-sm z-20;
+  @apply absolute -left-6 top-1/2 -translate-y-1/2 px-1 py-1.5 rounded text-sm z-20;
   background-color: #424a55;
   color: #dcd8d8;
   transition: all 0.15s ease;
@@ -651,7 +704,7 @@
 
 .left-sidebar-toggle {
   @apply absolute px-1 rounded text-[10px] z-20;
-  right: -18px;
+  right: -19px;
   top: 3px;
   height: 27px; /* file-viewer-header h-8 */
   display: flex;
@@ -835,7 +888,7 @@
   background-color: #e6d8e1;
 }
 .room-container.room-light .room-header {
-  background-color: #9cabcc;
+  background-color: #b7c6e5;
   border-bottom: 1px solid #85a1c7;
 }
 .room-container.room-light .room-sidebar-left {
@@ -869,13 +922,14 @@
 
 /* 코드에디터 */
 .room-container.room-light .room-content .code-editor-container {
-  background-color: #e4e7e9;
+  background-color: #ffffff;
+  border-left: 1px solid #d4dbeb;
 }
 .room-container.room-light
   .room-content
   .code-editor-container
   .code-editor-header {
-  background-color: #b2bcd8;
+  background-color: #bbc4dd;
   border-bottom: 1px solid #a5b8d0;
 }
 
@@ -913,13 +967,44 @@
   color: #1e2a3a;
 }
 
+/* AI 액션 버튼 */
+.room-container.room-light .ai-action-btn {
+  border-color: #a5b8d0;
+}
+.room-container.room-light .ai-action-btn-enabled {
+  background-color: #9aabd2;
+  color: #ffffff;
+}
+.room-container.room-light .ai-action-btn-enabled:hover {
+  background-color: #527099;
+  color: #ffffff;
+}
+.room-container.room-light .ai-action-btn-disabled {
+  background-color: #c5cfe0;
+  color: #7a8ba8;
+}
+.room-container.room-light .font-size-control {
+  background-color: #c5cfe0;
+  border-color: #a5b8d0;
+}
+.room-container.room-light .font-size-control span {
+  color: #527099;
+}
+.room-container.room-light .font-size-control button {
+  color: #3a4663;
+}
+.room-container.room-light .font-size-control button:hover:not(:disabled) {
+  background-color: #9aabd2;
+  color: #ffffff;
+}
+
 /* 파일뷰어 — 블루 계열 (채팅/음성과 다름) */
 .room-container.room-light .file-viewer-container {
   background-color: #bbc5db;
   color: #ffffff;
 }
 .room-container.room-light .file-viewer-header {
-  background-color: #8aa1c2;
+  background-color: #95abca;
   border-bottom-color: #8c99b6;
 }
 .room-container.room-light .file-viewer-header:hover {
@@ -935,7 +1020,7 @@
   color: #ffffff;
 }
 .room-container.room-light .file-tree-item {
-  color: #75737b;
+  color: #57565b;
 }
 .room-container.room-light .file-tree-item:hover {
   background-color: #cbafcf;
@@ -962,12 +1047,12 @@
   color: #e6d8e1;
 }
 .room-container.room-light .voice-chat-header {
-  background-color: #d9d0f0;
+  background-color: #ddcee7;
   border-top-color: #909bb6;
   color: #ffffff;
 }
 .room-container.room-light .voice-chat-participants {
-  background-color: #f1ebf0;
+  background-color: #f1f0f1;
 }
 .room-container.room-light .participant-row:hover {
   background-color: #d6dce8;
@@ -988,12 +1073,13 @@
   background-color: #f1ebf0;
 }
 
-/* 텍스트 채팅 — 퍼플 계열 (음성채팅과 동일 배경 #B492BA) */
+/* 텍스트 채팅 — 퍼플 계열 */
 .room-container.room-light .text-chat-panel {
-  background-color: #b9aadf;
+  background-color: #c5b9e3;
+  border-left: 1px solid #d4dbeb;
 }
 .room-container.room-light .text-chat-messages {
-  background-color: #f1ebf0;
+  background-color: #f1f0f1;
 }
 .room-container.room-light .message-text-mine {
   background-color: #9aabd2;
@@ -1007,18 +1093,18 @@
   color: #527099;
 }
 .room-container.room-light .text-chat-input-form {
-  background-color: #d9cff1;
-  border-top: 1px solid #c6ccda;
+  background-color: #dbd6ea;
+  border-top: 1px solid #d4dbeb;
 }
 .room-container.room-light .text-chat-input {
-  background-color: #eee6eb;
-  color: #2e2a2a;
+  background-color: #fafafb;
+  color: #524e53;
 }
 .room-container.room-light .text-chat-input::placeholder {
   color: #9aabd2;
 }
 .room-container.room-light .text-chat-input:disabled {
-  background-color: #b492ba;
+  background-color: #d0b4e3;
 }
 .room-container.room-light .text-chat-send-btn {
   background-color: #9aabd2;
@@ -1088,4 +1174,301 @@
 }
 .room-container.room-light .terminal-content {
   background-color: #e6d8e1;
+}
+
+/* ============================================
+   Room 라이트 모드 2 (흰색 + 밝은 그레이)
+   #ffffff #f5f5f5 #eeeeee #e0e0e0 #9e9e9e #616161
+   ============================================ */
+.room-container.room-light2 {
+  background-color: #f5f5f5;
+}
+.room-container.room-light2 .room-header {
+  background-color: #eeeeee;
+  border-bottom: 1px solid #e0e0e0;
+}
+.room-container.room-light2 .room-sidebar-left {
+  background-color: #fafafa;
+}
+.room-container.room-light2 .room-content {
+  background-color: #f0f0f0;
+}
+.room-container.room-light2 .room-dropdown {
+  background-color: #ffffff;
+  border-color: #bdbdbd;
+  color: #212121;
+}
+.room-container.room-light2 .room-dropdown-input {
+  background-color: #f5f5f5;
+  color: #212121;
+  border-color: #bdbdbd;
+}
+.room-container.room-light2 .room-dropdown-input:focus {
+  border-color: #757575;
+  box-shadow: 0 0 0 2px rgba(117, 117, 117, 0.2);
+}
+.room-container.room-light2 .room-theme-toggle-btn {
+  background-color: #e0e0e0;
+  color: #424242;
+  border-color: #bdbdbd;
+}
+.room-container.room-light2 .room-theme-toggle-btn:hover {
+  background-color: #bdbdbd;
+}
+
+/* 코드에디터 */
+.room-container.room-light2 .room-content .code-editor-container {
+  background-color: #fefdff;
+  border-left: 1px solid #e0e0e0;
+}
+.room-container.room-light2
+  .room-content
+  .code-editor-container
+  .code-editor-header {
+  background-color: #ededef;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* 줄 번호 */
+.room-container.room-light2 .code-line-numbers {
+  color: #9e9e9e !important;
+}
+
+/* 코드에디터 헤더 내부 텍스트/버튼 */
+.room-container.room-light2
+  .room-content
+  .code-editor-container
+  .code-editor-header
+  span {
+  color: #424242;
+  border-left: 1px solid #e0e0e0;
+}
+.room-container.room-light2
+  .room-content
+  .code-editor-container
+  .code-editor-header
+  button {
+  color: #616161;
+}
+.room-container.room-light2
+  .room-content
+  .code-editor-container
+  .code-editor-header
+  button:hover:not(:disabled) {
+  background-color: #bdbdbd;
+  color: #212121;
+}
+
+/* 에디터 본문 텍스트 */
+.room-container.room-light2 .room-content .code-editor-container .flex-1 {
+  color: #4d4d4e;
+}
+
+/* AI 액션 버튼 */
+.room-container.room-light2 .ai-action-btn {
+  border-color: #bdbdbd;
+}
+.room-container.room-light2 .ai-action-btn-enabled {
+  background-color: #e0e0e0;
+  color: #424242;
+}
+.room-container.room-light2 .ai-action-btn-enabled:hover {
+  background-color: #9e9e9e;
+  color: #ffffff;
+}
+.room-container.room-light2 .ai-action-btn-disabled {
+  background-color: #f5f5f5;
+  color: #bdbdbd;
+}
+.room-container.room-light2 .font-size-control {
+  background-color: #f5f5f5;
+  border-color: #e0e0e0;
+}
+.room-container.room-light2 .font-size-control span {
+  color: #757575;
+}
+.room-container.room-light2 .font-size-control button {
+  color: #424242;
+}
+.room-container.room-light2 .font-size-control button:hover:not(:disabled) {
+  background-color: #e0e0e0;
+}
+
+/* 파일뷰어 */
+.room-container.room-light2 .file-viewer-container {
+  background-color: #ffffff;
+  color: #424242;
+}
+.room-container.room-light2 .file-viewer-header {
+  background-color: #eeeeee;
+  border-bottom-color: #e0e0e0;
+}
+.room-container.room-light2 .file-viewer-header:hover {
+  background-color: #e0e0e0;
+}
+.room-container.room-light2 .file-viewer-title {
+  color: #424242;
+}
+.room-container.room-light2 .file-viewer-actions {
+  color: #757575;
+}
+.room-container.room-light2 .file-viewer-actions svg:hover {
+  color: #212121;
+}
+.room-container.room-light2 .file-tree-item {
+  color: #424242;
+}
+.room-container.room-light2 .file-tree-item:hover {
+  background-color: #f0f0f0;
+  color: #212121;
+}
+.room-container.room-light2 .file-tree-item-selected {
+  background-color: #9e9e9e !important;
+  color: #ffffff !important;
+}
+.room-container.room-light2 .file-viewer-statusbar {
+  background-color: #eeeeee;
+  color: #757575;
+}
+.room-container.room-light2 .file-viewer-empty {
+  color: #9e9e9e;
+}
+.room-container.room-light2 .delete-mode-banner {
+  background-color: #ffcdd2;
+  color: #b71c1c;
+}
+
+/* 음성채팅 */
+.room-container.room-light2 .voice-chat-container {
+  color: #424242;
+}
+.room-container.room-light2 .voice-chat-header {
+  background-color: #eeeeee;
+  border-top-color: #e0e0e0;
+  color: #424242;
+}
+.room-container.room-light2 .voice-chat-participants {
+  background-color: #fafafa;
+}
+.room-container.room-light2 .participant-row:hover {
+  background-color: #f0f0f0;
+  border-radius: 15px;
+}
+.room-container.room-light2 .participant-avatar {
+  background-color: #e0e0e0;
+  color: #424242;
+}
+.room-container.room-light2 .participant-name {
+  color: #424242;
+}
+.room-container.room-light2 .voice-chat-empty {
+  color: #9e9e9e;
+}
+
+.room-container.room-light2 .mic-icon-off {
+  background-color: #fafafa;
+}
+
+/* 텍스트 채팅 */
+.room-container.room-light2 .text-chat-panel {
+  background-color: #ffffff;
+  border-left: 1px solid #e0e0e0;
+}
+.room-container.room-light2 .text-chat-messages {
+  background-color: #fafafa;
+}
+.room-container.room-light2 .message-text-mine {
+  background-color: #e0e0e0;
+  color: #212121;
+}
+.room-container.room-light2 .message-text-other {
+  background-color: #eeeeee;
+  color: #212121;
+}
+.room-container.room-light2 .message-meta {
+  color: #9e9e9e;
+}
+.room-container.room-light2 .text-chat-input-form {
+  background-color: #f5f5f5;
+  border-top: 1px solid #e0e0e0;
+}
+.room-container.room-light2 .text-chat-input {
+  background-color: #ffffff;
+  color: #212121;
+  border: 1px solid #e0e0e0;
+}
+.room-container.room-light2 .text-chat-input::placeholder {
+  color: #bdbdbd;
+}
+.room-container.room-light2 .text-chat-input:disabled {
+  background-color: #f5f5f5;
+}
+.room-container.room-light2 .text-chat-send-btn {
+  background-color: #9e9e9e;
+  color: #ffffff;
+}
+.room-container.room-light2 .text-chat-send-btn:hover {
+  background-color: #757575;
+}
+.room-container.room-light2 .text-chat-send-btn:disabled {
+  background-color: #e0e0e0;
+  color: #bdbdbd;
+}
+.room-container.room-light2 .text-chat-toggle {
+  background-color: #eaeaed;
+  color: #424242;
+}
+.room-container.room-light2 .text-chat-toggle:hover {
+  background-color: #bdbdbd;
+}
+.room-container.room-light2 .left-sidebar-toggle {
+  background-color: #dddde0;
+  color: #424242;
+}
+.room-container.room-light2 .left-sidebar-toggle:hover {
+  background-color: #bdbdbd;
+}
+.room-container.room-light2 .text-chat-empty {
+  color: #9e9e9e;
+}
+.room-container.room-light2 .message-system-text,
+.room-container.room-light2 .message-system-time {
+  color: #9e9e9e;
+}
+
+/* 터미널 */
+.room-container.room-light2 .terminal-container {
+  background-color: #f5f5f5;
+  border-top-color: #e0e0e0;
+  color: #212121;
+}
+.room-container.room-light2 .terminal-toggle-btn,
+.room-container.room-light2 .run-java-btn {
+  background-color: #eeeeee;
+  color: #424242;
+  border-color: #bdbdbd;
+}
+.room-container.room-light2 .terminal-toggle-btn:hover,
+.room-container.room-light2 .run-java-btn:hover {
+  background-color: #bdbdbd;
+}
+.room-container.room-light2 .run-java-btn-active {
+  background-color: #c8e6c9;
+  border-color: #81c784;
+  color: #1b5e20;
+}
+.room-container.room-light2 .run-java-btn-active:hover {
+  background-color: #a5d6a7;
+}
+.room-container.room-light2 .terminal-resize-handle {
+  background-color: #e0e0e0;
+}
+.room-container.room-light2 .terminal-resize-handle:hover {
+  background-color: #bdbdbd;
+}
+.room-container.room-light2 .terminal-resize-icon {
+  color: #616161;
+}
+.room-container.room-light2 .terminal-content {
+  background-color: #f5f5f5;
 }
