@@ -28,16 +28,7 @@ import RemoteCursorOverlay from "./RemoteCursorOverlay";
 import { useCursorAwareness } from "./useCursorAwareness";
 import { useAuthStore } from "@/stores/authStore";
 import axiosInstance from "@/api/axios";
-
-interface CodeEditorProps {
-  roomId: number;
-  fileId: number;
-  fileName?: string;
-  fileContent?: string;
-  onChange?: (code: string) => void;
-  onTestGenerated?: (testCode: string) => void;
-  onAppendTerminal?: (title: string, text: string) => void;
-}
+import type { CodeEditorProps } from "@/types/editor/types";
 
 const WS_BASE_URL =
   import.meta.env.VITE_CODE_WS_URL ?? "wss://i14e205.p.ssafy.io/ws/code";
