@@ -110,10 +110,9 @@ export function TextChat({
 
     try {
       onSendMessage(text);
-      setInputText(""); // 전송 성공 시에만 입력창 초기화
-    } catch (error) {
-      console.error("메시지 전송 실패:", error);
-      // 입력창은 유지하여 재시도 가능하도록 함
+      setInputText("");
+    } catch {
+      // 전송 실패 시 입력창 유지하여 재시도 가능
     }
   };
 

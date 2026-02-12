@@ -1,6 +1,10 @@
 /**
  * useWebRTC 훅의 반환 타입
  * WebRTC P2P 음성 통신 관련 모든 기능 정의
+ *
+ * RTCSessionDescriptionInit, RTCIceCandidateInit은 Web API 타입입니다.
+ * voicechat/types.ts의 SessionDescriptionPayload, IceCandidatePayload는
+ * 구조적으로 호환되므로 직접 전달할 수 있습니다.
  */
 export interface UseWebRTCReturn {
   /** 로컬 미디어 스트림 (내 마이크 입력) */
@@ -15,21 +19,17 @@ export interface UseWebRTCReturn {
   /** WebRTC Offer 수신 및 Answer 생성 */
   handleOffer: (
     peerId: string,
-    sdp: RTCSessionDescriptionInit,
+    sessionDescription: RTCSessionDescriptionInit,
   ) => Promise<RTCSessionDescriptionInit | null>;
   /** WebRTC Answer 수신 */
   handleAnswer: (
     peerId: string,
-    sdp: RTCSessionDescriptionInit,
+    sessionDescription: RTCSessionDescriptionInit,
   ) => Promise<void>;
   /** ICE Candidate 수신 */
-  handleIce: (peerId: string, candidate: RTCIceCandidateInit) => Promise<void>;
-  /** 피어 연결 제거 */
+  handleIce: (peerId: string, iceCandidate: RTCIceCandidateInit) => Promise<void>;
   removePeer: (peerId: string) => void;
-  /** 피어 음성 상태 조회 */
   getPeerSpeaking: (peerId: string) => boolean;
-  /** 테스트용 오디오 시뮬레이션 */
-  simulateIncomingAudio: (peerId: string) => void;
   /** 특정 피어 음소거 토글 */
   togglePeerMute: (peerId: string) => void;
   /** 피어 음소거 상태 확인 */

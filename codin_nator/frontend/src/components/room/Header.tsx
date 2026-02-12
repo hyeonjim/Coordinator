@@ -1,27 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import logo from "@/assets/images/logo2.png";
 import logo2 from "@/assets/images/logo_nobg.png";
 
 import Alert from "@/components/common/Alert";
-import ThemeToggle from "@/components/room/ThemeToggle";
 import axiosInstance from "@/api/axios";
+import type { Theme, GitAction, HeaderProps } from "@/types/room/types";
 
-interface HeaderProps {
-  isJoined: boolean;
-  onJoin: () => void;
-  onLeave: () => void;
-  selectedFileId: number | null;
-  editorContent: string;
-  theme: "dark" | "light" | "light2";
-  onSetTheme: (theme: "dark" | "light" | "light2") => void;
-}
+const THEME_META: Record<Theme, { icon: string; label: string; next: Theme }> = {
+  dark: { icon: "🌸", label: "라이트1로 전환", next: "light" },
+  light: { icon: "☀️", label: "라이트2로 전환", next: "light2" },
+  light2: { icon: "🌙", label: "다크로 전환", next: "dark" },
+};
 
-const gitActions = [
+const GIT_ACTIONS: GitAction[] = [
   { id: "add", label: "Add" },
   { id: "commit", label: "Commit" },
   { id: "push", label: "Push" },
 ];
+
+function ThemeToggle({ theme, onSetTheme }: { theme: Theme; onSetTheme: (theme: Theme) => void }) {
+  const { icon, label, next } = THEME_META[theme];
+
+  return (
+    <button
+      onClick={() => onSetTheme(next)}
+      title={label}
+      className="room-theme-toggle-btn"
+    >
+      {icon}
+    </button>
+  );
+}
 
 export default function Header({
   isJoined,
@@ -29,11 +39,18 @@ export default function Header({
   onLeave,
   selectedFileId,
   editorContent,
-  theme,
-  onSetTheme,
 }: HeaderProps) {
+  const [theme, setTheme] = useState<Theme>("dark");
   const isLightMode = theme !== "dark";
   const [alertMsg, setAlertMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    const container = document.querySelector(".room-container");
+    if (!container) return;
+    container.classList.remove("room-light", "room-light2");
+    if (theme === "light") container.classList.add("room-light");
+    if (theme === "light2") container.classList.add("room-light2");
+  }, [theme]);
   const [showShare, setShowShare] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -123,7 +140,6 @@ export default function Header({
 
   return (
     <header className="room-header relative">
-      {/* Logo */}
       <div className="flex items-center">
         <div className="room-header-logo">
           <img
@@ -134,12 +150,10 @@ export default function Header({
         </div>
       </div>
 
-      {/* Right */}
       <div className="flex items-center gap-4">
         {/* Theme Toggle */}
-        <ThemeToggle theme={theme} onSetTheme={onSetTheme} />
+        <ThemeToggle theme={theme} onSetTheme={setTheme} />
 
-        {/* Share */}
         <div className="relative">
           <button
             onClick={() => {
@@ -173,7 +187,7 @@ export default function Header({
 
         {/* Git Buttons */}
         <div className="flex gap-2 relative">
-          {gitActions.map(({ id, label }) => (
+          {GIT_ACTIONS.map(({ id, label }) => (
             <div key={id} className="relative">
               <button onClick={() => handleGitAction(id)} className={btnGray}>
                 {label}
@@ -199,7 +213,6 @@ export default function Header({
           ))}
         </div>
 
-        {/* Room Actions */}
         {isJoined ? (
           <button onClick={onLeave} className={btnLeave}>
             방 나가기

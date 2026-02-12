@@ -12,7 +12,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * 전역 유틸リティ: 파일 및 폴더 처리를 위한 타입
+ * 전역 유틸: 파일 및 폴더 처리를 위한 타입
  */
 export interface FileNode {
   name: string; // 파일 이름

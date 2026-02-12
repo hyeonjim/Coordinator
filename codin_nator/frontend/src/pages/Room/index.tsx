@@ -8,48 +8,35 @@ import FileViewer from "@/components/room/file-viewer";
 import { VoiceChat } from "@/components/room/chat/VoiceChat";
 import { TextChat } from "@/components/room/chat/TextChat";
 
-// 커스텀 훅
-import { useTextChatWebSocket } from "../../hooks/room/useTextChatWebSocket";
-import { useVoiceChatWebSocket } from "../../hooks/room/useVoiceChatWebSocket";
-import { useWebRTC } from "../../hooks/room/useWebRTC";
 import { useRoomSetup } from "../../hooks/room/useRoomSetup";
-import { useParticipantManagement } from "../../hooks/room/useParticipantManagement";
 import { useRoomActions } from "../../hooks/room/useRoomActions";
-import { useTextChatMessageHandler } from "../../hooks/room/useTextChatMessageHandler";
-import { useVoiceChatMessageHandler } from "../../hooks/room/useVoiceChatMessageHandler";
+import { useRoomChat } from "../../hooks/room/useRoomChat";
+import { useRoomVoice } from "../../hooks/room/useRoomVoice";
 
-// 연결 테스트용
-import { getSocketBaseUrl } from "@/utils/socketUtils";
 import axiosInstance from "@/api/axios";
 
 export default function RoomPage() {
-  const [theme, setTheme] = useState<"dark" | "light" | "light2">("dark");
-  const [isLeftSidebarCollapsed, setIsLeftSidebarCollapsed] = useState(false);
+  const [isLeftSidebarCollapsed] = useState(false);
   const [currentEditorCode, setCurrentEditorCode] = useState<string>("");
   const { roomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
 
-  // ✅ 선택된 파일 상태 (content 포함)
+  // 선택된 파일 상태
   const [selectedFile, setSelectedFile] = useState<{
     id: number;
     name: string;
     content: string;
   } | null>(null);
 
-  // (기존 유지) 테스트 코드 상태 (나중에 저장/AI분석 등에 쓸 수 있음)
+  // 테스트 코드 상태
   const [, setGeneratedTestCode] = useState<string | null>(null);
 
-  // ✅ 누적 저장용(원하는 형태 그대로 유지)
+  // 터미널 출력 상태
   const [, setTerminalText] = useState<string>("");
-
-  // ✅ xterm에 "이번에 추가할 chunk
-  // "만 내려주기 위한 상태
   const [terminalChunk, setTerminalChunk] = useState<string>("");
 
   /**
-   * ✅ 터미널에 섹션별로 누적 출력
-   * - terminalText: 전체 누적(저장/분석용)
-   * - terminalChunk: 이번에 추가된 block만 (xterm 중복 출력 방지)
+   * 터미널에 섹션별로 누적 출력
    */
   const appendTerminal = useCallback((title: string, text: string) => {
     const block = `===== ${title} =====\n${text}\n`;
@@ -59,139 +46,73 @@ export default function RoomPage() {
       return base ? `${base}\n\n${block}` : block;
     });
 
-    // ✅ xterm에는 새로 추가된 block만 흘려보냄
     setTerminalChunk(block);
   }, []);
 
-  // 방 초기 설정 및 상태 관리 (✅ master 유지)
+  // 방 초기 설정 및 상태 관리
+  const roomSetup = useRoomSetup(roomId);
   const {
     userId,
     userName,
     userImageUrl,
     currentRoomId,
     isJoined,
-    setIsJoined,
     participants,
-    setParticipants,
     chatMessages,
-    setChatMessages,
     isSidebarCollapsed,
     setIsSidebarCollapsed,
-  } = useRoomSetup(roomId);
+    setChatMessages,
+    setParticipants,
+  } = roomSetup;
 
   /**
-   * ✅ 방 참가자(Participant) DB 등록
-   * - 같은 방에서 생성된 AI 리포트를 "참가자"가 마이페이지에서 볼 수 있게 하려면
-   *   내가 이 방에 참여했다는 기록이 필요함.
-   * - isJoined=true가 된 순간 1회(멱등) 호출
+   * 방 참가자 DB 등록
+   * isJoined=true가 된 순간 1회 호출
    */
   useEffect(() => {
-    if (!isJoined) return;
-    if (!currentRoomId) return;
+    if (!isJoined || !currentRoomId) return;
 
-    axiosInstance
-      .post(`/v1/room/${currentRoomId}/participants/me`)
-      .catch((e) => {
-        console.error("[RoomPage] participant join failed", e);
-      });
+    axiosInstance.post(`/v1/room/${currentRoomId}/participants/me`).catch(() => {
+      // 참가자 등록 실패 시 무시
+    });
   }, [isJoined, currentRoomId]);
 
-  // WebSocket 연결 (✅ master 유지: STOMP 2개)
-  const textChatWebSocket = useTextChatWebSocket(
-    `${getSocketBaseUrl()}/ws-chat`,
-  );
-  const voiceChatWebSocket = useVoiceChatWebSocket(
-    `${getSocketBaseUrl()}/ws-voice`,
-  );
-
-  // WebRTC 연결 (✅ master 유지)
-  const handleIceCandidate = useCallback(
-    (peerId: string, candidate: RTCIceCandidate) => {
-      voiceChatWebSocket.sendMessage({
-        type: "ICE",
-        roomId: currentRoomId,
-        senderId: userId,
-        receiverId: peerId,
-        data: candidate,
-      });
-    },
-    [voiceChatWebSocket, currentRoomId, userId],
-  );
-
-  const webRTC = useWebRTC(handleIceCandidate);
-
-  // 참여자 관리 및 동기화 (✅ master 유지)
-  const { addParticipant, removeParticipant, updateParticipantMicStatus } =
-    useParticipantManagement({
-      setParticipants,
-      userId,
-      userName,
-      userImageUrl,
-      webRTC,
-      isJoined,
-    });
-
-  // 텍스트 채팅 메시지 수신 처리 (✅ master 유지)
-  useTextChatMessageHandler({
-    textChatWebSocket,
+  // 텍스트 채팅 통합 훅
+  const roomChat = useRoomChat({
     currentRoomId,
     userName,
     isJoined,
     setChatMessages,
   });
 
-  // VoiceChat 메시지 처리 (✅ master 유지)
-  useVoiceChatMessageHandler({
-    voiceChatWebSocket,
-    webRTC,
+  // 음성 채팅 통합 훅
+  const roomVoice = useRoomVoice({
     currentRoomId,
     userId,
     userName,
+    userImageUrl,
     isJoined,
-    addParticipant,
-    removeParticipant,
-    updateParticipantMicStatus,
-    userImageUrl,
-  });
-
-  // 방 액션 (✅ master 유지)
-  const { handleJoin, handleLeave, handleSendChat } = useRoomActions({
-    currentRoomId,
-    userId,
-    userName,
-    userImageUrl,
-    webRTC,
-    textChatWebSocket,
-    voiceChatWebSocket,
-    setIsJoined,
     setParticipants,
-    setChatMessages,
+  });
+  const { isWebSocketConnected, handleToggleMic, togglePeerMute, isPeerMuted } =
+    roomVoice;
+
+  // 방 액션 (입장/퇴장/채팅 전송)
+  const { handleJoin, handleLeave, handleSendChat } = useRoomActions({
+    roomSetup,
+    roomChat,
+    roomVoice,
     navigate,
   });
 
-  // 마이크 토글
-  const handleToggleMic = useCallback(async () => {
-    await webRTC.toggleMic();
-    voiceChatWebSocket.sendMessage({
-      type: "MIC",
-      roomId: currentRoomId,
-      senderId: userId,
-      data: { microphoneOn: !webRTC.isMicOn },
-    });
-  }, [webRTC, voiceChatWebSocket, currentRoomId, userId]);
-
   return (
-    <div
-      className={`room-container${theme === "light" ? " room-light" : theme === "light2" ? " room-light2" : ""}`}
-    >
+    <div className="room-container">
       <Header
         isJoined={isJoined}
         onJoin={handleJoin}
         onLeave={handleLeave}
         selectedFileId={selectedFile?.id ?? null}
         editorContent={currentEditorCode}
-        theme={theme}
-        onSetTheme={setTheme}
       />
 
       <div className="room-main">
@@ -201,7 +122,6 @@ export default function RoomPage() {
             style={{ width: isLeftSidebarCollapsed ? 0 : undefined }}
           >
             <div className="flex-1 overflow-auto room-scrollbar">
-              {/* 사용자 정보 전달하여 실시간 위치 추적 */}
               <FileViewer
                 roomId={Number(currentRoomId)}
                 onFileSelect={(fileId, content, fileName) => {
@@ -220,21 +140,13 @@ export default function RoomPage() {
                   participants={participants}
                   myUserId={userId}
                   onToggleMic={handleToggleMic}
-                  onTogglePeerMute={webRTC.togglePeerMute}
-                  isPeerMuted={webRTC.isPeerMuted}
-                  isWebSocketConnected={voiceChatWebSocket.isConnected}
+                  onTogglePeerMute={togglePeerMute}
+                  isPeerMuted={isPeerMuted}
+                  isWebSocketConnected={isWebSocketConnected}
                 />
               </div>
             </div>
           </aside>
-
-          {/* 왼쪽 사이드바 토글 버튼 — 파일뷰어 헤더(h-8) 세로 중앙 */}
-          <button
-            onClick={() => setIsLeftSidebarCollapsed((prev) => !prev)}
-            className="left-sidebar-toggle"
-          >
-            {isLeftSidebarCollapsed ? "▶" : "◀"}
-          </button>
         </div>
 
         <main className="room-content">
@@ -248,7 +160,7 @@ export default function RoomPage() {
                 fileName={selectedFile.name}
                 onChange={setCurrentEditorCode}
                 onTestGenerated={(code) => setGeneratedTestCode(code)}
-                onAppendTerminal={appendTerminal} // ✅ 네 기능
+                onAppendTerminal={appendTerminal}
               />
             ) : (
               <div className="flex items-center justify-center h-full text-[#858585]">
@@ -256,8 +168,6 @@ export default function RoomPage() {
               </div>
             )}
           </div>
-
-          {/* ✅ xterm에는 "새로 추가된 chunk"만 내려보내서 중복 출력 방지 */}
           <RoomTerminal output={terminalChunk} />
         </main>
 

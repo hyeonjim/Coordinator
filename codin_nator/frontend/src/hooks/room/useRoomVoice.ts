@@ -1,28 +1,67 @@
-import type { UseParticipantManagementParams } from "@/types/room/chat/voicechat/types";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useVoiceChatWebSocket } from "./useVoiceChatWebSocket";
+import { useWebRTC } from "./useWebRTC";
+import { useVoiceChatMessageHandler } from "./useVoiceChatMessageHandler";
+import type {
+  UseRoomVoiceParams,
+  UseRoomVoiceReturn,
+} from "@/types/room/chat/voicechat/types";
+import { getSocketBaseUrl } from "@/utils/socketUtils";
 
 /**
- * 참여자 관리 및 실시간 동기화 훅
- * 참여자 추가/제거 및 WebRTC 상태와 동기화를 담당합니다.
+ * 음성 채팅 통합 훅
  *
- * @param params - 훅 파라미터 (setParticipants, isJoined, userId, webRTC, userName, userImageUrl)
- * @returns 참여자 관리 함수들 (addParticipant, removeParticipant)
+ * 음성 채팅과 관련된 모든 로직을 통합하여 제공합니다:
+ * - STOMP WebSocket 연결 관리 (시그널링용)
+ * - WebRTC P2P 연결 관리
+ * - 참여자 관리 및 실시간 동기화
+ * - 마이크 토글
+ *
+ * @param params - 훅 파라미터
+ * @returns 음성 채팅 관련 상태 및 함수들
  */
-export function useParticipantManagement({
-  setParticipants,
+export function useRoomVoice({
+  currentRoomId,
   userId,
   userName,
   userImageUrl,
-  webRTC,
   isJoined,
-}: UseParticipantManagementParams) {
-  // 최신 상태를 interval에서 참조하기 위한 ref들 (렌더링 루프 방지)
+  setParticipants,
+}: UseRoomVoiceParams): UseRoomVoiceReturn {
+  // 음성 채팅 STOMP WebSocket 연결
+  const voiceChatWebSocket = useVoiceChatWebSocket(
+    `${getSocketBaseUrl()}/ws-voice`,
+  );
+
+  // ICE Candidate 콜백
+  const handleIceCandidate = useCallback(
+    (peerId: string, candidate: RTCIceCandidate) => {
+      voiceChatWebSocket.sendMessage({
+        type: "ICE",
+        roomId: currentRoomId,
+        senderId: userId,
+        receiverId: peerId,
+        data: candidate,
+      });
+    },
+    [voiceChatWebSocket, currentRoomId, userId],
+  );
+
+  // WebRTC 연결 관리
+  const webRTC = useWebRTC(handleIceCandidate);
+
+  // ─── 참여자 관리 ────────────────────────────────────────────────────────────
+
+  /**
+   * 최신 webRTC 인스턴스와 사용자 정보를 interval에서 참조하기 위한 ref
+   * (ref를 통해 interval 재등록 없이 최신 값을 읽을 수 있습니다)
+   */
   const webRTCRef = useRef(webRTC);
-  const infoRef = useRef({ userName, userImageUrl });
+  const userInfoRef = useRef({ userName, userImageUrl });
 
   useEffect(() => {
     webRTCRef.current = webRTC;
-    infoRef.current = { userName, userImageUrl };
+    userInfoRef.current = { userName, userImageUrl };
   }, [webRTC, userName, userImageUrl]);
 
   /**
@@ -41,9 +80,6 @@ export function useParticipantManagement({
             if (micOn !== undefined && exists.micOn !== micOn) {
               return prev.map((p) => (p.userId === id ? { ...p, micOn } : p));
             }
-            console.log(
-              `ℹ️ [Participant] 기등록된 실명 보유 중 - 업데이트 스킵: ${id}`,
-            );
             return prev;
           }
 
@@ -54,11 +90,6 @@ export function useParticipantManagement({
           )
             return prev;
 
-          console.log(
-            `📝 [Participant] 정보 업데이트: ${id} -> ${name} (img: ${
-              imageUrl ? "yes" : "no"
-            })`,
-          );
           return prev.map((p) =>
             p.userId === id
               ? {
@@ -97,6 +128,18 @@ export function useParticipantManagement({
   );
 
   /**
+   * 참여자의 마이크 상태를 업데이트합니다.
+   */
+  const updateParticipantMicStatus = useCallback(
+    (id: string, micOn: boolean) => {
+      setParticipants((prev) =>
+        prev.map((p) => (p.userId === id ? { ...p, micOn } : p)),
+      );
+    },
+    [setParticipants],
+  );
+
+  /**
    * 호스트(본인) 정보를 목록에 추가
    * 참여하기 버튼을 클릭한 후(isJoined === true)에만 목록에 표시합니다.
    */
@@ -120,7 +163,7 @@ export function useParticipantManagement({
             const currentMic = webRTCRef.current.isMicOn;
             const currentSpeaking = webRTCRef.current.isSpeaking;
             const { userName: currentName, userImageUrl: currentImg } =
-              infoRef.current;
+              userInfoRef.current;
 
             if (
               p.micOn !== currentMic ||
@@ -155,17 +198,47 @@ export function useParticipantManagement({
     return () => clearInterval(interval);
   }, [userId, setParticipants]); // userId와 setParticipants만 의존성으로 가짐 (안정적)
 
-  /**
-   * 참여자의 마이크 상태를 업데이트합니다.
-   */
-  const updateParticipantMicStatus = useCallback(
-    (id: string, micOn: boolean) => {
-      setParticipants((prev) =>
-        prev.map((p) => (p.userId === id ? { ...p, micOn } : p)),
-      );
-    },
-    [setParticipants],
-  );
+  // ────────────────────────────────────────────────────────────────────────────
 
-  return { addParticipant, removeParticipant, updateParticipantMicStatus };
+  // VoiceChat 메시지 처리
+  useVoiceChatMessageHandler({
+    voiceChatWebSocket,
+    webRTC,
+    currentRoomId,
+    userId,
+    userName,
+    userImageUrl,
+    isJoined,
+    addParticipant,
+    removeParticipant,
+    updateParticipantMicStatus,
+  });
+
+  // 마이크 토글 핸들러
+  const handleToggleMic = useCallback(async () => {
+    webRTC.toggleMic();
+    voiceChatWebSocket.sendMessage({
+      type: "MIC",
+      roomId: currentRoomId,
+      senderId: userId,
+      data: { microphoneOn: !webRTC.isMicOn },
+    });
+  }, [webRTC, voiceChatWebSocket, currentRoomId, userId]);
+
+  return useMemo(
+    () => ({
+      isWebSocketConnected: voiceChatWebSocket.isConnected,
+      isMicOn: webRTC.isMicOn,
+      handleToggleMic,
+      togglePeerMute: webRTC.togglePeerMute,
+      isPeerMuted: webRTC.isPeerMuted,
+      webRTC,
+      voiceChatWebSocket,
+    }),
+    [
+      voiceChatWebSocket,
+      webRTC,
+      handleToggleMic,
+    ],
+  );
 }

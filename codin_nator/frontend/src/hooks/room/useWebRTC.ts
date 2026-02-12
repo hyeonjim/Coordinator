@@ -106,8 +106,7 @@ export function useWebRTC(
     try {
       const source = ctx.createMediaStreamSource(stream);
       source.connect(analyser);
-    } catch (err) {
-      console.error("MediaStreamSource 생성 실패:", err);
+    } catch {
       return;
     }
 
@@ -192,26 +191,21 @@ export function useWebRTC(
     // 이미 스트림이 있으면 재사용
     if (localStreamRef.current) return;
 
-    try {
-      // 마이크 스트림 요청
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true, // 에코 제거
-          noiseSuppression: true, // 노이즈 제거
-          autoGainControl: true, // 자동 볼륨 조절
-        },
-        video: false,
-      });
+    // 마이크 스트림 요청
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true, // 에코 제거
+        noiseSuppression: true, // 노이즈 제거
+        autoGainControl: true, // 자동 볼륨 조절
+      },
+      video: false,
+    });
 
-      localStreamRef.current = stream;
-      setLocalStream(stream);
+    localStreamRef.current = stream;
+    setLocalStream(stream);
 
-      // 음성 감지 시작
-      setupSpeakingDetection(stream);
-    } catch (error) {
-      console.error("마이크 권한 요청 실패:", error);
-      throw error;
-    }
+    // 음성 감지 시작
+    setupSpeakingDetection(stream);
   }, [setupSpeakingDetection]);
 
   const stopAudio = useCallback(() => {
@@ -266,8 +260,8 @@ export function useWebRTC(
             pc.addTrack(newTrack, stream);
           }
         });
-      } catch (error) {
-        console.error("마이크 다시 켜기 실패:", error);
+      } catch {
+        // 마이크 다시 켜기 실패 시 무시
       }
     } else {
       //  마이크 끄기: 트랙 중지
@@ -359,8 +353,7 @@ export function useWebRTC(
         });
         await pc.setLocalDescription(offer);
         return offer;
-      } catch (error) {
-        console.error("Offer 생성 실패:", error);
+      } catch {
         return null;
       }
     },
@@ -381,8 +374,7 @@ export function useWebRTC(
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
         return answer;
-      } catch (error) {
-        console.error("Offer 처리 실패:", error);
+      } catch {
         return null;
       }
     },
@@ -398,8 +390,8 @@ export function useWebRTC(
         const pc = peerConnectionsRef.current.get(peerId);
         if (!pc) return;
         await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-      } catch (error) {
-        console.error("Answer 처리 실패:", error);
+      } catch {
+        // Answer 처리 실패 시 무시
       }
     },
     [],
@@ -414,8 +406,8 @@ export function useWebRTC(
         const pc = peerConnectionsRef.current.get(peerId);
         if (!pc) return;
         await pc.addIceCandidate(new RTCIceCandidate(candidate));
-      } catch (error) {
-        console.error("ICE Candidate 처리 실패:", error);
+      } catch {
+        // ICE Candidate 처리 실패 시 무시
       }
     },
     [],

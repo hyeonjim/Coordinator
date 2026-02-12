@@ -1,5 +1,5 @@
-import type { Participant } from "@/types/room/types";
 import type { UseWebRTCReturn } from "@/types/room/chat/voicechat/webrtc";
+import type { Participant } from "@/types/room/types";
 
 export type VoiceMessageType =
   | "JOIN"
@@ -35,12 +35,27 @@ export interface VoiceChatMessageReceived {
 }
 
 /**
+ * JOIN/IDENTITY 메시지의 사용자 정보 데이터
+ */
+export interface UserPresenceData {
+  userName?: string;
+  imageUrl?: string;
+  micOn?: boolean;
+}
+
+/**
  * WebRTC Offer/Answer 페이로드
  */
 export interface SessionDescriptionPayload {
   type: "offer" | "answer";
   sdp: string;
 }
+
+/**
+ * WebRTC Offer 페이로드 (SDP + 발신자 정보 포함)
+ * JOIN 시 기존 참여자들이 상대방 정보를 함께 전달합니다.
+ */
+export interface OfferPayload extends SessionDescriptionPayload, UserPresenceData {}
 
 /**
  * ICE Candidate 페이로드
@@ -78,27 +93,67 @@ export interface UseVoiceChatWebSocketReturn {
 
   /** 방 구독 해제 */
   unsubscribeFromRoom(): void;
-
-  /** 메시지 전송 */
   sendMessage(payload: VoiceChatMessagePayload): void;
-
-  /** WebSocket 연결 */
   connect(): void;
-
-  /** WebSocket 연결 해제 */
   disconnect(): void;
 }
 
 /**
- * useParticipantManagement 훅 파라미터 타입
+ * 음성 채팅 훅들이 공통으로 필요로 하는 사용자/방 컨텍스트
+ * useRoomVoice와 useVoiceChatMessageHandler 모두 이 필드들을 사용합니다.
  */
-export interface UseParticipantManagementParams {
-  setParticipants: React.Dispatch<React.SetStateAction<Participant[]>>;
+export interface VoiceChatUserContext {
+  currentRoomId: string;
   userId: string;
   userName: string;
   userImageUrl?: string;
-  webRTC: UseWebRTCReturn;
   isJoined: boolean;
+}
+
+/**
+ * useVoiceChatMessageHandler 훅 파라미터
+ * VoiceChatUserContext를 재사용합니다.
+ */
+export interface UseVoiceChatMessageHandlerParams extends VoiceChatUserContext {
+  /** VoiceChat WebSocket 인스턴스 (시그널링용 STOMP) */
+  voiceChatWebSocket: UseVoiceChatWebSocketReturn;
+  /** WebRTC 인스턴스 (실제 음성 P2P 연결) */
+  webRTC: UseWebRTCReturn;
+  addParticipant: (
+    participantId: string,
+    participantName: string,
+    imageUrl?: string,
+    micOn?: boolean,
+  ) => void;
+  removeParticipant: (participantId: string) => void;
+  /** 참여자 마이크 상태 업데이트 함수 */
+  updateParticipantMicStatus: (participantId: string, micOn: boolean) => void;
+}
+
+/**
+ * useRoomVoice 훅 파라미터
+ * VoiceChatUserContext를 재사용합니다.
+ */
+export interface UseRoomVoiceParams extends VoiceChatUserContext {
+  /** 참여자 목록 상태 업데이트 함수 */
+  setParticipants: React.Dispatch<React.SetStateAction<Participant[]>>;
+}
+
+/**
+ * useRoomVoice 훅 반환 타입
+ */
+export interface UseRoomVoiceReturn {
+  isWebSocketConnected: boolean;
+  isMicOn: boolean;
+  handleToggleMic: () => Promise<void>;
+  /** 피어 음소거 토글 */
+  togglePeerMute: (peerId: string) => void;
+  /** 피어 음소거 상태 확인 */
+  isPeerMuted: (peerId: string) => boolean;
+  /** WebRTC 인스턴스 */
+  webRTC: UseWebRTCReturn;
+  /** 음성 채팅 WebSocket 인스턴스 (시그널링용) */
+  voiceChatWebSocket: UseVoiceChatWebSocketReturn;
 }
 
 export interface MicIconProps {
@@ -129,22 +184,12 @@ export interface ParticipantRowProps {
  * VoiceChat 컴포넌트 Props 타입
  */
 export interface VoiceChatProps {
-  /** 참여자 목록 */
   participants: Participant[];
-  /** 현재 사용자 ID (내 표시용) */
   myUserId: string;
-  /** 마이크 토글 핸들러 */
   onToggleMic: () => void;
   /** 특정 피어 음소거 토글 핸들러 */
   onTogglePeerMute: (peerId: string) => void;
   /** 피어 음소거 상태 확인 함수 */
   isPeerMuted: (peerId: string) => boolean;
-  /** 개발 도구 테스트 헬퍼 */
-  testHelpers?: {
-    simulateTestUserJoin: () => void;
-    simulateTestUserMessage: () => void;
-    simulateIncomingAudio: () => void;
-  };
-  /** WebSocket 연결 상태 */
   isWebSocketConnected: boolean;
 }

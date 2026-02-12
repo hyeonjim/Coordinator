@@ -35,29 +35,6 @@ export interface TextChatMessageReceived {
 }
 
 /**
- * STOMP 클라이언트 설정 옵션
- */
-export interface StompClientConfig {
-  brokerUrl: string;
-  /** 연결 성공 콜백 */
-  onConnect?: () => void;
-
-  /**
-   * STOMP 프로토콜 에러 콜백
-   * unknown 타입 사용 이유:
-   * @stomp/stompjs의 내부 Frame 타입이 복잡하고 일관성이 없어,
-   * 실무에서는 에러 로깅 용도로만 사용하므로 unknown 타입 사용 (any보다 안전)
-   */
-  onStompError?: (frame: unknown) => void;
-
-  /** WebSocket 연결 에러 콜백 */
-  onWebSocketError?: (event: Event) => void;
-
-  /** 연결 종료 콜백 */
-  onDisconnect?: () => void;
-}
-
-/**
  * useTextChatWebSocket 훅의 반환 타입
  * 텍스트 채팅을 위한 STOMP 연결 및 메시지 송수신 기능을 제공합니다.
  */
@@ -119,4 +96,25 @@ export interface TextChatProps {
   isSidebarCollapsed: boolean;
   /** 사이드바 축소 상태 변경 */
   setIsSidebarCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+/**
+ * useTextChatMessageHandler 훅 파라미터
+ */
+export interface UseTextChatMessageHandlerParams {
+  /** 텍스트 채팅 WebSocket 인스턴스 */
+  textChatWebSocket: UseTextChatWebSocketReturn;
+  currentRoomId: string;
+  userName: string;
+  isJoined: boolean;
+  /** 채팅 메시지 상태 업데이트 함수 */
+  setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
+}
+
+/**
+ * useRoomChat 훅 반환 타입
+ */
+export interface UseRoomChatReturn {
+  /** 텍스트 채팅 WebSocket 인스턴스 */
+  textChatWebSocket: UseTextChatWebSocketReturn;
 }
