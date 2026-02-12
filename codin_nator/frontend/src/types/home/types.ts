@@ -1,3 +1,11 @@
+export interface CreateRoomModalProps {
+  onClose: () => void;
+}
+
+export interface ErrorReportSectionProps {
+  onCreateRoom: () => void;
+}
+
 export interface ProfileSectionProps {
   user: {
     name?: string;
@@ -7,6 +15,7 @@ export interface ProfileSectionProps {
   onLogout: () => void;
 }
 
+// 오류 수치
 export interface Stats {
   totalErrors: number;
   daysWithErrors: number;

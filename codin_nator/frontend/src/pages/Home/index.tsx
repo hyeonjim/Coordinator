@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 import { useOAuthCallback } from "@/hooks/user/useOAuthCallback";
 import { useAuthStore } from "@/stores/authStore";
 
 import ProfileSection from "@/components/home/profile/ProfileSection";
 import ErrorReportSection from "@/components/home/error-report/ErrorReportSection";
+import CreateRoomModal from "@/components/home/create-room";
 
 export default function HomeLayout() {
   useOAuthCallback();
@@ -12,6 +14,8 @@ export default function HomeLayout() {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
+
+  const [isCreateRoomOpen, setIsCreateRoomOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -22,8 +26,12 @@ export default function HomeLayout() {
     <div className="min-h-screen overflow-y-auto bg-[#8e97a1]">
       <div className="relative max-w-5xl mx-auto px-8 py-12 space-y-8">
         <ProfileSection user={user} onLogout={handleLogout} />
-        <ErrorReportSection />
+        <ErrorReportSection onCreateRoom={() => setIsCreateRoomOpen(true)} />
       </div>
+
+      {isCreateRoomOpen && (
+        <CreateRoomModal onClose={() => setIsCreateRoomOpen(false)} />
+      )}
     </div>
   );
 }

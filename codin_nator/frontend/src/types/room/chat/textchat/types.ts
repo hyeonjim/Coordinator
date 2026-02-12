@@ -108,13 +108,6 @@ export interface ChatMessage {
 }
 
 /**
- * 메시지 버블 컴포넌트 Props
- */
-export interface MessageBubbleProps {
-  message: ChatMessage;
-}
-
-/**
  * TextChat 컴포넌트 Props 타입
  */
 export interface TextChatProps {
