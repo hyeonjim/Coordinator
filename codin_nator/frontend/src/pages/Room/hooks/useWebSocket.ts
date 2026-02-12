@@ -5,7 +5,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { SignalMessage } from "@/types/room/chat/signaling";
+import type { SignalMessage } from "@/types/room/types";
 import type { UseWebSocketReturn } from "@/types/room/chat/websocket";
 
 /**

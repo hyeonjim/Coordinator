@@ -5,7 +5,7 @@ import type {
   VoiceChatMessagePayload,
   VoiceChatMessageReceived,
   UseVoiceChatWebSocketReturn,
-} from "@/types/room/chat/stomp";
+} from "@/types/room/chat/voicechat/types";
 
 /**
  * VoiceChat STOMP WebSocket 연결 관리 훅

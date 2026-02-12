@@ -1,6 +1,5 @@
 import { useEffect } from "react";
-import type { UseTextChatWebSocketReturn } from "@/types/room/chat/stomp";
-import type { ChatMessage } from "@/types/room/chat/message";
+import type { UseTextChatWebSocketReturn, ChatMessage } from "@/types/room/chat/textchat/types";
 import { generateId } from "@/utils/room/idGenerator";
 
 /**

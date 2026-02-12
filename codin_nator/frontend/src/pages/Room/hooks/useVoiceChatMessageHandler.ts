@@ -1,9 +1,6 @@
 import { useEffect, useRef } from "react";
-import type {
-  VoiceChatMessageReceived,
-  UseVoiceChatWebSocketReturn,
-} from "@/types/room/chat/stomp";
-import type { UseWebRTCReturn } from "@/types/room/chat/webrtc";
+import type { VoiceChatMessageReceived, UseVoiceChatWebSocketReturn } from "@/types/room/chat/voicechat/types";
+import type { UseWebRTCReturn } from "@/types/room/chat/voicechat/webrtc";
 
 /**
  * VoiceChat 메시지 핸들러 훅의 파라미터

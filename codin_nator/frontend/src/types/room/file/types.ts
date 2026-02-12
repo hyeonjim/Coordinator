@@ -1,7 +1,7 @@
+import type { Participant } from "@/types/room/types";
+
 /**
- * ========================================
  * 1. File System Access API Types
- * ========================================
  * 로컬 파일 시스템 드래그앤드롭 처리를 위한 타입 정의
  */
 
@@ -40,9 +40,7 @@ export interface LocalFileSystemDirectoryEntry extends LocalFileSystemEntry {
 }
 
 /**
- * ========================================
  * 2. File Tree Node Types
- * ========================================
  * 파일 트리 구조를 표현하는 타입 정의
  */
 
@@ -81,20 +79,19 @@ export type RawNode = Partial<BackendFileNode> & {
 };
 
 /**
- * ========================================
  * 3. File Viewer Component Props
- * ========================================
  */
 
 /**
  * 파일을 보고 있는 사용자 정보
- * Participant 타입 기반으로 색상 추가
  */
-export interface FileViewerUser {
-  userId: string;
-  userName: string;
-  imageUrl?: string;
-  color?: string;
+export type FileViewerUser = Pick<Participant, "userId" | "userName" | "imageUrl">;
+
+/**
+ * Awareness에 저장되는 파일 위치 정보
+ */
+export interface FileAwarenessData extends FileViewerUser {
+  currentFileId?: number;
 }
 
 /**

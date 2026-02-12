@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import type { UseWebSocketMessageHandlerParams } from "@/types/room/types";
-import { generateId } from "@/utils/room/idGenerator";
 
 /**
  * WebSocket 메시지 수신 및 처리 훅
@@ -15,7 +14,6 @@ export function useWebSocketMessageHandler({
   currentRoomId,
   addParticipant,
   removeParticipant,
-  setChatMessages,
   setIsJoined,
 }: UseWebSocketMessageHandlerParams) {
   useEffect(() => {
@@ -82,21 +80,6 @@ export function useWebSocketMessageHandler({
           webRTC.removePeer(message.userId);
           break;
 
-        case "chat":
-          // 텍스트 채팅 메시지 수신
-          setChatMessages((previousMessages) => [
-            ...previousMessages,
-            {
-              id: generateId("message"),
-              userId: message.userId,
-              userName: message.userName,
-              imageUrl: message.imageUrl,
-              message: message.message,
-              timestamp: message.timestamp,
-              isMe: message.userId === userId,
-            },
-          ]);
-          break;
       }
     };
 
@@ -109,7 +92,6 @@ export function useWebSocketMessageHandler({
     removeParticipant,
     webRTC,
     webSocket,
-    setChatMessages,
     setIsJoined,
   ]);
 }

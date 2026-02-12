@@ -5,7 +5,7 @@ import type {
   TextChatMessagePayload,
   TextChatMessageReceived,
   UseTextChatWebSocketReturn,
-} from "@/types/room/chat/stomp";
+} from "@/types/room/chat/textchat/types";
 
 /**
  * 텍스트 채팅 전용 STOMP WebSocket 훅

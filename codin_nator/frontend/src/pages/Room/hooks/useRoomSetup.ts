@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
-import type { UseRoomSetupReturn } from "@/types/room/types";
-import type { ChatMessage, TabType } from "@/types/room/chat/message";
-import type { Participant } from "@/types/room/chat/voicetypes";
+import type { UseRoomSetupReturn, Participant } from "@/types/room/types";
+import type { ChatMessage } from "@/types/room/chat/textchat/types";
 import { generateId } from "@/utils/room/idGenerator";
 import { useAuthStore } from "@/stores/authStore";
 import { getSignalingWebSocketUrl } from "@/utils/socketUtils";
@@ -39,7 +38,6 @@ export function useRoomSetup(roomId: string | undefined): UseRoomSetupReturn {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
   // UI 상태 관리
-  const [activeTab, setActiveTab] = useState<TabType>("chat");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return useMemo(
@@ -55,8 +53,6 @@ export function useRoomSetup(roomId: string | undefined): UseRoomSetupReturn {
       setParticipants,
       chatMessages,
       setChatMessages,
-      activeTab,
-      setActiveTab,
       isSidebarCollapsed,
       setIsSidebarCollapsed,
     }),
@@ -72,8 +68,6 @@ export function useRoomSetup(roomId: string | undefined): UseRoomSetupReturn {
       setParticipants,
       chatMessages,
       setChatMessages,
-      activeTab,
-      setActiveTab,
       isSidebarCollapsed,
       setIsSidebarCollapsed,
     ],
