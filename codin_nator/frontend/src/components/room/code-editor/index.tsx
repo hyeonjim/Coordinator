@@ -24,7 +24,7 @@ import type { AutoCompleteItem } from "@/types/room/editor/javaAutoComplete";
 
 /* 커서 오버레이 */
 import RemoteCursorOverlay from "./RemoteCursorOverlay";
-import { useCursorAwareness } from "./useCursorAwareness";
+import { useCursorAwareness } from "../../../hooks/room/code-editor/useCursorAwareness";
 import { useAuthStore } from "@/stores/authStore";
 import axiosInstance from "@/api/axios";
 import type { CodeEditorProps } from "@/types/room/editor/types";

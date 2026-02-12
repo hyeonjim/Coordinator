@@ -8,10 +8,10 @@ import FileViewer from "@/components/room/file-viewer";
 import { VoiceChat } from "@/components/room/chat/VoiceChat";
 import { TextChat } from "@/components/room/chat/TextChat";
 
-import { useRoomSetup } from "../../hooks/room/useRoomSetup";
-import { useRoomActions } from "../../hooks/room/useRoomActions";
-import { useRoomChat } from "../../hooks/room/useRoomChat";
-import { useRoomVoice } from "../../hooks/room/useRoomVoice";
+import { useRoomSetup } from "../../hooks/room/chat/useRoomSetup";
+import { useRoomActions } from "../../hooks/room/chat/useRoomActions";
+import { useRoomChat } from "../../hooks/room/chat/useRoomChat";
+import { useRoomVoice } from "../../hooks/room/chat/useRoomVoice";
 
 import axiosInstance from "@/api/axios";
 
@@ -72,9 +72,11 @@ export default function RoomPage() {
   useEffect(() => {
     if (!isJoined || !currentRoomId) return;
 
-    axiosInstance.post(`/v1/room/${currentRoomId}/participants/me`).catch(() => {
-      // 참가자 등록 실패 시 무시
-    });
+    axiosInstance
+      .post(`/v1/room/${currentRoomId}/participants/me`)
+      .catch(() => {
+        // 참가자 등록 실패 시 무시
+      });
   }, [isJoined, currentRoomId]);
 
   // 텍스트 채팅 통합 훅
