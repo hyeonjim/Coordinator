@@ -21,14 +21,14 @@ import {
   filterAutoComplete,
   getCurrentWord,
   type AutoCompleteItem,
-} from "../../../types/editor/javaAutoComplete";
+} from "../../../types/room/editor/javaAutoComplete";
 
 /* 커서 오버레이 */
 import RemoteCursorOverlay from "./RemoteCursorOverlay";
 import { useCursorAwareness } from "./useCursorAwareness";
 import { useAuthStore } from "@/stores/authStore";
 import axiosInstance from "@/api/axios";
-import type { CodeEditorProps } from "@/types/editor/types";
+import type { CodeEditorProps } from "@/types/room/editor/types";
 
 const WS_BASE_URL =
   import.meta.env.VITE_CODE_WS_URL ?? "wss://i14e205.p.ssafy.io/ws/code";

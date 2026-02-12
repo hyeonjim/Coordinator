@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import type { UseTextChatWebSocketReturn } from "@/types/chat/stomp";
-import type { ChatMessage } from "@/types/chat/message";
+import type { UseTextChatWebSocketReturn } from "@/types/room/chat/stomp";
+import type { ChatMessage } from "@/types/room/chat/message";
 import { generateId } from "@/utils/room/idGenerator";
 
 /**
@@ -126,5 +126,13 @@ export function useTextChatMessageHandler({
     return () => {
       textChatWebSocket.unsubscribeFromRoom();
     };
-  }, [textChatWebSocket.isConnected, textChatWebSocket.subscribeToRoom, textChatWebSocket.unsubscribeFromRoom, currentRoomId, userName, isJoined, setChatMessages]);
+  }, [
+    textChatWebSocket.isConnected,
+    textChatWebSocket.subscribeToRoom,
+    textChatWebSocket.unsubscribeFromRoom,
+    currentRoomId,
+    userName,
+    isJoined,
+    setChatMessages,
+  ]);
 }

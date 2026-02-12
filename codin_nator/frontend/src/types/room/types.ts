@@ -1,12 +1,12 @@
 import type { NavigateFunction } from "react-router-dom";
-import type { ChatMessage, TabType } from "@/types/chat/message";
-import type { UseWebRTCReturn } from "@/types/chat/webrtc";
-import type { UseWebSocketReturn } from "@/types/chat/websocket";
+import type { ChatMessage, TabType } from "@/types/room/chat/message";
+import type { UseWebRTCReturn } from "@/types/room/chat/webrtc";
+import type { UseWebSocketReturn } from "@/types/room/chat/websocket";
 import type {
   UseTextChatWebSocketReturn,
   UseVoiceChatWebSocketReturn,
-} from "@/types/chat/stomp";
-import type { Participant } from "@/types/chat/voicetypes";
+} from "@/types/room/chat/stomp";
+import type { Participant } from "@/types/room/chat/voicetypes";
 
 /**
  * useRoomSetup 훅의 반환 타입

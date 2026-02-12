@@ -3,7 +3,7 @@ import type {
   MicIconProps,
   AvatarProps,
   ParticipantRowProps,
-} from "@/types/chat/voicetypes";
+} from "@/types/room/chat/voicetypes";
 
 /**
  * 마이크 아이콘 컴포넌트

@@ -5,7 +5,7 @@ import type {
   VoiceChatMessagePayload,
   VoiceChatMessageReceived,
   UseVoiceChatWebSocketReturn,
-} from "@/types/chat/stomp";
+} from "@/types/room/chat/stomp";
 
 /**
  * VoiceChat STOMP WebSocket 연결 관리 훅
@@ -14,7 +14,7 @@ import type {
  * @returns WebSocket 연결 상태 및 메시지 송수신 함수들
  */
 export function useVoiceChatWebSocket(
-  brokerUrl: string
+  brokerUrl: string,
 ): UseVoiceChatWebSocketReturn {
   // STOMP 클라이언트 참조
   const stompClientReference = useRef<Client | null>(null);
@@ -42,9 +42,9 @@ export function useVoiceChatWebSocket(
     // STOMP 클라이언트 생성
     const client = new Client({
       webSocketFactory: socketFactory,
-      reconnectDelay: 5000,        // 5초 후 재연결 시도
-      heartbeatIncoming: 4000,     // 서버로부터 heartbeat 간격
-      heartbeatOutgoing: 4000,     // 서버로 heartbeat 전송 간격
+      reconnectDelay: 5000, // 5초 후 재연결 시도
+      heartbeatIncoming: 4000, // 서버로부터 heartbeat 간격
+      heartbeatOutgoing: 4000, // 서버로 heartbeat 전송 간격
 
       // 연결 성공 콜백
       onConnect: () => {
@@ -104,7 +104,7 @@ export function useVoiceChatWebSocket(
   const subscribeToRoom = useCallback(
     (
       roomId: string,
-      onMessage: (message: VoiceChatMessageReceived) => void
+      onMessage: (message: VoiceChatMessageReceived) => void,
     ) => {
       const client = stompClientReference.current;
 
@@ -114,7 +114,10 @@ export function useVoiceChatWebSocket(
       }
 
       // 이미 같은 방을 구독 중이면 무시
-      if (currentSubRoomIdRef.current === roomId && subscriptionReference.current) {
+      if (
+        currentSubRoomIdRef.current === roomId &&
+        subscriptionReference.current
+      ) {
         console.log(`ℹ️ [VoiceChat] 이미 방 ${roomId}을(를) 구독 중입니다.`);
         return;
       }
@@ -130,21 +133,21 @@ export function useVoiceChatWebSocket(
         (message) => {
           try {
             const receivedMessage: VoiceChatMessageReceived = JSON.parse(
-              message.body
+              message.body,
             );
             console.log("📩 [VoiceChat] 메시지 수신:", receivedMessage);
             onMessage(receivedMessage);
           } catch (error) {
             console.error("❌ [VoiceChat] 메시지 파싱 에러:", error);
           }
-        }
+        },
       );
 
       subscriptionReference.current = subscription;
       currentSubRoomIdRef.current = roomId;
       console.log(`✅ [VoiceChat] 방 ${roomId} 구독 완료`);
     },
-    []
+    [],
   );
 
   /**
@@ -204,6 +207,6 @@ export function useVoiceChatWebSocket(
       sendMessage,
       connect,
       disconnect,
-    ]
+    ],
   );
 }

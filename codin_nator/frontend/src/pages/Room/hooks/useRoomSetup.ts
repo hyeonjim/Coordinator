@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import type { UseRoomSetupReturn } from "@/types/room/types";
-import type { ChatMessage, TabType } from "@/types/chat/message";
-import type { Participant } from "@/types/chat/voicetypes";
+import type { ChatMessage, TabType } from "@/types/room/chat/message";
+import type { Participant } from "@/types/room/chat/voicetypes";
 import { generateId } from "@/utils/room/idGenerator";
 import { useAuthStore } from "@/stores/authStore";
 import { getSignalingWebSocketUrl } from "@/utils/socketUtils";
@@ -26,8 +26,9 @@ export function useRoomSetup(roomId: string | undefined): UseRoomSetupReturn {
   const userImageUrl = user?.imageUrl;
 
   const webSocketUrl = useMemo(
-    () => (import.meta.env.VITE_SIGNALING_URL as string) ||
-           `${getSignalingWebSocketUrl()}/ws-signaling`,
+    () =>
+      (import.meta.env.VITE_SIGNALING_URL as string) ||
+      `${getSignalingWebSocketUrl()}/ws-signaling`,
     [],
   );
   const currentRoomId = roomId ?? "";
@@ -75,6 +76,6 @@ export function useRoomSetup(roomId: string | undefined): UseRoomSetupReturn {
       setActiveTab,
       isSidebarCollapsed,
       setIsSidebarCollapsed,
-    ]
+    ],
   );
 }

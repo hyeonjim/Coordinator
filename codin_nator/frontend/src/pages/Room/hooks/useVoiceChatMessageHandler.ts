@@ -2,8 +2,8 @@ import { useEffect, useRef } from "react";
 import type {
   VoiceChatMessageReceived,
   UseVoiceChatWebSocketReturn,
-} from "@/types/chat/stomp";
-import type { UseWebRTCReturn } from "@/types/chat/webrtc";
+} from "@/types/room/chat/stomp";
+import type { UseWebRTCReturn } from "@/types/room/chat/webrtc";
 
 /**
  * VoiceChat 메시지 핸들러 훅의 파라미터
@@ -31,7 +31,12 @@ export interface UseVoiceChatMessageHandlerParams {
   isJoined: boolean;
 
   /** 참여자 추가 함수 */
-  addParticipant: (userId: string, userName: string, imageUrl?: string, micOn?: boolean) => void;
+  addParticipant: (
+    userId: string,
+    userName: string,
+    imageUrl?: string,
+    micOn?: boolean,
+  ) => void;
 
   /** 참여자 제거 함수 */
   removeParticipant: (userId: string) => void;
@@ -156,17 +161,23 @@ export function useVoiceChatMessageHandler({
            */
           if (message.senderId !== userId) {
             console.log(`👤 [VoiceChat] 새 참여자 입장: ${message.senderId}`);
-            const userData = message.data as { userName?: string; imageUrl?: string; micOn?: boolean };
+            const userData = message.data as {
+              userName?: string;
+              imageUrl?: string;
+              micOn?: boolean;
+            };
             console.log(`👤 [VoiceChat] 새 참여자 상세 정보:`, userData);
             addParticipant(
               message.senderId,
               userData.userName || message.senderId,
               userData.imageUrl,
-              userData.micOn
+              userData.micOn,
             );
 
             // 내 정보와 마이크 상태를 방 전체에 브로드캐스트 (기존 참여자들 정보 공유)
-            console.log(`📤 [VoiceChat] 내 신원 정보 브로드캐스트 전송: ${userName}`);
+            console.log(
+              `📤 [VoiceChat] 내 신원 정보 브로드캐스트 전송: ${userName}`,
+            );
             voiceChatWebSocket.sendMessage({
               type: "IDENTITY",
               roomId: currentRoomId,
@@ -182,7 +193,13 @@ export function useVoiceChatMessageHandler({
                 roomId: currentRoomId,
                 senderId: userId,
                 receiverId: message.senderId,
-                data: { type: "offer", sdp: offer, userName, imageUrl: userImageUrl, micOn: webRTC.isMicOn },
+                data: {
+                  type: "offer",
+                  sdp: offer,
+                  userName,
+                  imageUrl: userImageUrl,
+                  micOn: webRTC.isMicOn,
+                },
               });
             }
           }
@@ -193,12 +210,27 @@ export function useVoiceChatMessageHandler({
            * 다른 참여자의 신원 정보 수신
            * - PEER_LIST로 받은 참여자나, 내가 입장했을 때 기존 참여자들이 보낸 정보
            */
-          const identityData = message.data as { userName?: string; imageUrl?: string; micOn?: boolean };
-          console.log(`🆔 [VoiceChat] 신원 정보 수신: ${message.senderId}`, identityData);
+          const identityData = message.data as {
+            userName?: string;
+            imageUrl?: string;
+            micOn?: boolean;
+          };
+          console.log(
+            `🆔 [VoiceChat] 신원 정보 수신: ${message.senderId}`,
+            identityData,
+          );
           if (identityData.userName) {
-            addParticipant(message.senderId, identityData.userName, identityData.imageUrl, identityData.micOn);
+            addParticipant(
+              message.senderId,
+              identityData.userName,
+              identityData.imageUrl,
+              identityData.micOn,
+            );
           } else {
-            console.warn(`⚠️ [VoiceChat] 신원 정보에 이름이 없습니다:`, message);
+            console.warn(
+              `⚠️ [VoiceChat] 신원 정보에 이름이 없습니다:`,
+              message,
+            );
           }
           break;
         }
@@ -215,7 +247,9 @@ export function useVoiceChatMessageHandler({
           if (Array.isArray(peerList)) {
             for (const peerId of peerList) {
               if (peerId !== userId) {
-                console.log(`👥 [VoiceChat] 기존 참여자 추가 (정보 대기): ${peerId}`);
+                console.log(
+                  `👥 [VoiceChat] 기존 참여자 추가 (정보 대기): ${peerId}`,
+                );
                 addParticipant(peerId, peerId);
               }
             }
@@ -238,13 +272,22 @@ export function useVoiceChatMessageHandler({
            * - Answer를 생성하여 응답
            */
           if (message.receiverId === userId || !message.receiverId) {
-            const offerData = message.data as { type: string; sdp: string; userName?: string; imageUrl?: string; micOn?: boolean };
-            console.log(
-              `🤝 [VoiceChat] OFFER 수신 from ${message.senderId}`,
-            );
+            const offerData = message.data as {
+              type: string;
+              sdp: string;
+              userName?: string;
+              imageUrl?: string;
+              micOn?: boolean;
+            };
+            console.log(`🤝 [VoiceChat] OFFER 수신 from ${message.senderId}`);
 
             // OFFER에서 상대방 정보를 추출하여 참여자 목록에 추가/갱신
-            addParticipant(message.senderId, offerData.userName || message.senderId, offerData.imageUrl, offerData.micOn);
+            addParticipant(
+              message.senderId,
+              offerData.userName || message.senderId,
+              offerData.imageUrl,
+              offerData.micOn,
+            );
 
             const answer = await webRTC.handleOffer(
               message.senderId,
@@ -270,11 +313,12 @@ export function useVoiceChatMessageHandler({
            */
           if (message.receiverId === userId || !message.receiverId) {
             const answerData = message.data as { type: string; sdp: string };
-            console.log(
-              `✅ [VoiceChat] ANSWER 수신 from ${message.senderId}`,
-            );
+            console.log(`✅ [VoiceChat] ANSWER 수신 from ${message.senderId}`);
 
-            await webRTC.handleAnswer(message.senderId, answerData.sdp as unknown as RTCSessionDescriptionInit);
+            await webRTC.handleAnswer(
+              message.senderId,
+              answerData.sdp as unknown as RTCSessionDescriptionInit,
+            );
           }
           break;
         }
@@ -294,7 +338,10 @@ export function useVoiceChatMessageHandler({
               `🧊 [VoiceChat] ICE candidate 수신 from ${message.senderId}`,
             );
 
-            await webRTC.handleIce(message.senderId, iceData as unknown as RTCIceCandidateInit);
+            await webRTC.handleIce(
+              message.senderId,
+              iceData as unknown as RTCIceCandidateInit,
+            );
           }
           break;
         }
@@ -370,6 +417,6 @@ export function useVoiceChatMessageHandler({
     // isJoined가 바뀌면 재구독 필요
     isJoined,
     userId,
-    voiceChatWebSocket
+    voiceChatWebSocket,
   ]);
 }

@@ -1,6 +1,9 @@
-import type { VoiceChatMessagePayload, VoiceChatMessageReceived } from "./message";
-import type { Participant } from "@/types/chat/voicetypes";
-import type { UseWebRTCReturn } from "@/types/chat/webrtc";
+import type {
+  VoiceChatMessagePayload,
+  VoiceChatMessageReceived,
+} from "./message";
+import type { Participant } from "@/types/room/chat/voicetypes";
+import type { UseWebRTCReturn } from "@/types/room/chat/webrtc";
 
 /**
  * STOMP 클라이언트 설정
@@ -23,7 +26,7 @@ export interface UseVoiceChatWebSocketReturn {
   /** 방 구독 (메시지 수신 시작) */
   subscribeToRoom(
     roomId: string,
-    onMessage: (message: VoiceChatMessageReceived) => void
+    onMessage: (message: VoiceChatMessageReceived) => void,
   ): void;
 
   /** 방 구독 해제 */

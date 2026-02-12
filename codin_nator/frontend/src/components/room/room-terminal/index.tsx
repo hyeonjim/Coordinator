@@ -4,8 +4,8 @@ import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import "xterm/css/xterm.css";
 
-import type { RoomTerminalProps } from "@/types/terminal/types";
-import { TERMINAL_CONSTRAINTS } from "@/types/terminal/types";
+import type { RoomTerminalProps } from "@/types/room/terminal/types";
+import { TERMINAL_CONSTRAINTS } from "@/types/room/terminal/types";
 
 /**
  * 랜덤 ID 생성 함수

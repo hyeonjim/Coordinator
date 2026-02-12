@@ -6,7 +6,10 @@
 import { useEffect, useState, useCallback } from "react";
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
-import type { FileLocationState, FileViewerUser } from "@/types/file/types";
+import type {
+  FileLocationState,
+  FileViewerUser,
+} from "@/types/room/file/types";
 import type { Awareness } from "y-protocols/awareness";
 
 /**
@@ -86,12 +89,12 @@ export function useFileLocations(
         locationMap.get(fileId)!.push(user);
       });
 
-      const locations: FileLocationState[] = Array.from(locationMap.entries()).map(
-        ([fileId, users]) => ({
-          fileId,
-          users,
-        }),
-      );
+      const locations: FileLocationState[] = Array.from(
+        locationMap.entries(),
+      ).map(([fileId, users]) => ({
+        fileId,
+        users,
+      }));
 
       setFileLocations(locations);
     };

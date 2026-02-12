@@ -1,4 +1,4 @@
-import type { UseParticipantManagementParams } from "@/types/voicechat/stomp";
+import type { UseParticipantManagementParams } from "@/types/room/chat/voicechat/stomp";
 import { useCallback, useEffect, useRef } from "react";
 
 /**

@@ -15,12 +15,12 @@ import {
   VscFile,
   VscFolder,
   VscFolderOpened,
-  VscCheck,  // 삭제 모드 체크 아이콘
+  VscCheck, // 삭제 모드 체크 아이콘
 } from "react-icons/vsc";
 import type {
   FileNode,
   FileTreeItemProps as FileTreeItemPropsType,
-} from "@/types/file/types";
+} from "@/types/room/file/types";
 
 // 파일 확장자에 맞는 아이콘을 반환하는 헬퍼 함수입니다.
 // 별도의 유틸 파일로 분리하지 않고 직관적으로 찾을 수 있도록 여기에 배치했습니다.
@@ -53,7 +53,7 @@ export const FileTreeItem = ({
   fileLocations,
   // ===== 삭제 모드 관련 props =====
   isDeleteMode = false,
-  deleteTargetIds,  // 삭제 대상 Set (하위 노드에도 전달)
+  deleteTargetIds, // 삭제 대상 Set (하위 노드에도 전달)
   onToggleDeleteTarget,
 }: FileTreeItemPropsType) => {
   // 현재 노드가 삭제 대상인지 확인
@@ -180,7 +180,9 @@ export const FileTreeItem = ({
         </span>
 
         {/* 파일명 표시 (글자가 길면 툴팁으로 전체 이름 표시) */}
-        <span className="truncate leading-6 flex-1" title={node.name}>{node.name}</span>
+        <span className="truncate leading-6 flex-1" title={node.name}>
+          {node.name}
+        </span>
       </div>
 
       {/* 폴더가 열려있고 자식이 있다면 재귀적으로 렌더링합니다. */}

@@ -10,7 +10,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { UseWebRTCReturn } from "@/types/chat/webrtc";
+import type { UseWebRTCReturn } from "@/types/room/chat/webrtc";
 
 /**
  *   STUN 서버:
@@ -32,7 +32,7 @@ const SPEAKING_HOLD_MS = 300; // 말이 끝나도 이 시간 동안 유지
  * @returns WebRTC 관련 상태와 제어 함수들
  */
 export function useWebRTC(
-  onIceCandidate?: (peerId: string, candidate: RTCIceCandidate) => void
+  onIceCandidate?: (peerId: string, candidate: RTCIceCandidate) => void,
 ): UseWebRTCReturn {
   // 상태 및 ref 정의
 
@@ -234,7 +234,7 @@ export function useWebRTC(
   }, []);
 
   const toggleMic = useCallback(async () => {
-    const newState = !isMicOnRef.current;  // ref 사용으로 stale closure 문제 해결
+    const newState = !isMicOnRef.current; // ref 사용으로 stale closure 문제 해결
 
     if (newState) {
       // 마이크 켜기: 새로운 스트림 획득
@@ -290,7 +290,7 @@ export function useWebRTC(
       }
       analyserRef.current = null;
     }
-  }, [setupSpeakingDetection]);  // isMicOn 제거로 dependency 최적화
+  }, [setupSpeakingDetection]); // isMicOn 제거로 dependency 최적화
 
   /**
    * 특정 피어와의 RTCPeerConnection을 생성하거나 기존 것을 반환합니다.

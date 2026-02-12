@@ -1,4 +1,4 @@
-import type { FileViewerProps } from "@/types/file/types";
+import type { FileViewerProps } from "@/types/room/file/types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { DragEvent } from "react";
 import {
@@ -20,7 +20,7 @@ import type {
   FileNode,
   LocalFileSystemFileEntry,
   RawNode,
-} from "@/types/file/types";
+} from "@/types/room/file/types";
 import Alert from "@/components/common/Alert";
 import axiosInstance from "@/api/axios";
 
