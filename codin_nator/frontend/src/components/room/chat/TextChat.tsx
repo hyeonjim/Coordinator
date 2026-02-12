@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import type { ChatMessage, TextChatProps } from "@/types/chat/message";
+import type { ChatMessage, TextChatProps } from "@/types/room/chat/textchat/types";
 
 /**
  * 내 메시지는 오른쪽, 상대 메시지는 왼쪽에 표시

@@ -1,16 +1,72 @@
 import type { NavigateFunction } from "react-router-dom";
-import type { ChatMessage, TabType } from "@/types/chat/message";
-import type { UseWebRTCReturn } from "@/types/chat/webrtc";
-import type { UseWebSocketReturn } from "@/types/chat/websocket";
-import type {
-  UseTextChatWebSocketReturn,
-  UseVoiceChatWebSocketReturn,
-} from "@/types/chat/stomp";
-import type { Participant } from "@/types/chat/voicetypes";
+import type { ChatMessage } from "@/types/room/chat/textchat/types";
+import type { UseWebRTCReturn } from "@/types/room/chat/voicechat/webrtc";
+import type { UseWebSocketReturn } from "@/types/room/chat/websocket";
+import type { UseTextChatWebSocketReturn } from "@/types/room/chat/textchat/types";
+import type { UseVoiceChatWebSocketReturn } from "@/types/room/chat/voicechat/types";
 
 /**
- * useRoomSetup 훅의 반환 타입
+ * 시그널링 서버로 보내는/받는 모든 메시지 타입
  */
+export type SignalMessage =
+  // 방 입장 요청
+  | {
+      type: "join";
+      roomId: string;
+      userId: string;
+      userName: string;
+      imageUrl?: string;
+    }
+  // 방 입장 성공 응답
+  | { type: "joined"; roomId: string; userId: string; peers: Participant[] }
+  // 새 참여자 알림
+  | {
+      type: "peer-joined";
+      roomId: string;
+      userId: string;
+      userName: string;
+      imageUrl?: string;
+    }
+  // WebRTC Offer (연결 제안)
+  | {
+      type: "offer";
+      roomId: string;
+      from: string;
+      to: string;
+      sdp: RTCSessionDescriptionInit;
+    }
+  // WebRTC Answer (연결 응답)
+  | {
+      type: "answer";
+      roomId: string;
+      from: string;
+      to: string;
+      sdp: RTCSessionDescriptionInit;
+    }
+  // ICE Candidate (네트워크 경로 정보)
+  | {
+      type: "ice";
+      roomId: string;
+      from: string;
+      to: string;
+      candidate: RTCIceCandidateInit;
+    }
+  // 방 퇴장
+  | { type: "leave"; roomId: string; userId: string }
+  // 참여자 퇴장 알림
+  | { type: "peer-left"; roomId: string; userId: string };
+
+/**
+ * 방 참여자 기본 정보
+ */
+export interface Participant {
+  userId: string;
+  userName: string;
+  imageUrl?: string;
+  isSpeaking: boolean;
+  micOn: boolean;
+}
+
 export interface UseRoomSetupReturn {
   userId: string;
   userName: string;
@@ -23,48 +79,16 @@ export interface UseRoomSetupReturn {
   setParticipants: React.Dispatch<React.SetStateAction<Participant[]>>;
   chatMessages: ChatMessage[];
   setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
-  activeTab: TabType;
-  setActiveTab: React.Dispatch<React.SetStateAction<TabType>>;
   isSidebarCollapsed: boolean;
   setIsSidebarCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-/**
- * Header 컴포넌트 Props
- */
 export interface HeaderProps {
   isJoined: boolean;
   onJoin: () => void;
   onLeave: () => void;
 }
 
-/**
- * DebugPanel 컴포넌트 Props
- */
-export interface DebugPanelProps {
-  onTestUserJoin: () => void;
-  onTestUserMessage: () => void;
-  onSimulateAudio: () => void;
-  isWebSocketConnected: boolean;
-}
-
-/**
- * createTestHelpers 함수 파라미터 타입
- */
-export interface CreateTestHelpersParams {
-  addParticipant: (
-    id: string,
-    name: string,
-    imageUrl?: string,
-    micOn?: boolean,
-  ) => void;
-  setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
-  webRTC: UseWebRTCReturn;
-}
-
-/**
- * useWebSocketMessageHandler 훅 파라미터 타입
- */
 export interface UseWebSocketMessageHandlerParams {
   webSocket: UseWebSocketReturn;
   webRTC: UseWebRTCReturn;
@@ -77,13 +101,9 @@ export interface UseWebSocketMessageHandlerParams {
     micOn?: boolean,
   ) => void;
   removeParticipant: (id: string) => void;
-  setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
   setIsJoined: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-/**
- * useRoomActions 훅 파라미터 타입
- */
 export interface UseRoomActionsParams {
   currentRoomId: string;
   userId: string;

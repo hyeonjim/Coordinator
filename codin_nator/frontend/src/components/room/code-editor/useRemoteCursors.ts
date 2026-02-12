@@ -10,7 +10,10 @@ import {
   type RelativeRange,
 } from "@slate-yjs/core";
 import type { Node } from "slate";
-import type { CursorUserData, RemoteCursor } from "@/types/editor/cursor/types";
+import type {
+  CursorUserData,
+  RemoteCursor,
+} from "@/types/room/editor/cursor/types";
 
 interface CursorState {
   data?: CursorUserData;
@@ -38,7 +41,10 @@ export function useRemoteCursors(
       // CursorEditor.cursorStates()로부터 모든 클라이언트 상태를 읽어옵니다.
       let states: Record<string, CursorState> = {};
       try {
-        states = CursorEditor.cursorStates(editor) as Record<string, CursorState>;
+        states = CursorEditor.cursorStates(editor) as Record<
+          string,
+          CursorState
+        >;
       } catch (e) {
         console.debug("[useRemoteCursors] cursorStates failed", e);
       }

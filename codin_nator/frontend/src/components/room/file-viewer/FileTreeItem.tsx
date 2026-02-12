@@ -12,7 +12,7 @@ import {
 import type {
   FileNode,
   FileTreeItemProps as FileTreeItemPropsType,
-} from "@/types/file/types";
+} from "@/types/room/file/types";
 
 // 파일 확장자에 맞는 아이콘을 반환하는 헬퍼 함수입니다.
 // 별도의 유틸 파일로 분리하지 않고 직관적으로 찾을 수 있도록 여기에 배치했습니다.
@@ -116,7 +116,7 @@ export const FileTreeItem = ({
                     style={{
                       width: "16px",
                       height: "16px",
-                      backgroundColor: user.color ?? "#6366f1",
+                      backgroundColor: "#6366f1",
                     }}
                   >
                     {user.userName.charAt(0).toUpperCase()}

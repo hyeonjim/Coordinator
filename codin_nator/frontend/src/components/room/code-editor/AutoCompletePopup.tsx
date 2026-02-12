@@ -6,8 +6,8 @@
  */
 
 import { useEffect, useRef } from "react";
-import type { AutoCompletePopupProps } from "@/types/editor/types";
-import type { AutoCompleteItem } from "@/types/editor/javaAutoComplete";
+import type { AutoCompletePopupProps } from "@/types/room/editor/types";
+import type { AutoCompleteItem } from "@/types/room/editor/javaAutoComplete";
 
 // 타입별 아이콘/색상 정의
 const TYPE_STYLES: Record<

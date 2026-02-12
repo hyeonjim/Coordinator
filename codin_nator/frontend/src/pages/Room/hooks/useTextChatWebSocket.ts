@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
 import type {
   TextChatMessagePayload,
   TextChatMessageReceived,
   UseTextChatWebSocketReturn,
-} from '@/types/chat/stomp';
+} from "@/types/room/chat/textchat/types";
 
 /**
  * 텍스트 채팅 전용 STOMP WebSocket 훅
@@ -23,7 +23,9 @@ import type {
  * @param brokerUrl - STOMP 브로커 URL (예: http://localhost:8080/ws-chat)
  * @returns STOMP 연결 상태와 메시지 송수신 함수들
  */
-export function useTextChatWebSocket(brokerUrl: string): UseTextChatWebSocketReturn {
+export function useTextChatWebSocket(
+  brokerUrl: string,
+): UseTextChatWebSocketReturn {
   /**
    * STOMP 클라이언트 인스턴스
    * useRef를 사용하여 리렌더링 시에도 동일한 인스턴스를 유지합니다.
@@ -53,13 +55,13 @@ export function useTextChatWebSocket(brokerUrl: string): UseTextChatWebSocketRet
   const connect = useCallback(() => {
     // 이미 연결되어 있으면 무시
     if (stompClientRef.current?.connected) {
-      console.log('🔄 이미 텍스트 채팅 STOMP에 연결되어 있습니다.');
+      console.log("🔄 이미 텍스트 채팅 STOMP에 연결되어 있습니다.");
       return;
     }
 
     // URL 검증
     if (!brokerUrl) {
-      console.warn('⚠️ STOMP 브로커 URL이 설정되지 않았습니다.');
+      console.warn("⚠️ STOMP 브로커 URL이 설정되지 않았습니다.");
       return;
     }
 
@@ -97,7 +99,7 @@ export function useTextChatWebSocket(brokerUrl: string): UseTextChatWebSocketRet
        * STOMP 프로토콜 연결이 완료되면 호출됩니다.
        */
       onConnect: () => {
-        console.log('✅ 텍스트 채팅 STOMP 연결 성공');
+        console.log("✅ 텍스트 채팅 STOMP 연결 성공");
         setIsConnected(true);
       },
 
@@ -111,7 +113,7 @@ export function useTextChatWebSocket(brokerUrl: string): UseTextChatWebSocketRet
        * 실무에서는 에러 로깅 용도로만 사용하므로 unknown 타입 사용
        */
       onStompError: (frame: unknown) => {
-        console.error('❌ STOMP 에러:', frame);
+        console.error("❌ STOMP 에러:", frame);
         setIsConnected(false);
       },
 
@@ -121,7 +123,7 @@ export function useTextChatWebSocket(brokerUrl: string): UseTextChatWebSocketRet
        * (예: 네트워크 문제, 서버 다운 등)
        */
       onWebSocketError: (event: Event) => {
-        console.error('❌ WebSocket 에러:', event);
+        console.error("❌ WebSocket 에러:", event);
         setIsConnected(false);
       },
 
@@ -130,7 +132,7 @@ export function useTextChatWebSocket(brokerUrl: string): UseTextChatWebSocketRet
        * 정상적인 연결 해제 또는 비정상 종료 시 호출됩니다.
        */
       onDisconnect: () => {
-        console.log('🔌 텍스트 채팅 STOMP 연결 해제');
+        console.log("🔌 텍스트 채팅 STOMP 연결 해제");
         setIsConnected(false);
       },
     });
@@ -149,7 +151,7 @@ export function useTextChatWebSocket(brokerUrl: string): UseTextChatWebSocketRet
       stompClientRef.current.deactivate();
       stompClientRef.current = null;
       subscriptionRef.current = null;
-      console.log('🔌 STOMP 연결 종료 및 정리 완료');
+      console.log("🔌 STOMP 연결 종료 및 정리 완료");
     }
   }, []);
 
@@ -169,7 +171,9 @@ export function useTextChatWebSocket(brokerUrl: string): UseTextChatWebSocketRet
 
       // 연결 확인
       if (!client || !client.connected) {
-        console.warn('⚠️ STOMP가 연결되지 않았습니다. 먼저 connect()를 호출하세요.');
+        console.warn(
+          "⚠️ STOMP가 연결되지 않았습니다. 먼저 connect()를 호출하세요.",
+        );
         return;
       }
 
@@ -182,7 +186,7 @@ export function useTextChatWebSocket(brokerUrl: string): UseTextChatWebSocketRet
       // 기존 구독 해제 (다른 방으로 이동하는 경우)
       if (subscriptionRef.current) {
         subscriptionRef.current.unsubscribe();
-        console.log('📢 이전 채팅방 구독 해제');
+        console.log("📢 이전 채팅방 구독 해제");
       }
 
       // 새 구독 시작
@@ -192,22 +196,24 @@ export function useTextChatWebSocket(brokerUrl: string): UseTextChatWebSocketRet
         (message) => {
           try {
             // 메시지 본문을 JSON으로 파싱
-            const receivedMessage: TextChatMessageReceived = JSON.parse(message.body);
-            console.log('💬 채팅 메시지 수신:', receivedMessage);
+            const receivedMessage: TextChatMessageReceived = JSON.parse(
+              message.body,
+            );
+            console.log("💬 채팅 메시지 수신:", receivedMessage);
 
             // 콜백 함수 호출
             onMessage(receivedMessage);
           } catch (error) {
-            console.error('❌ 메시지 파싱 에러:', error);
+            console.error("❌ 메시지 파싱 에러:", error);
           }
-        }
+        },
       );
 
       subscriptionRef.current = subscription;
       currentSubRoomIdRef.current = roomId;
       console.log(`📢 채팅방 구독 시작: ${roomId}`);
     },
-    []
+    [],
   );
 
   /**
@@ -219,7 +225,7 @@ export function useTextChatWebSocket(brokerUrl: string): UseTextChatWebSocketRet
       subscriptionRef.current.unsubscribe();
       subscriptionRef.current = null;
       currentSubRoomIdRef.current = null;
-      console.log('📢 채팅방 구독 해제');
+      console.log("📢 채팅방 구독 해제");
     }
   }, []);
 
@@ -236,7 +242,9 @@ export function useTextChatWebSocket(brokerUrl: string): UseTextChatWebSocketRet
 
     // 연결 확인
     if (!client || !client.connected) {
-      console.warn('⚠️ STOMP가 연결되지 않았습니다. 메시지를 전송할 수 없습니다.');
+      console.warn(
+        "⚠️ STOMP가 연결되지 않았습니다. 메시지를 전송할 수 없습니다.",
+      );
       return;
     }
 
@@ -244,11 +252,11 @@ export function useTextChatWebSocket(brokerUrl: string): UseTextChatWebSocketRet
     // destination: 백엔드 컨트롤러의 @MessageMapping 경로
     // body: JSON 문자열로 변환된 페이로드
     client.publish({
-      destination: '/pub/chat/message',
+      destination: "/pub/chat/message",
       body: JSON.stringify(payload),
     });
 
-    console.log('📤 채팅 메시지 전송:', payload);
+    console.log("📤 채팅 메시지 전송:", payload);
   }, []);
 
   /**
@@ -261,19 +269,22 @@ export function useTextChatWebSocket(brokerUrl: string): UseTextChatWebSocketRet
     };
   }, [disconnect]);
 
-  return useMemo(() => ({
-    isConnected,
-    subscribeToRoom,
-    unsubscribeFromRoom,
-    sendMessage,
-    connect,
-    disconnect,
-  }), [
-    isConnected,
-    subscribeToRoom,
-    unsubscribeFromRoom,
-    sendMessage,
-    connect,
-    disconnect,
-  ]);
+  return useMemo(
+    () => ({
+      isConnected,
+      subscribeToRoom,
+      unsubscribeFromRoom,
+      sendMessage,
+      connect,
+      disconnect,
+    }),
+    [
+      isConnected,
+      subscribeToRoom,
+      unsubscribeFromRoom,
+      sendMessage,
+      connect,
+      disconnect,
+    ],
+  );
 }

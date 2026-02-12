@@ -6,7 +6,7 @@ export type CodeEditorActionsProps = {
   onTestGenerated?: (testCode: string) => void;
   onAppendTerminal?: (title: string, text: string) => void;
 
-  // 📏 폰트 크기 조정 props
+  // 폰트 크기 조정 props
   fontSize?: number;
   onIncreaseFontSize?: () => void;
   onDecreaseFontSize?: () => void;

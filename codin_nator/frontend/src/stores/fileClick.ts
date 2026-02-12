@@ -1,4 +1,4 @@
-import type { FileClickState } from "@/types/file/types";
+import type { FileClickState } from "@/types/room/file/types";
 import { create } from "zustand";
 
 export const useFileClickStore = create<FileClickState>((set, get) => ({

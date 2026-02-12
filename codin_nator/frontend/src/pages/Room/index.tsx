@@ -75,8 +75,6 @@ export default function RoomPage() {
     setParticipants,
     chatMessages,
     setChatMessages,
-    activeTab,
-    setActiveTab,
     isSidebarCollapsed,
     setIsSidebarCollapsed,
   } = useRoomSetup(roomId);
@@ -267,8 +265,6 @@ export default function RoomPage() {
           messages={chatMessages}
           onSendMessage={handleSendChat}
           disabled={!isJoined}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
           isSidebarCollapsed={isSidebarCollapsed}
           setIsSidebarCollapsed={setIsSidebarCollapsed}
         />

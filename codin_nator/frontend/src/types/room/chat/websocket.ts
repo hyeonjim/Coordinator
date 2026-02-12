@@ -1,11 +1,10 @@
-import type { SignalMessage } from "./signaling";
+import type { SignalMessage } from "../types";
 
 /**
  * useWebSocket 훅의 반환 타입
  * WebSocket 연결 관리 및 메시지 송수신 기능 정의
  */
 export interface UseWebSocketReturn {
-  /** 연결 상태 */
   isConnected: boolean;
   /** 메시지 전송 함수 */
   send: (message: SignalMessage) => void;
