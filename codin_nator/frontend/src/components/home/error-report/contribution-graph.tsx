@@ -7,19 +7,18 @@ import type {
 } from "@/types/home/contribution";
 
 const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
+
+// contrib-level 0~4 에 대응하는 Tailwind 배경색 클래스
+const CONTRIB_LEVEL_CLASSES = [
+  "bg-[#dcdfe2]",
+  "bg-[oklch(0.93_0.05_25)]",
+  "bg-[oklch(0.85_0.1_25)]",
+  "bg-[oklch(0.75_0.14_25)]",
+  "bg-[oklch(0.6_0.18_25)]",
+] as const;
 
 const formatDate = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
@@ -172,11 +171,11 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
 
   const getContribClass = (count: number) => {
     if (count < 0) return "bg-transparent";
-    if (count === 0) return "contrib-level-0";
-    if (count === 1) return "contrib-level-1";
-    if (count <= 3) return "contrib-level-2";
-    if (count <= 6) return "contrib-level-3";
-    return "contrib-level-4";
+    if (count === 0) return CONTRIB_LEVEL_CLASSES[0];
+    if (count === 1) return CONTRIB_LEVEL_CLASSES[1];
+    if (count <= 3) return CONTRIB_LEVEL_CLASSES[2];
+    if (count <= 6) return CONTRIB_LEVEL_CLASSES[3];
+    return CONTRIB_LEVEL_CLASSES[4];
   };
 
   const years = [
@@ -276,8 +275,8 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
       </div>
       {/* ===== 월 & 잔디 (큰 화면: 중앙 정렬 / 작은 화면: 가로 스크롤) ===== */}
       <div className="w-full overflow-x-auto pb-3">
-        <div style={{ display: "table", margin: "0 auto" }}>
-          <div className="inline-flex flex-col" style={{ padding: "0 15px" }}>
+        <div className="table mx-auto">
+          <div className="inline-flex flex-col px-[15px]">
             {/* 월 레이블 — week 열과 1:1 매핑 */}
             <div className="flex gap-[3px] mb-3">
               {weeks.map((_, wi) => (
@@ -327,11 +326,8 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
         <div className="flex items-center gap-3 text-xs font-medium px-5 py-2.5 rounded-lg text-[#24292E] bg-transparent border border-[#afb4be] shadow-md">
           <span>Less</span>
           <div className="flex gap-2">
-            {[0, 1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className={`w-4 h-4 rounded-sm contrib-level-${i}`}
-              />
+            {CONTRIB_LEVEL_CLASSES.map((cls, i) => (
+              <div key={i} className={`w-4 h-4 rounded-sm ${cls}`} />
             ))}
           </div>
           <span>More</span>

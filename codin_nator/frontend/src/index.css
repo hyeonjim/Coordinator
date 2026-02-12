@@ -258,22 +258,6 @@
   content: counter(line-number);
 }
 
-/* Contribution graph colors */
-.contrib-level-0 {
-  background-color: #dcdfe2;
-}
-.contrib-level-1 {
-  background-color: oklch(0.93 0.05 25);
-}
-.contrib-level-2 {
-  background-color: oklch(0.85 0.1 25);
-}
-.contrib-level-3 {
-  background-color: oklch(0.75 0.14 25);
-}
-.contrib-level-4 {
-  background-color: oklch(0.6 0.18 25);
-}
 
 /* ============================================
    Room 테마 - 색상 변수
