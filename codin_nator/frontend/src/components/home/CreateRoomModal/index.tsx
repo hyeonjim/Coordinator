@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import FormInput from "./components/FormInput";
 import { useState } from "react";
-import type { CreateRoomModalProps } from "@/types/home/creatRoomModal";
+import type { CreateRoomModalProps } from "@/types/home/creatRoomModal/types";
 import axiosInstance from "@/api/axios";
 
 export default function CreateRoomModal({ onClose }: CreateRoomModalProps) {

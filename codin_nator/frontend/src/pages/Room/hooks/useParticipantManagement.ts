@@ -1,5 +1,5 @@
+import type { UseParticipantManagementParams } from "@/types/voicechat/stomp";
 import { useCallback, useEffect, useRef } from "react";
-import type { UseParticipantManagementParams } from "@/types/voicechat";
 
 /**
  * 참여자 관리 및 실시간 동기화 훅
@@ -39,15 +39,20 @@ export function useParticipantManagement({
 
           if (isNewNameTemporary && isExistingNameBetter) {
             if (micOn !== undefined && exists.micOn !== micOn) {
-              return prev.map((p) =>
-                p.userId === id ? { ...p, micOn } : p
-              );
+              return prev.map((p) => (p.userId === id ? { ...p, micOn } : p));
             }
-            console.log(`ℹ️ [Participant] 기등록된 실명 보유 중 - 업데이트 스킵: ${id}`);
+            console.log(
+              `ℹ️ [Participant] 기등록된 실명 보유 중 - 업데이트 스킵: ${id}`,
+            );
             return prev;
           }
 
-          if (exists.userName === name && exists.imageUrl === imageUrl && (micOn === undefined || exists.micOn === micOn)) return prev;
+          if (
+            exists.userName === name &&
+            exists.imageUrl === imageUrl &&
+            (micOn === undefined || exists.micOn === micOn)
+          )
+            return prev;
 
           console.log(
             `📝 [Participant] 정보 업데이트: ${id} -> ${name} (img: ${
@@ -56,7 +61,12 @@ export function useParticipantManagement({
           );
           return prev.map((p) =>
             p.userId === id
-              ? { ...p, userName: name, imageUrl: imageUrl ?? p.imageUrl, micOn: micOn ?? p.micOn }
+              ? {
+                  ...p,
+                  userName: name,
+                  imageUrl: imageUrl ?? p.imageUrl,
+                  micOn: micOn ?? p.micOn,
+                }
               : p,
           );
         }
@@ -73,7 +83,7 @@ export function useParticipantManagement({
         ];
       });
     },
-    [setParticipants]
+    [setParticipants],
   );
 
   /**
@@ -83,7 +93,7 @@ export function useParticipantManagement({
     (id: string) => {
       setParticipants((prev) => prev.filter((p) => p.userId !== id));
     },
-    [setParticipants]
+    [setParticipants],
   );
 
   /**
@@ -109,7 +119,8 @@ export function useParticipantManagement({
             // 호스트 상태 업데이트
             const currentMic = webRTCRef.current.isMicOn;
             const currentSpeaking = webRTCRef.current.isSpeaking;
-            const { userName: currentName, userImageUrl: currentImg } = infoRef.current;
+            const { userName: currentName, userImageUrl: currentImg } =
+              infoRef.current;
 
             if (
               p.micOn !== currentMic ||
@@ -150,10 +161,10 @@ export function useParticipantManagement({
   const updateParticipantMicStatus = useCallback(
     (id: string, micOn: boolean) => {
       setParticipants((prev) =>
-        prev.map((p) => (p.userId === id ? { ...p, micOn } : p))
+        prev.map((p) => (p.userId === id ? { ...p, micOn } : p)),
       );
     },
-    [setParticipants]
+    [setParticipants],
   );
 
   return { addParticipant, removeParticipant, updateParticipantMicStatus };

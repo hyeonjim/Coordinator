@@ -6,23 +6,18 @@
  */
 
 import { useEffect, useRef } from "react";
-import type { AutoCompleteItem } from "./javaAutoComplete";
-
-// Props 타입 정의
-interface AutoCompletePopupProps {
-  items: AutoCompleteItem[];       // 표시할 항목들
-  selectedIndex: number;           // 현재 선택된 인덱스
-  position: { top: number; left: number };  // 팝업 위치
-  onSelect: (item: AutoCompleteItem) => void;  // 항목 선택 시 콜백
-  onClose: () => void;             // 팝업 닫기 콜백
-}
+import type { AutoCompletePopupProps } from "@/types/editor/types";
+import type { AutoCompleteItem } from "@/types/editor/javaAutoComplete";
 
 // 타입별 아이콘/색상 정의
-const TYPE_STYLES: Record<AutoCompleteItem["type"], { icon: string; color: string }> = {
-  keyword: { icon: "K", color: "#C586C0" },   // 보라색 - 키워드
-  class: { icon: "C", color: "#4EC9B0" },     // 청록색 - 클래스
-  method: { icon: "M", color: "#DCDCAA" },    // 노란색 - 메서드
-  snippet: { icon: "S", color: "#CE9178" },   // 주황색 - 스니펫
+const TYPE_STYLES: Record<
+  AutoCompleteItem["type"],
+  { icon: string; color: string }
+> = {
+  keyword: { icon: "K", color: "#C586C0" }, // 보라색 - 키워드
+  class: { icon: "C", color: "#4EC9B0" }, // 청록색 - 클래스
+  method: { icon: "M", color: "#DCDCAA" }, // 노란색 - 메서드
+  snippet: { icon: "S", color: "#CE9178" }, // 주황색 - 스니펫
 };
 
 export default function AutoCompletePopup({
@@ -59,10 +54,7 @@ export default function AutoCompletePopup({
       }}
     >
       {/* 항목 리스트 */}
-      <ul
-        ref={listRef}
-        className="overflow-y-auto max-h-[200px] py-1"
-      >
+      <ul ref={listRef} className="overflow-y-auto max-h-50 py-1">
         {items.map((item, index) => {
           const isSelected = index === selectedIndex;
           const style = TYPE_STYLES[item.type];
@@ -81,7 +73,10 @@ export default function AutoCompletePopup({
               {/* 타입 아이콘 */}
               <span
                 className="w-5 h-5 flex items-center justify-center text-xs font-bold rounded"
-                style={{ backgroundColor: style.color + "33", color: style.color }}
+                style={{
+                  backgroundColor: style.color + "33",
+                  color: style.color,
+                }}
               >
                 {style.icon}
               </span>
