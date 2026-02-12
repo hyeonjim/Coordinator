@@ -1,27 +1,36 @@
 import { useCallback, useMemo } from "react";
 import type { UseRoomActionsParams } from "@/types/room/types";
-import { generateId } from "@/utils/ro@/types/room/chat/voicechat/webrtc
+import { generateId } from "@/utils/room/idGenerator";
 
 /**
  * 방 입장/퇴장 및 채팅 전송 훅
  * 방과 관련된 주요 액션들을 관리합니다.
  *
- * @param params - 훅 파라미터
+ * @param params - 훅 파라미터 (roomSetup, roomChat, roomVoice, navigate)
  * @returns 방 액션 함수들 (handleJoin, handleLeave, handleSendChat)
  */
 export function useRoomActions({
-  currentRoomId,
-  userId,
-  userName,
-  userImageUrl,
-  webRTC,
-  textChatWebSocket,
-  voiceChatWebSocket,
-  setIsJoined,
-  setParticipants,
-  setChatMessages,
+  roomSetup,
+  roomChat,
+  roomVoice,
   navigate,
 }: UseRoomActionsParams) {
+  // roomSetup에서 필요한 값 추출
+  const {
+    currentRoomId,
+    userId,
+    userName,
+    userImageUrl,
+    setIsJoined,
+    setParticipants,
+    setChatMessages,
+  } = roomSetup;
+
+  // roomChat에서 필요한 값 추출
+  const { textChatWebSocket } = roomChat;
+
+  // roomVoice에서 필요한 값 추출
+  const { webRTC, voiceChatWebSocket } = roomVoice;
   /**
    * 방에 입장합니다.
    * 1. 마이크 권한 요청 및 오디오 스트림 시작
@@ -52,8 +61,7 @@ export function useRoomActions({
 
         setIsJoined(true);
       }, 300);
-    } catch (error) {
-      console.error("입장 실패:", error);
+    } catch {
       alert(
         "마이크 권한을 허용해주셔야 음성 채팅 서비스를 이용하실 수 있습니다.",
       );
@@ -88,8 +96,8 @@ export function useRoomActions({
         type: "LEAVE",
         imageUrl: userImageUrl,
       });
-    } catch (error) {
-      console.error("퇴장 메시지 전송 실패:", error);
+    } catch {
+      // 퇴장 메시지 전송 실패 시 무시
     }
 
     // 짧은 딜레이 후 퇴장 처리 (메시지 전송 완료 대기)

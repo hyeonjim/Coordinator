@@ -1,12 +1,6 @@
-/**
- * Editor Cursor 관련 타입 정의
- * - 다른 사용자의 커서/선택 영역 정보를 표현하는 타입들을 모아둡니다.
- * - @slate-yjs/core의 awareness/data 구조와 호환되도록 설계했습니다.
- */
 import type { Editor, Range } from "slate";
 import type { ReactEditor } from "slate-react";
 
-// 10가지 커서 색상 (VSCode Live Share 스타일)
 export const CURSOR_COLORS = [
   "#E91E63", // Pink
   "#2196F3", // Blue

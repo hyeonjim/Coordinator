@@ -1,26 +1,9 @@
 import { useEffect } from "react";
-import type { UseTextChatWebSocketReturn, ChatMessage } from "@/types/room/chat/textchat/types";
+import type {
+  ChatMessage,
+  UseTextChatMessageHandlerParams,
+} from "@/types/room/chat/textchat/types";
 import { generateId } from "@/utils/room/idGenerator";
-
-/**
- * 텍스트 채팅 메시지 수신 처리 훅의 파라미터
- */
-export interface UseTextChatMessageHandlerParams {
-  /** 텍스트 채팅 WebSocket 인스턴스 */
-  textChatWebSocket: UseTextChatWebSocketReturn;
-
-  /** 현재 채팅방 ID */
-  currentRoomId: string;
-
-  /** 현재 사용자 이름 */
-  userName: string;
-
-  /** 방 입장 여부 (true: 입장함, false: 입장하지 않음) */
-  isJoined: boolean;
-
-  /** 채팅 메시지 상태 업데이트 함수 */
-  setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
-}
 
 /**
  * 텍스트 채팅 메시지 수신 및 처리 훅
@@ -55,7 +38,6 @@ export function useTextChatMessageHandler({
     // STOMP가 연결되지 않았으면 대기
     // connect()가 완료되면 이 effect가 다시 실행됩니다.
     if (!textChatWebSocket.isConnected) {
-      console.log("⏳ STOMP 연결 대기 중...");
       return;
     }
 
@@ -81,9 +63,6 @@ export function useTextChatMessageHandler({
         receivedMessage.sender === userName &&
         receivedMessage.type === "TALK"
       ) {
-        console.log(
-          "🔄 내가 보낸 메시지는 이미 로컬에 추가되어 있으므로 무시합니다.",
-        );
         return;
       }
 
@@ -102,8 +81,6 @@ export function useTextChatMessageHandler({
         isMe: receivedMessage.sender === userName,
         imageUrl: receivedMessage.imageUrl,
       };
-
-      console.log("💬 새 채팅 메시지 추가:", chatMessage);
 
       /**
        * 채팅 메시지 목록에 추가
@@ -125,13 +102,5 @@ export function useTextChatMessageHandler({
     return () => {
       textChatWebSocket.unsubscribeFromRoom();
     };
-  }, [
-    textChatWebSocket.isConnected,
-    textChatWebSocket.subscribeToRoom,
-    textChatWebSocket.unsubscribeFromRoom,
-    currentRoomId,
-    userName,
-    isJoined,
-    setChatMessages,
-  ]);
+  }, [textChatWebSocket, currentRoomId, userName, isJoined, setChatMessages]);
 }

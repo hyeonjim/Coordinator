@@ -215,9 +215,9 @@ export default function Codeeditoractions({
         )}
       </div>
 
-      {/* AI 액션 버튼들 */}
+      {/* 코드에디터 헤더 */}
       <div className="flex items-center gap-3">
-        {/* 📏 폰트 크기 조정 버튼 */}
+        {/* 폰트 크기 조정 버튼 */}
         <div className="font-size-control">
           <span className="text-[12px] min-w-6 text-right">{fontSize}px</span>
           <button
