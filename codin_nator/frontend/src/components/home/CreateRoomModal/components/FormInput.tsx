@@ -1,4 +1,4 @@
-import type { FormInputProps } from "@/types/home/creatRoomModal";
+import type { FormInputProps } from "@/types/home/creatRoomModal/types";
 import { useState } from "react";
 
 //지라

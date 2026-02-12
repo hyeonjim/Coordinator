@@ -21,7 +21,7 @@ import {
   filterAutoComplete,
   getCurrentWord,
   type AutoCompleteItem,
-} from "./javaAutoComplete";
+} from "../../../types/editor/javaAutoComplete";
 
 /* 커서 오버레이 */
 import RemoteCursorOverlay from "./RemoteCursorOverlay";
