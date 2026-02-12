@@ -10,7 +10,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { UseWebRTCReturn } from "@/types/room/chat/webrtc";
+import type { UseWebRTCReturn } from "@/types/room/chat/voicechat/webrtc";
 
 /**
  *   STUN 서버:

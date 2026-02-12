@@ -9,26 +9,15 @@ import { WebsocketProvider } from "y-websocket";
 import type {
   FileLocationState,
   FileViewerUser,
+  FileAwarenessData,
 } from "@/types/room/file/types";
 import type { Awareness } from "y-protocols/awareness";
-
-/**
- * Awareness에 저장되는 파일 위치 정보
- */
-interface FileAwarenessData {
-  userId: string;
-  userName: string;
-  imageUrl?: string;
-  color?: string;
-  currentFileId?: number; // 현재 보고 있는 파일 ID
-}
 
 export function useFileLocations(
   roomId: number,
   userId?: string,
   userName?: string,
   userImageUrl?: string,
-  userColor?: string,
 ) {
   const [fileLocations, setFileLocations] = useState<FileLocationState[]>([]);
   const [awareness, setAwareness] = useState<Awareness | null>(null);
@@ -52,7 +41,6 @@ export function useFileLocations(
         userId,
         userName,
         imageUrl: userImageUrl,
-        color: userColor,
         currentFileId: undefined,
       } as FileAwarenessData);
     }
@@ -61,7 +49,7 @@ export function useFileLocations(
       wsProvider.disconnect();
       yDocument.destroy();
     };
-  }, [roomId, userId, userName, userImageUrl, userColor]);
+  }, [roomId, userId, userName, userImageUrl]);
 
   // Awareness 변경 감지 및 파일 위치 업데이트
   useEffect(() => {
@@ -80,7 +68,6 @@ export function useFileLocations(
           userId: userData.userId,
           userName: userData.userName,
           imageUrl: userData.imageUrl,
-          color: userData.color,
         };
 
         if (!locationMap.has(fileId)) {
@@ -116,13 +103,12 @@ export function useFileLocations(
         userId,
         userName,
         imageUrl: userImageUrl,
-        color: userColor,
         currentFileId: fileId ?? undefined,
       };
 
       awareness.setLocalStateField("user", userData);
     },
-    [awareness, userId, userName, userImageUrl, userColor],
+    [awareness, userId, userName, userImageUrl],
   );
 
   return {

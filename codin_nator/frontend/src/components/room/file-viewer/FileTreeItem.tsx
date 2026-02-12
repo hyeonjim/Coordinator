@@ -136,7 +136,7 @@ export const FileTreeItem = ({
                     style={{
                       width: "16px",
                       height: "16px",
-                      backgroundColor: user.color ?? "#6366f1",
+                      backgroundColor: "#6366f1",
                     }}
                   >
                     {user.userName.charAt(0).toUpperCase()}
