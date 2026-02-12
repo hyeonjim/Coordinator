@@ -5,15 +5,10 @@
 export interface UseWebRTCReturn {
   /** 로컬 미디어 스트림 (내 마이크 입력) */
   localStream: MediaStream | null;
-  /** 마이크 켜짐 여부 */
   isMicOn: boolean;
-  /** 현재 말하고 있는지 (음성 감지) */
   isSpeaking: boolean;
-  /** 마이크 토글 함수 */
   toggleMic: () => void;
-  /** 오디오 스트림 시작 */
   startAudio: () => Promise<void>;
-  /** 오디오 스트림 중지 */
   stopAudio: () => void;
   /** WebRTC Offer 생성 */
   createOffer: (peerId: string) => Promise<RTCSessionDescriptionInit | null>;
