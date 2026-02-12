@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import type { UseRoomActionsParams } from "@/types/room/types";
-import { generateId } from "@/utils/ro@/types/room/chat/voicechat/webrtc
+import { generateId } from "@/utils/room/idGenerator";
 
 /**
  * 방 입장/퇴장 및 채팅 전송 훅

@@ -3,8 +3,8 @@ import type {
   StoredLog,
   ContributionData,
   AppendLogInput,
-} from "@/types/home/contribution";
-import { CONTRIB_UPDATED_EVENT } from "@/types/home/contribution";
+} from "@/types/room/contribution";
+import { CONTRIB_UPDATED_EVENT } from "@/types/room/contribution";
 
 const KEY = "codinnator_contrib_logs_v1";
 
