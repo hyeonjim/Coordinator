@@ -16,12 +16,11 @@ import "prismjs/themes/prism-tomorrow.css";
 import Codeeditoractions from "@/components/ai/Codeeditoractions";
 
 /* 자동완성 */
-import AutoCompletePopup from "./AutoCompletePopup";
-import {
+import AutoCompletePopup, {
   filterAutoComplete,
   getCurrentWord,
-  type AutoCompleteItem,
-} from "../../../types/room/editor/javaAutoComplete";
+} from "./AutoCompletePopup";
+import type { AutoCompleteItem } from "@/types/room/editor/javaAutoComplete";
 
 /* 커서 오버레이 */
 import RemoteCursorOverlay from "./RemoteCursorOverlay";

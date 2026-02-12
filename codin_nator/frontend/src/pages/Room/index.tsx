@@ -9,14 +9,14 @@ import { VoiceChat } from "@/components/room/chat/VoiceChat";
 import { TextChat } from "@/components/room/chat/TextChat";
 
 // 커스텀 훅
-import { useTextChatWebSocket } from "./hooks/useTextChatWebSocket";
-import { useVoiceChatWebSocket } from "./hooks/useVoiceChatWebSocket";
-import { useWebRTC } from "./hooks/useWebRTC";
-import { useRoomSetup } from "./hooks/useRoomSetup";
-import { useParticipantManagement } from "./hooks/useParticipantManagement";
-import { useRoomActions } from "./hooks/useRoomActions";
-import { useTextChatMessageHandler } from "./hooks/useTextChatMessageHandler";
-import { useVoiceChatMessageHandler } from "./hooks/useVoiceChatMessageHandler";
+import { useTextChatWebSocket } from "../../hooks/room/useTextChatWebSocket";
+import { useVoiceChatWebSocket } from "../../hooks/room/useVoiceChatWebSocket";
+import { useWebRTC } from "../../hooks/room/useWebRTC";
+import { useRoomSetup } from "../../hooks/room/useRoomSetup";
+import { useParticipantManagement } from "../../hooks/room/useParticipantManagement";
+import { useRoomActions } from "../../hooks/room/useRoomActions";
+import { useTextChatMessageHandler } from "../../hooks/room/useTextChatMessageHandler";
+import { useVoiceChatMessageHandler } from "../../hooks/room/useVoiceChatMessageHandler";
 
 // 연결 테스트용
 import { getSocketBaseUrl } from "@/utils/socketUtils";
