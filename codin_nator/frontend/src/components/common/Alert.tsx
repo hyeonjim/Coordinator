@@ -1,11 +1,4 @@
-import type { ReactNode } from "react";
-
-interface AlertProps {
-  open: boolean;
-  title?: string;
-  children: ReactNode;
-  onConfirm: () => void;
-}
+import type { AlertProps } from "@/types/common/types";
 
 export default function Alert({
   open,
