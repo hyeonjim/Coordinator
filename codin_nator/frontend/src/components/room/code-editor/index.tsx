@@ -52,18 +52,6 @@ export default function CodeEditor({
       connect: true,
     });
   }, [roomName, yDocument]);
-  useEffect(() => {
-    const handleStatus = (event: any) => {
-      if (event.status === "connected") {
-        console.log("WebSocket 연결됨");
-      }
-    };
-
-    provider.on("status", handleStatus);
-    return () => {
-      provider.off("status", handleStatus);
-    };
-  }, [provider]);
 
   const yjsSharedXmlText = useMemo(
     () => yDocument.get("slate", Y.XmlText),
