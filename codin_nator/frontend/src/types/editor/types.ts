@@ -8,3 +8,13 @@ export interface AutoCompletePopupProps {
   onSelect: (item: AutoCompleteItem) => void; // 항목 선택 시 콜백
   onClose: () => void; // 팝업 닫기 콜백
 }
+
+export interface CodeEditorProps {
+  roomId: number;
+  fileId: number;
+  fileName?: string;
+  fileContent?: string;
+  onChange?: (code: string) => void;
+  onTestGenerated?: (testCode: string) => void;
+  onAppendTerminal?: (title: string, text: string) => void;
+}
