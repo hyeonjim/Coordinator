@@ -279,27 +279,27 @@ export function ContributionGraph({ data }: ContributionGraphProps) {
         <div style={{ display: "table", margin: "0 auto" }}>
           <div className="inline-flex flex-col" style={{ padding: "0 15px" }}>
             {/* 월 레이블 — week 열과 1:1 매핑 */}
-            <div className="flex gap-[3px] mb-3">
+            <div className="flex gap-1 mb-3">
               {weeks.map((_, wi) => (
                 <div
                   key={wi}
-                  className="w-[11px] text-[12px] font-medium text-[#586069] overflow-visible whitespace-nowrap"
+                  className="w-3 text-[12px] font-medium text-[#586069] overflow-visible whitespace-nowrap"
                 >
                   {monthLabels[wi] ?? ""}
                 </div>
               ))}
             </div>
             {/* 잔디 */}
-            <div className="flex gap-[4px]">
+            <div className="flex gap-1">
               {weeks.map((week, wi) => (
-                <div key={wi} className="flex flex-col gap-[2px]">
+                <div key={wi} className="flex flex-col gap-0.5">
                   {week.map((day, di) => (
                     <button
                       key={di}
                       title={
                         day.date ? `${day.date} · ${day.count} errors` : ""
                       }
-                      className={`w-[11px] h-[15px] rounded-sm ${getContribClass(day.count)}
+                      className={`w-3 h-4 rounded-sm ${getContribClass(day.count)}
                       hover:ring-1 hover:ring-offset-1
                       ${day.count > 0 ? "hover:ring-[#24292E]/40" : "hover:ring-[#9297A2]/40"}
                       hover:scale-125 transition-all duration-200`}
