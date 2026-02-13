@@ -1,23 +1,38 @@
-import { createContext, useContext, type ReactNode } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useRoom } from "@/hooks/room/chat/useRoomActions";
-import type { RoomContextValue } from "@/types/room/types";
+import { useRoomContext } from "@/hooks/room/useRoomContext";
+import { CodeEditorPanel } from "@/components/room/code-editor";
+import RoomTerminal from "@/components/room/room-terminal";
+import Header from "@/components/room/Header";
+import FileViewer from "@/components/room/file-viewer";
+import { VoiceChat } from "@/components/room/chat/VoiceChat";
+import { TextChat } from "@/components/room/chat/TextChat";
 
-const RoomContext = createContext<RoomContextValue | null>(null);
-
-export function RoomProvider({ children }: { children: ReactNode }) {
-  const { roomId } = useParams<{ roomId: string }>();
-  const navigate = useNavigate();
+export function RoomLayout() {
+  const { terminalOutput } = useRoomContext();
 
   return (
-    <RoomContext.Provider value={useRoom(roomId, navigate)}>
-      {children}
-    </RoomContext.Provider>
+    <div className="room-container">
+      <Header />
+      <div className="room-main">
+        <div className="relative self-stretch">
+          <aside className="room-sidebar-left transition-all duration-300 overflow-hidden h-full">
+            <div className="flex-1 overflow-auto room-scrollbar">
+              <FileViewer />
+            </div>
+            <div className="h-1/3 flex flex-col">
+              <div className="flex-1 overflow-hidden">
+                <VoiceChat />
+              </div>
+            </div>
+          </aside>
+        </div>
+        <main className="room-content">
+          <div className="flex-1 min-h-0 overflow-hidden">
+            <CodeEditorPanel />
+          </div>
+          <RoomTerminal output={terminalOutput} />
+        </main>
+        <TextChat />
+      </div>
+    </div>
   );
-}
-
-export function useRoomContext(): RoomContextValue {
-  const context = useContext(RoomContext);
-  if (!context) throw new Error("useRoomContext는 RoomProvider 안에서만 사용할 수 있습니다.");
-  return context;
 }

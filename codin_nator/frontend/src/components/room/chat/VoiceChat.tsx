@@ -3,7 +3,7 @@ import type {
   AvatarProps,
   ParticipantRowProps,
 } from "@/types/room/chat/voicechat/types";
-import { useRoomContext } from "@/components/room";
+import { useRoomContext } from "@/hooks/room/useRoomContext";
 
 /**
  * 마이크 아이콘 컴포넌트

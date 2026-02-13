@@ -14,7 +14,7 @@ import {
 import { FileTreeItem } from "./FileTreeItem";
 import { getFileTree } from "./utils";
 import { useFileLocations } from "@/hooks/room/file/useFileLocations";
-import { useRoomContext } from "@/components/room";
+import { useRoomContext } from "@/hooks/room/useRoomContext";
 import type { FileNode, RawNode, LocalFileSystemFileEntry } from "@/types/room/file/types";
 import Alert from "@/components/common/Alert";
 import axiosInstance from "@/api/axios";

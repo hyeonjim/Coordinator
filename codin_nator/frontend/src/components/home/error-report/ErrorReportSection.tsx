@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, Bug, Calendar, Activity, TrendingUp } from "lucide-react";
 import { ContributionGraph } from "./ContributionGraph";
+import CreateRoomModal from "@/components/home/create-room";
 import { aiService } from "@/services/ai/aiService";
 import type { TestReportResponse } from "@/types/ai/types";
-import type { Stats, ErrorReportSectionProps } from "@/types/home/types";
+import type { Stats } from "@/types/home/types";
 import type { ContributionData } from "@/types/home/contribution";
 
 const KST_TIMEZONE = "Asia/Seoul";
@@ -34,9 +35,10 @@ function toKstDateTime(timestamp?: string | null) {
   return { date, time };
 }
 
-export default function ErrorReportSection({ onCreateRoom }: ErrorReportSectionProps) {
+export default function ErrorReportSection() {
   const [reports, setReports] = useState<TestReportResponse[]>([]);
   const [refreshTick, setRefreshTick] = useState(0);
+  const [isCreateRoomOpen, setIsCreateRoomOpen] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -124,7 +126,7 @@ export default function ErrorReportSection({ onCreateRoom }: ErrorReportSectionP
           </div>
         </div>
         <button
-          onClick={onCreateRoom}
+          onClick={() => setIsCreateRoomOpen(true)}
           className="group flex items-center gap-2 px-4 py-3.5 mr-4 rounded-lg font-medium text-sm shadow-md transition-all duration-200 bg-[#738da7] hover:bg-[#1775c7] text-white"
         >
           <Plus className="w-3 h-3 group-hover:rotate-90 transition-transform duration-200" />
@@ -151,6 +153,10 @@ export default function ErrorReportSection({ onCreateRoom }: ErrorReportSectionP
       </div>
 
       <ContributionGraph data={contributionData} roomOptions={roomOptions} />
+
+      {isCreateRoomOpen && (
+        <CreateRoomModal onClose={() => setIsCreateRoomOpen(false)} />
+      )}
     </motion.div>
   );
 }

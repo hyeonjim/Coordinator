@@ -1,8 +1,9 @@
 import type { NavigateFunction } from "react-router-dom";
-import type { ChatMessage, UseRoomChatReturn } from "@/types/room/chat/textchat/types";
+import type {
+  ChatMessage,
+  UseRoomChatReturn,
+} from "@/types/room/chat/textchat/types";
 import type { UseRoomVoiceReturn } from "@/types/room/chat/voicechat/types";
-
-// ─── 참여자 ──────────────────────────────────────────────────────────────────
 
 /**
  * 방 참여자 기본 정보
@@ -47,8 +48,6 @@ export interface UseRoomSetupReturn {
   setIsSidebarCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-// ─── 헤더 / UI ───────────────────────────────────────────────────────────────
-
 export type Theme = "dark" | "light" | "light2";
 
 export interface GitAction {
@@ -66,8 +65,6 @@ export interface UseRoomActionsParams {
   roomVoice: UseRoomVoiceReturn;
   navigate: NavigateFunction;
 }
-
-// ─── Context ─────────────────────────────────────────────────────────────────
 
 /**
  * RoomContext 공유 값

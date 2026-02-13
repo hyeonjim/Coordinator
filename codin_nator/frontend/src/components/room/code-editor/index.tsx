@@ -1,3 +1,4 @@
+import { useRoomContext } from "@/hooks/room/useRoomContext";
 import * as Y from "yjs";
 import { createEditor, Editor, Node, Transforms, Text } from "slate";
 import type { Descendant, NodeEntry } from "slate";
@@ -309,5 +310,30 @@ export default function CodeEditor({
         />
       </div>
     </div>
+  );
+}
+
+export function CodeEditorPanel() {
+  const { selectedFile, currentRoomId, setEditorCode, appendTerminal } =
+    useRoomContext();
+
+  if (!selectedFile) {
+    return (
+      <div className="flex items-center justify-center h-full text-[#858585]">
+        파일을 선택해주세요
+      </div>
+    );
+  }
+
+  return (
+    <CodeEditor
+      key={selectedFile.id}
+      fileId={selectedFile.id}
+      roomId={Number(currentRoomId)}
+      fileContent={selectedFile.content}
+      fileName={selectedFile.name}
+      onChange={setEditorCode}
+      onAppendTerminal={appendTerminal}
+    />
   );
 }
