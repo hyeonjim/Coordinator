@@ -1,3 +1,5 @@
+# README.md
+
 ### <center>Codin’nator</center>
 
 팀원과 함께 **실시간으로 코드를 편집**할 수 있는 협업 툴
@@ -9,7 +11,7 @@ WebSocket을 활용하여 누구나 쉽게 참여할 수 있는 실시간 코드
 - **개발 인원:** 6명
 - **기관:** 삼성 청년 SW·AI 아카데미 14기
 
-![image.png](attachment:48c65e2f-5a24-46e8-b467-37ed89ed7f60:image.png)
+![image.png](imgs/image.png)
 
 ### 팀원 구성
 
@@ -78,7 +80,7 @@ WebSocket을 활용하여 누구나 쉽게 참여할 수 있는 실시간 코드
 
 ### 시스템 아키텍처
 
-![image.png](attachment:deee5efd-1280-46f8-b76d-42c763b41386:image.png)
+![image.png](imgs/image%201.png)
 
 ### 기능 구성
 
@@ -89,8 +91,6 @@ WebSocket을 활용하여 누구나 쉽게 참여할 수 있는 실시간 코드
 
 ### 프로젝트 산출물
 
-### 영상 포트폴리오
-
-[]()
-
 ### ERD
+
+![codin'nator.png](imgs/codinnator.png)
