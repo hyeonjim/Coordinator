@@ -14,7 +14,7 @@ function useEditorResizeKey(editor: CursorCaretProps["editor"]) {
       const scrollContainer = editorElement.closest(".overflow-auto") as HTMLElement;
       if (!scrollContainer) return;
 
-      const updatePosition = () => setResizeKey((prev) => prev + 1);
+      const updatePosition = () => setResizeKey((previous) => previous + 1);
 
       const resizeObserver = new ResizeObserver(updatePosition);
       resizeObserver.observe(scrollContainer);

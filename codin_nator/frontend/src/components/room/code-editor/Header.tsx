@@ -6,13 +6,22 @@ export default function CodeEditorHeader({
   fontSizeProps,
   aiActionsProps,
 }: CodeEditorHeaderProps) {
-  const { fontSize, minFontSize, maxFontSize, onIncrease, onDecrease, onReset } = fontSizeProps;
+  const {
+    fontSize,
+    minFontSize,
+    maxFontSize,
+    onIncrease,
+    onDecrease,
+    onReset,
+  } = fontSizeProps;
 
   return (
     <div className="code-editor-header flex items-center gap-2 px-6 py-1 shrink-0">
       {/* 파일명 */}
       <div className="flex items-center flex-1 min-w-0">
-        <span className="text-[14px] truncate">{fileName ?? "파일을 선택하세요"}</span>
+        <span className="text-[14px] truncate">
+          {fileName ?? "파일을 선택하세요"}
+        </span>
       </div>
 
       {/* 폰트 크기 조절 */}

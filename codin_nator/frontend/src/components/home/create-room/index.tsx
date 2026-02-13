@@ -24,7 +24,7 @@ export default function CreateRoomModal({ onClose }: CreateRoomModalProps) {
     >
       <div
         className="relative w-full max-w-xl bg-[#d8e4f1] rounded-2xl p-8 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
       >
         <button onClick={onClose} className="absolute top-5 right-5 text-xl text-gray-400 hover:text-gray-700">
           ✕
@@ -39,7 +39,7 @@ export default function CreateRoomModal({ onClose }: CreateRoomModalProps) {
             <input
               placeholder="방 이름을 입력하세요."
               value={roomTitle}
-              onChange={(e) => setRoomTitle(e.target.value)}
+              onChange={(event) => setRoomTitle(event.target.value)}
               className="w-full h-10 px-3 border bg-slate-50 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 placeholder:text-gray-400"
             />
           </div>
@@ -49,7 +49,7 @@ export default function CreateRoomModal({ onClose }: CreateRoomModalProps) {
             <input
               placeholder="기존 브랜치 or 새로 생성할 브랜치"
               value={branchName}
-              onChange={(e) => setBranchName(e.target.value)}
+              onChange={(event) => setBranchName(event.target.value)}
               className="w-full h-10 px-3 border bg-slate-50 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 placeholder:text-gray-400"
             />
           </div>
