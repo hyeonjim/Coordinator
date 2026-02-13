@@ -1,5 +1,3 @@
-# README.md
-
 ### <center>Codin’nator</center>
 
 팀원과 함께 **실시간으로 코드를 편집**할 수 있는 협업 툴
