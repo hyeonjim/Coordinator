@@ -7,13 +7,12 @@ import { Slate, Editable, withReact, ReactEditor } from "slate-react";
 import type { RenderElementProps, RenderLeafProps } from "slate-react";
 import { withYjs, withYHistory, YjsEditor } from "@slate-yjs/core";
 
-/* Prism */
 import Prism from "prismjs";
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-java";
 import "prismjs/themes/prism-tomorrow.css";
 
-import Codeeditoractions from "@/components/ai/Codeeditoractions";
+import CodeEditorHeader from "./Header";
 import AutoCompletePopup from "./AutoCompletePopup";
 import RemoteCursorOverlay from "./CursorOverlay";
 
@@ -76,10 +75,7 @@ export default function CodeEditor({
   // 현재 사용자 정보
   const authUser = useAuthStore((state) => state.user);
   const cursorUser = useMemo(
-    () =>
-      authUser
-        ? { userId: authUser.gitId, name: authUser.name }
-        : null,
+    () => (authUser ? { userId: authUser.gitId, name: authUser.name } : null),
     [authUser],
   );
 
@@ -221,9 +217,12 @@ export default function CodeEditor({
       try {
         console.log("[CodeEditor] API seed 1회 실행", fileId);
 
-        const response = await axiosInstance.get(`/v1/room/${roomId}/${fileId}`, {
-          responseType: "text",
-        });
+        const response = await axiosInstance.get(
+          `/v1/room/${roomId}/${fileId}`,
+          {
+            responseType: "text",
+          },
+        );
 
         seedFromText(response.data ?? "");
         metaMap.set("seeded", true);
@@ -240,18 +239,23 @@ export default function CodeEditor({
 
   return (
     <div className="code-editor-container h-full w-full flex flex-col">
-      <Codeeditoractions
-        roomId={roomId}
+      <CodeEditorHeader
         fileName={fileName}
-        code={currentCode}
-        onTestGenerated={onTestGenerated}
-        onAppendTerminal={onAppendTerminal}
-        fontSize={fontSize}
-        onIncreaseFontSize={increaseFontSize}
-        onDecreaseFontSize={decreaseFontSize}
-        onResetFontSize={resetFontSize}
-        minFontSize={minFontSize}
-        maxFontSize={maxFontSize}
+        fontSizeProps={{
+          fontSize,
+          minFontSize,
+          maxFontSize,
+          onIncrease: increaseFontSize,
+          onDecrease: decreaseFontSize,
+          onReset: resetFontSize,
+        }}
+        aiActionsProps={{
+          roomId,
+          fileName,
+          code: currentCode,
+          onTestGenerated,
+          onAppendTerminal,
+        }}
       />
 
       <div

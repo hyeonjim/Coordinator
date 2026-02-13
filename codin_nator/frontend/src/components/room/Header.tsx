@@ -6,7 +6,7 @@ import logo2 from "@/assets/images/logo_nobg.png";
 import Alert from "@/components/common/Alert";
 import axiosInstance from "@/api/axios";
 import { useRoomContext } from "@/components/room";
-import type { Theme, GitAction, HeaderProps } from "@/types/room/types";
+import type { Theme, GitAction } from "@/types/room/types";
 
 const THEME_META: Record<Theme, { icon: string; label: string; next: Theme }> =
   {
@@ -41,12 +41,16 @@ function ThemeToggle({
   );
 }
 
-export default function Header({ selectedFileId, editorContent }: HeaderProps) {
+export default function Header() {
   const {
     isJoined,
     handleJoin: onJoin,
     handleLeave: onLeave,
+    selectedFile,
+    editorCode,
   } = useRoomContext();
+  const selectedFileId = selectedFile?.id ?? null;
+  const editorContent = editorCode;
   const [theme, setTheme] = useState<Theme>("dark");
   const isLightMode = theme !== "dark";
   const [alertMsg, setAlertMsg] = useState<string | null>(null);

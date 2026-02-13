@@ -1,4 +1,3 @@
-import type { FileViewerProps } from "@/types/room/file/types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { DragEvent } from "react";
 import {
@@ -9,224 +8,166 @@ import {
   VscNewFolder,
   VscRefresh,
   VscTrash,
-  VscCheck, // 삭제 확인 버튼용 아이콘
-  VscClose, // 삭제 취소 버튼용 아이콘
+  VscCheck,
+  VscClose,
 } from "react-icons/vsc";
-
 import { FileTreeItem } from "./FileTreeItem";
-import { getFileTree } from "@/components/room/file-viewer/utils";
-import { useFileLocations } from "./useFileLocations";
-import type {
-  FileNode,
-  LocalFileSystemFileEntry,
-  RawNode,
-} from "@/types/room/file/types";
+import { getFileTree } from "./utils";
+import { useFileLocations } from "@/hooks/room/file/useFileLocations";
+import { useRoomContext } from "@/components/room";
+import type { FileNode, RawNode, LocalFileSystemFileEntry } from "@/types/room/file/types";
 import Alert from "@/components/common/Alert";
 import axiosInstance from "@/api/axios";
 
-// Helper Functions (데이터 처리 로직)
 let tempIdSequence = 1;
 
-const sanitizeTree = (rawList: RawNode[]): FileNode[] => {
+function sanitizeTree(rawList: RawNode[]): FileNode[] {
   const sanitizeNode = (rawNode: RawNode): FileNode => {
-    const rawType = String(
-      rawNode.type ?? rawNode.nodeType ?? rawNode.kind ?? "",
-    ).toUpperCase();
-    const isDir = rawType === "DIR" || rawType === "FOLDER";
-    const type: "DIR" | "FILE" = isDir ? "DIR" : "FILE";
+    const rawType = String(rawNode.type ?? rawNode.nodeType ?? rawNode.kind ?? "").toUpperCase();
+    const isDirectory = rawType === "DIR" || rawType === "FOLDER";
+    const type = isDirectory ? "DIR" : "FILE";
 
     const rawId = Number(rawNode.fileId ?? rawNode.id);
-    const fileId =
-      Number.isFinite(rawId) && rawId > 0 ? rawId : tempIdSequence++;
-
-    const children = Array.isArray(rawNode.children)
-      ? (rawNode.children as RawNode[]).map(sanitizeNode)
-      : undefined;
+    const fileId = Number.isFinite(rawId) && rawId > 0 ? rawId : tempIdSequence++;
 
     return {
       fileId,
       name: String(rawNode.name ?? rawNode.fileName ?? ""),
       type,
-      children,
+      children: rawNode.children?.map(sanitizeNode),
       fileEntry: rawNode.fileEntry as LocalFileSystemFileEntry | undefined,
     };
   };
 
   return rawList.map(sanitizeNode);
-};
+}
 
-const normalizeFileTree = (data: unknown): RawNode[] => {
+function normalizeFileTree(data: unknown): RawNode[] {
   if (Array.isArray(data)) return data as RawNode[];
 
-  const response = data as {
-    files?: unknown[];
-    data?: unknown[];
-    result?: unknown[];
-    fileTree?: unknown[];
-  };
-  return (response?.files ||
-    response?.data ||
-    response?.result ||
-    response?.fileTree ||
-    []) as RawNode[];
-};
+  const response = data as Record<string, unknown>;
+  return (response?.files ?? response?.data ?? response?.result ?? response?.fileTree ?? []) as RawNode[];
+}
 
-const FileViewer = ({
-  roomId,
-  onFileSelect,
-  userId,
-  userName,
-  userImageUrl,
-}: FileViewerProps) => {
-  const [alertMsg, setAlertMsg] = useState<string | null>(null);
+export function FileViewer() {
+  const { currentRoomId, userId, userName, userImageUrl, setSelectedFile } = useRoomContext();
+
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [files, setFiles] = useState<FileNode[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  // ===== 삭제 모드 관련 상태 =====
-  // 삭제 모드 활성화 여부
+  const [isLoading, setIsLoading] = useState(false);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
-  // 삭제할 파일/폴더 ID 목록 (다중 선택 지원)
-  const [deleteTargetIds, setDeleteTargetIds] = useState<Set<number>>(
-    new Set(),
-  );
+  const [deleteTargetIds, setDeleteTargetIds] = useState<Set<number>>(new Set());
 
-  const roomIdSafe = useMemo(() => {
-    const numericRoomId = Number(roomId);
-    return Number.isFinite(numericRoomId) && numericRoomId > 0
-      ? numericRoomId
-      : null;
-  }, [roomId]);
+  const roomId = useMemo(() => {
+    const numericRoomId = Number(currentRoomId);
+    return Number.isFinite(numericRoomId) && numericRoomId > 0 ? numericRoomId : null;
+  }, [currentRoomId]);
 
-  // 파일 위치 추적 (사용자 색상은 getUserColor로 계산)
   const { fileLocations, updateCurrentFile } = useFileLocations(
-    roomIdSafe ?? 0,
+    roomId ?? 0,
     userId,
     userName,
     userImageUrl,
   );
 
   const fetchFileTree = useCallback(async () => {
-    if (!roomIdSafe) {
+    if (!roomId) {
       setFiles([]);
       return;
     }
 
     try {
-      setLoading(true);
-
-      const response = await axiosInstance.get(`/v1/room/${roomIdSafe}/files`);
-
-      const normalized = normalizeFileTree(response.data);
-      setFiles(sanitizeTree(normalized));
+      setIsLoading(true);
+      const response = await axiosInstance.get(`/v1/room/${roomId}/files`);
+      setFiles(sanitizeTree(normalizeFileTree(response.data)));
     } catch (error) {
       console.error("파일 목록 로드 실패:", error);
       setFiles([]);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  }, [roomIdSafe]);
+  }, [roomId]);
 
   useEffect(() => {
     fetchFileTree();
   }, [fetchFileTree]);
 
   const handleSelectFile = async (node: FileNode) => {
-    if (node.type !== "FILE") return;
-    if (!roomIdSafe) return;
+    if (node.type !== "FILE" || !roomId) return;
 
     setSelectedId(node.fileId);
-
-    // awareness에 현재 파일 위치 업데이트
     updateCurrentFile(node.fileId);
 
-    if (!onFileSelect) return;
-
-    // content까지 전달
     try {
-      const response = await axiosInstance.get(
-        `/v1/room/${roomIdSafe}/${node.fileId}`,
-        {
-          responseType: "text",
-        },
-      );
+      const response = await axiosInstance.get(`/v1/room/${roomId}/${node.fileId}`, {
+        responseType: "text",
+      });
 
       const content =
         typeof response.data === "string"
           ? response.data
           : JSON.stringify(response.data ?? "", null, 2);
 
-      onFileSelect(node.fileId, content, node.name);
+      setSelectedFile({ id: node.fileId, content, name: node.name });
     } catch (error) {
       console.error("파일 내용 로드 실패:", error);
-      // content 못 가져와도 파일명은 전달
-      onFileSelect(node.fileId, "", node.name);
+      setSelectedFile({ id: node.fileId, content: "", name: node.name });
     }
   };
 
   const handleCreateFile = async () => {
-    if (!roomIdSafe) return;
+    if (!roomId) return;
 
     const fileName = prompt("새 파일 이름을 입력하세요:");
     if (!fileName) return;
 
     try {
-      await axiosInstance.post(`/v1/room/editor/${roomIdSafe}/new-file`, {
+      await axiosInstance.post(`/v1/room/editor/${roomId}/new-file`, {
         fileName,
         type: "FILE",
         parentId: null,
         content: "",
       });
-
       await fetchFileTree();
-      setAlertMsg("파일이 생성되었습니다.");
+      setAlertMessage("파일이 생성되었습니다.");
     } catch (error) {
       console.error("파일 생성 실패:", error);
-      setAlertMsg("파일 생성에 실패했습니다.");
+      setAlertMessage("파일 생성에 실패했습니다.");
     }
   };
 
   const handleCreateFolder = async () => {
-    if (!roomIdSafe) return;
+    if (!roomId) return;
 
-    const fileName = prompt("새 폴더 이름을 입력하세요:");
-    if (!fileName) return;
+    const folderName = prompt("새 폴더 이름을 입력하세요:");
+    if (!folderName) return;
 
     try {
-      await axiosInstance.post(`/v1/room/editor/${roomIdSafe}/new-file`, {
-        fileName,
+      await axiosInstance.post(`/v1/room/editor/${roomId}/new-file`, {
+        fileName: folderName,
         type: "DIR",
         parentId: null,
         content: "",
       });
-
       await fetchFileTree();
-      setAlertMsg("폴더가 생성되었습니다.");
+      setAlertMessage("폴더가 생성되었습니다.");
     } catch (error) {
       console.error("폴더 생성 실패:", error);
-      setAlertMsg("폴더 생성에 실패했습니다.");
+      setAlertMessage("폴더 생성에 실패했습니다.");
     }
   };
 
-  /**
-   * 삭제 모드 토글
-   * - 삭제 버튼 클릭 시 삭제 모드 진입/해제
-   */
   const handleToggleDeleteMode = () => {
     if (isDeleteMode) {
-      // 삭제 모드 해제 시 선택 초기화
       setDeleteTargetIds(new Set());
     }
     setIsDeleteMode(!isDeleteMode);
   };
 
-  /**
-   * 삭제 대상 파일/폴더 토글 선택
-   * - 삭제 모드에서 파일/폴더 클릭 시 선택/해제
-   */
   const handleToggleDeleteTarget = (fileId: number) => {
-    setDeleteTargetIds((prev) => {
-      const newSet = new Set(prev);
+    setDeleteTargetIds((previous) => {
+      const newSet = new Set(previous);
       if (newSet.has(fileId)) {
         newSet.delete(fileId);
       } else {
@@ -236,44 +177,31 @@ const FileViewer = ({
     });
   };
 
-  /**
-   * 선택된 파일/폴더 일괄 삭제 실행
-   */
   const handleConfirmDelete = async () => {
-    if (!roomIdSafe || deleteTargetIds.size === 0) {
-      setAlertMsg("삭제할 파일 또는 폴더를 선택해주세요.");
+    if (!roomId || deleteTargetIds.size === 0) {
+      setAlertMessage("삭제할 파일 또는 폴더를 선택해주세요.");
       return;
     }
 
     const targetCount = deleteTargetIds.size;
-    const confirmed = window.confirm(
-      `선택한 ${targetCount}개의 항목을 삭제하시겠습니까?`,
-    );
-    if (!confirmed) return;
+    if (!window.confirm(`선택한 ${targetCount}개의 항목을 삭제하시겠습니까?`)) return;
 
     try {
-      // 선택된 모든 파일/폴더 삭제 (순차 처리)
       for (const fileId of deleteTargetIds) {
-        await axiosInstance.delete(
-          `/v1/room/editor/${roomIdSafe}/delete-file/${fileId}`,
-        );
+        await axiosInstance.delete(`/v1/room/editor/${roomId}/delete-file/${fileId}`);
       }
 
-      // 상태 초기화
       setDeleteTargetIds(new Set());
       setIsDeleteMode(false);
       setSelectedId(null);
       await fetchFileTree();
-      setAlertMsg(`${targetCount}개의 항목이 삭제되었습니다.`);
+      setAlertMessage(`${targetCount}개의 항목이 삭제되었습니다.`);
     } catch (error) {
       console.error("파일 삭제 실패:", error);
-      setAlertMsg("일부 파일 삭제에 실패했습니다.");
+      setAlertMessage("일부 파일 삭제에 실패했습니다.");
     }
   };
 
-  /**
-   * 삭제 모드 취소
-   */
   const handleCancelDeleteMode = () => {
     setDeleteTargetIds(new Set());
     setIsDeleteMode(false);
@@ -283,7 +211,7 @@ const FileViewer = ({
     return new Promise<void>((resolve, reject) => {
       fileEntry.file(async (file: File) => {
         if (!file.name.toLowerCase().endsWith(".zip")) {
-          setAlertMsg("현재 .zip 파일 업로드만 지원합니다.");
+          setAlertMessage("현재 .zip 파일 업로드만 지원합니다.");
           reject("Not a zip file");
           return;
         }
@@ -292,14 +220,12 @@ const FileViewer = ({
         formData.append("file", file);
 
         try {
-          if (!roomIdSafe) throw new Error("유효하지 않은 방 ID입니다.");
-
-          await axiosInstance.post(`/v1/room/${roomIdSafe}/uploads`, formData);
-
+          if (!roomId) throw new Error("유효하지 않은 방 ID입니다.");
+          await axiosInstance.post(`/v1/room/${roomId}/uploads`, formData);
           resolve();
         } catch (error) {
           console.error("업로드 실패:", error);
-          setAlertMsg("업로드에 실패했습니다.");
+          setAlertMessage("업로드에 실패했습니다.");
           reject(error);
         }
       });
@@ -327,27 +253,22 @@ const FileViewer = ({
 
     if (!event.dataTransfer.items) return;
 
-    setLoading(true);
+    setIsLoading(true);
     try {
-      const parsedTreeRaw = await getFileTree(event.dataTransfer.items);
-      const sanitizedTree = sanitizeTree(parsedTreeRaw as unknown as RawNode[]);
+      const parsedTree = await getFileTree(event.dataTransfer.items);
+      const sanitizedTree = sanitizeTree(parsedTree as unknown as RawNode[]);
       await processUploadLoop(sanitizedTree);
-
       await fetchFileTree();
-      setAlertMsg("파일 업로드가 완료되었습니다.");
+      setAlertMessage("파일 업로드가 완료되었습니다.");
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div
-      className="file-viewer-container"
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
-    >
+    <div className="file-viewer-container" onDragOver={handleDragOver} onDrop={handleDrop}>
       <div className="file-viewer-header group border-b border-gray-600">
         <div className="file-viewer-title">
           <span className="mr-1">
@@ -384,17 +305,14 @@ const FileViewer = ({
         </div>
       </div>
 
-      {/* ===== 삭제 모드 안내 배너 ===== */}
       {isDeleteMode && (
         <div className="delete-mode-banner">
-          <span>
-            삭제할 파일/폴더를 선택하세요 ({deleteTargetIds.size}개 선택됨)
-          </span>
+          <span>삭제할 파일/폴더를 선택하세요 ({deleteTargetIds.size}개 선택됨)</span>
         </div>
       )}
 
-      <div className="flex-1 overflow-auto room-scrollbar relative ">
-        {loading ? (
+      <div className="flex-1 overflow-auto room-scrollbar relative">
+        {isLoading ? (
           <div className="flex justify-center items-center h-20 text-[#7F838D]">
             <VscLoading className="animate-spin text-2xl" />
           </div>
@@ -414,7 +332,6 @@ const FileViewer = ({
                 selectedId={selectedId}
                 onSelect={isDeleteMode ? undefined : handleSelectFile}
                 fileLocations={fileLocations}
-                // ===== 삭제 모드 관련 props =====
                 isDeleteMode={isDeleteMode}
                 deleteTargetIds={deleteTargetIds}
                 onToggleDeleteTarget={handleToggleDeleteTarget}
@@ -424,15 +341,13 @@ const FileViewer = ({
         )}
       </div>
 
-      {/* ===== 하단 상태바 (삭제 모드에 따라 UI 변경) ===== */}
       <div className="file-viewer-statusbar flex items-center justify-between">
         <div className="flex items-center gap-2 text-[11px]">
           <span>master*</span>
-          {roomIdSafe && <span>Room: {roomIdSafe}</span>}
+          {roomId && <span>Room: {roomId}</span>}
         </div>
 
         {isDeleteMode ? (
-          // 삭제 모드: 확인/취소 버튼 표시
           <div className="flex items-center gap-2 text-[18px]">
             <VscCheck
               className="cursor-pointer transition-colors text-green-300 hover:text-green-300 text-lg"
@@ -452,10 +367,9 @@ const FileViewer = ({
             />
           </div>
         ) : (
-          // 일반 모드: 삭제 버튼 표시
           <VscTrash
             className="cursor-pointer transition-colors hover:text-red-400"
-            title="삭제 모드 (파일/폴더 선택 삭제)"
+            title="삭제 모드"
             onClick={(event) => {
               event.stopPropagation();
               handleToggleDeleteMode();
@@ -463,11 +377,12 @@ const FileViewer = ({
           />
         )}
       </div>
-      <Alert open={!!alertMsg} onConfirm={() => setAlertMsg(null)}>
-        {alertMsg}
+
+      <Alert open={!!alertMessage} onConfirm={() => setAlertMessage(null)}>
+        {alertMessage}
       </Alert>
     </div>
   );
-};
+}
 
 export default FileViewer;

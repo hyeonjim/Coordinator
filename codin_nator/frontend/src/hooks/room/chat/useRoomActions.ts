@@ -207,16 +207,27 @@ export function useRoom(
     isJoined,
     participants,
     chatMessages,
+    selectedFile,
+    setSelectedFile,
+    editorCode,
+    setEditorCode,
+    terminalOutput,
+    setTerminalOutput,
     isSidebarCollapsed,
     setIsSidebarCollapsed,
     setChatMessages,
     setParticipants,
   } = roomSetup;
 
-  // 텍스트 채팅 통합 훅
+  const appendTerminal = useCallback(
+    (title: string, text: string) => {
+      setTerminalOutput(`===== ${title} =====\n${text}\n`);
+    },
+    [setTerminalOutput],
+  );
+
   const roomChat = useRoomChat({ currentRoomId, userName, isJoined, setChatMessages });
 
-  // 음성 채팅 통합 훅
   const roomVoice = useRoomVoice({
     currentRoomId,
     userId,
@@ -227,7 +238,6 @@ export function useRoom(
   });
   const { isWebSocketConnected, handleToggleMic, togglePeerMute, isPeerMuted } = roomVoice;
 
-  // 방 입장/퇴장/채팅 전송 훅
   const { handleJoin, handleLeave, handleSendChat } = useRoomActions({
     roomSetup,
     roomChat,
@@ -244,6 +254,12 @@ export function useRoom(
       isJoined,
       participants,
       chatMessages,
+      selectedFile,
+      setSelectedFile,
+      editorCode,
+      setEditorCode,
+      terminalOutput,
+      appendTerminal,
       isSidebarCollapsed,
       setIsSidebarCollapsed,
       isWebSocketConnected,
@@ -257,6 +273,9 @@ export function useRoom(
     [
       userId, userName, userImageUrl, currentRoomId,
       isJoined, participants, chatMessages,
+      selectedFile, setSelectedFile,
+      editorCode, setEditorCode,
+      terminalOutput, appendTerminal,
       isSidebarCollapsed, setIsSidebarCollapsed,
       isWebSocketConnected, handleToggleMic, togglePeerMute, isPeerMuted,
       handleJoin, handleLeave, handleSendChat,
