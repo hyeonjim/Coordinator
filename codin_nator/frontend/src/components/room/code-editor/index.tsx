@@ -1,7 +1,7 @@
 import * as Y from "yjs";
 import { createEditor, Editor, Node, Transforms, Text } from "slate";
-import type { Descendant, NodeEntry } from "slate";
-import { useEffect, useMemo, useCallback, useState } from "react";
+import type { Descendant, NodeEntry, BaseRange } from "slate";
+import React, { useEffect, useMemo, useCallback, useState } from "react";
 import { WebsocketProvider } from "y-websocket";
 import { Slate, Editable, withReact, ReactEditor } from "slate-react";
 import type { RenderElementProps, RenderLeafProps } from "slate-react";
@@ -141,11 +141,7 @@ export default function CodeEditor({
   const decorate = useCallback(([node, path]: NodeEntry) => {
     if (!Text.isText(node)) return [];
     const tokens = Prism.tokenize(node.text, Prism.languages.java);
-    const ranges: {
-      anchor: { path: number[]; offset: number };
-      focus: { path: number[]; offset: number };
-      tokenType: string;
-    }[] = [];
+    const ranges: (BaseRange & { tokenType: string })[] = [];
     let offset = 0;
 
     for (const token of tokens) {
@@ -162,6 +158,19 @@ export default function CodeEditor({
     }
     return ranges;
   }, []);
+
+  // 토큰 렌더링
+  const renderLeaf = useCallback(
+    ({ attributes, children, leaf }: RenderLeafProps) => (
+      <span
+        {...attributes}
+        className={leaf.tokenType ? `token ${leaf.tokenType}` : undefined}
+      >
+        {children}
+      </span>
+    ),
+    [],
+  );
 
   // 줄 렌더링
   const renderElement = useCallback(
@@ -181,6 +190,28 @@ export default function CodeEditor({
       );
     },
     [editor, lineNumberWidth],
+  );
+
+  const handleEditorChange = useCallback(
+    (value: Descendant[]) => {
+      try {
+        const text = value.map((n) => Node.string(n)).join("\n");
+        setCurrentCode(text);
+        onChange?.(text);
+        updateCursorPosition(editor.selection);
+        handleAutoComplete();
+      } catch {
+        /* 에디터 초기화 중 에러 무시 */
+      }
+    },
+    [onChange, updateCursorPosition, editor, handleAutoComplete],
+  );
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
+      if (!handleFontSizeKeyDown(event)) handleAutoCompleteKeyDown(event);
+    },
+    [handleFontSizeKeyDown, handleAutoCompleteKeyDown],
   );
 
   return (
@@ -211,35 +242,14 @@ export default function CodeEditor({
         <Slate
           editor={editor}
           initialValue={INITIAL_VALUE}
-          onChange={(value) => {
-            try {
-              const text = value.map((n) => Node.string(n)).join("\n");
-              setCurrentCode(text);
-              onChange?.(text);
-              updateCursorPosition(editor.selection);
-              handleAutoComplete();
-            } catch {
-              /* 에디터 초기화 중 에러 무시 */
-            }
-          }}
+          onChange={handleEditorChange}
         >
           <Editable
             spellCheck={false}
             decorate={decorate}
-            renderLeaf={({ attributes, children, leaf }: RenderLeafProps) => (
-              <span
-                {...attributes}
-                className={
-                  leaf.tokenType ? `token ${leaf.tokenType}` : undefined
-                }
-              >
-                {children}
-              </span>
-            )}
+            renderLeaf={renderLeaf}
             renderElement={renderElement}
-            onKeyDown={(e) => {
-              if (!handleFontSizeKeyDown(e)) handleAutoCompleteKeyDown(e);
-            }}
+            onKeyDown={handleKeyDown}
             className="min-h-full px-2 py-4 focus:outline-none"
             style={{ lineHeight: `${fontSize * 1.5}px`, whiteSpace: "pre" }}
           />
