@@ -1,11 +1,17 @@
 import { motion } from "framer-motion";
 import { LogOut, Github } from "lucide-react";
-import type { ProfileSectionProps } from "@/types/home/types";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/stores/authStore";
 
-export default function ProfileSection({
-  user,
-  onLogout,
-}: ProfileSectionProps) {
+export default function ProfileSection() {
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
+  const navigate = useNavigate();
+
+  const onLogout = () => {
+    logout();
+    navigate("/");
+  };
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

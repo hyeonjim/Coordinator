@@ -7,7 +7,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { ChatMessage } from "@/types/room/chat/textchat/types";
-import { useRoomContext } from "@/components/room";
+import { useRoomContext } from "@/hooks/room/useRoomContext";
 
 function MessageBubble({ message }: { message: ChatMessage }) {
   const time = new Date(message.timestamp).toLocaleTimeString("ko-KR", {

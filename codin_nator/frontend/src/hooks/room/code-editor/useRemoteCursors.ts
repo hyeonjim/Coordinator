@@ -7,16 +7,9 @@ import { useEffect, useState, useRef } from "react";
 import {
   CursorEditor,
   relativeRangeToSlateRange,
-  type RelativeRange,
 } from "@slate-yjs/core";
 import type { Node } from "slate";
-import type { CursorUserData, RemoteCursor } from "@/types/room/editor/cursor";
-
-interface CursorState {
-  data?: CursorUserData;
-  relativeSelection?: RelativeRange;
-  clientId?: number;
-}
+import type { CursorUserData, RemoteCursor, CursorState } from "@/types/room/editor/cursor";
 
 export function useRemoteCursors(
   editor: CursorEditor,

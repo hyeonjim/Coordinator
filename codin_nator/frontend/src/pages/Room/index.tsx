@@ -1,4 +1,4 @@
-import { RoomProvider, useRoomContext } from "@/components/room";
+import { RoomProvider, useRoomContext } from "@/hooks/room/useRoomContext";
 import CodeEditor from "@/components/room/code-editor";
 import RoomTerminal from "@/components/room/room-terminal";
 import Header from "@/components/room/Header";

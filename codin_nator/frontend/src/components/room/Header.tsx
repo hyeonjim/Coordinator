@@ -5,7 +5,7 @@ import logo2 from "@/assets/images/logo_nobg.png";
 
 import Alert from "@/components/common/Alert";
 import axiosInstance from "@/api/axios";
-import { useRoomContext } from "@/components/room";
+import { useRoomContext } from "@/hooks/room/useRoomContext";
 import type { Theme, GitAction } from "@/types/room/types";
 
 const THEME_META: Record<Theme, { icon: string; label: string; next: Theme }> =

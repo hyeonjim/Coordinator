@@ -1,5 +1,7 @@
 import type { Editor, Range } from "slate";
 import type { ReactEditor } from "slate-react";
+import type { RelativeRange } from "@slate-yjs/core";
+import type { WebsocketProvider } from "y-websocket";
 
 // 커서 색상 목록
 export const CURSOR_COLORS = [
@@ -47,6 +49,25 @@ export interface RemoteCursorOverlayProps {
 export interface CursorCaretProps {
   cursor: RemoteCursor;
   editor: Editor & ReactEditor;
+}
+
+// useRemoteCursors 내부 커서 상태
+export interface CursorState {
+  data?: CursorUserData;
+  relativeSelection?: RelativeRange;
+  clientId?: number;
+}
+
+// useCursorAwareness hook 파라미터
+export interface UseCursorAwarenessParams {
+  provider: WebsocketProvider;
+  user: CursorUserData | null;
+}
+
+// awareness 상태
+export interface AwarenessState {
+  user?: CursorUserData;
+  selection?: Range | null | undefined;
 }
 
 export type { Range };

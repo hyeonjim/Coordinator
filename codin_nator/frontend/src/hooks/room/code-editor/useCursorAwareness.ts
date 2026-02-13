@@ -4,20 +4,9 @@
  * - 다른 사용자들의 커서 위치를 구독하여 반환
  */
 import { useEffect, useState, useCallback } from "react";
-import type { WebsocketProvider } from "y-websocket";
 import type { Range } from "slate";
-import type { RemoteCursor, CursorUserData } from "@/types/room/editor/cursor";
+import type { RemoteCursor, UseCursorAwarenessParams, AwarenessState } from "@/types/room/editor/cursor";
 import { getCursorColor } from "@/types/room/editor/cursor";
-
-interface UseCursorAwarenessParams {
-  provider: WebsocketProvider;
-  user: CursorUserData | null;
-}
-
-interface AwarenessState {
-  user?: CursorUserData;
-  selection?: Range | null;
-}
 
 export function useCursorAwareness({
   provider,
@@ -46,7 +35,7 @@ export function useCursorAwareness({
 
   // 커서 위치 업데이트 함수
   const updateCursorPosition = useCallback(
-    (selection: Range | null) => {
+    (selection: Range | null | undefined) => {
       if (!user) return;
 
       const localState = awareness.getLocalState() as AwarenessState | null;
