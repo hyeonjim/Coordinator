@@ -1,6 +1,10 @@
 import { useCallback, useMemo } from "react";
-import type { UseRoomActionsParams } from "@/types/room/types";
+import type { NavigateFunction } from "react-router-dom";
+import type { UseRoomActionsParams, RoomContextValue } from "@/types/room/types";
 import { generateId } from "@/utils/room/idGenerator";
+import { useRoomSetup } from "./useRoomSetup";
+import { useRoomChat } from "./useRoomChat";
+import { useRoomVoice } from "./useRoomVoice";
 
 /**
  * 방 입장/퇴장 및 채팅 전송 훅
@@ -180,5 +184,82 @@ export function useRoomActions({
   return useMemo(
     () => ({ handleJoin, handleLeave, handleSendChat }),
     [handleJoin, handleLeave, handleSendChat],
+  );
+}
+
+/**
+ * Room 전체 상태 및 액션을 통합하는 훅
+ * RoomProvider 내부에서 사용되며 RoomContextValue를 반환합니다.
+ *
+ * @param roomId - URL 파라미터에서 가져온 방 ID
+ * @param navigate - react-router-dom navigate 함수
+ */
+export function useRoom(
+  roomId: string | undefined,
+  navigate: NavigateFunction,
+): RoomContextValue {
+  const roomSetup = useRoomSetup(roomId);
+  const {
+    userId,
+    userName,
+    userImageUrl,
+    currentRoomId,
+    isJoined,
+    participants,
+    chatMessages,
+    isSidebarCollapsed,
+    setIsSidebarCollapsed,
+    setChatMessages,
+    setParticipants,
+  } = roomSetup;
+
+  // 텍스트 채팅 통합 훅
+  const roomChat = useRoomChat({ currentRoomId, userName, isJoined, setChatMessages });
+
+  // 음성 채팅 통합 훅
+  const roomVoice = useRoomVoice({
+    currentRoomId,
+    userId,
+    userName,
+    userImageUrl,
+    isJoined,
+    setParticipants,
+  });
+  const { isWebSocketConnected, handleToggleMic, togglePeerMute, isPeerMuted } = roomVoice;
+
+  // 방 입장/퇴장/채팅 전송 훅
+  const { handleJoin, handleLeave, handleSendChat } = useRoomActions({
+    roomSetup,
+    roomChat,
+    roomVoice,
+    navigate,
+  });
+
+  return useMemo(
+    () => ({
+      userId,
+      userName,
+      userImageUrl,
+      currentRoomId,
+      isJoined,
+      participants,
+      chatMessages,
+      isSidebarCollapsed,
+      setIsSidebarCollapsed,
+      isWebSocketConnected,
+      handleToggleMic,
+      togglePeerMute,
+      isPeerMuted,
+      handleJoin,
+      handleLeave,
+      handleSendChat,
+    }),
+    [
+      userId, userName, userImageUrl, currentRoomId,
+      isJoined, participants, chatMessages,
+      isSidebarCollapsed, setIsSidebarCollapsed,
+      isWebSocketConnected, handleToggleMic, togglePeerMute, isPeerMuted,
+      handleJoin, handleLeave, handleSendChat,
+    ],
   );
 }

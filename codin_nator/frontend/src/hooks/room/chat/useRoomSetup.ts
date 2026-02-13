@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { UseRoomSetupReturn, Participant } from "@/types/room/types";
 import type { ChatMessage } from "@/types/room/chat/textchat/types";
 import { generateId } from "@/utils/room/idGenerator";
 import { useAuthStore } from "@/stores/authStore";
 import { getSignalingWebSocketUrl } from "@/utils/socketUtils";
+import axiosInstance from "@/api/axios";
 
 /**
  * 방 초기 설정 및 상태 관리 훅
@@ -39,6 +40,12 @@ export function useRoomSetup(roomId: string | undefined): UseRoomSetupReturn {
 
   // UI 상태 관리
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  // 방 참가자 DB 등록 (isJoined=true 순간 1회 호출)
+  useEffect(() => {
+    if (!isJoined || !currentRoomId) return;
+    axiosInstance.post(`/v1/room/${currentRoomId}/participants/me`).catch(() => {});
+  }, [isJoined, currentRoomId]);
 
   return useMemo(
     () => ({

@@ -14,7 +14,7 @@ import {
 } from "react-icons/vsc";
 
 import { FileTreeItem } from "./FileTreeItem";
-import { getFileTree } from "@/lib/utils";
+import { getFileTree } from "@/components/room/file-viewer/utils";
 import { useFileLocations } from "./useFileLocations";
 import type {
   FileNode,

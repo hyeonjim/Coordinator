@@ -2,6 +2,8 @@ import type { NavigateFunction } from "react-router-dom";
 import type { ChatMessage, UseRoomChatReturn } from "@/types/room/chat/textchat/types";
 import type { UseRoomVoiceReturn } from "@/types/room/chat/voicechat/types";
 
+// ─── 참여자 ──────────────────────────────────────────────────────────────────
+
 /**
  * 방 참여자 기본 정보
  */
@@ -12,6 +14,8 @@ export interface Participant {
   isSpeaking: boolean;
   micOn: boolean;
 }
+
+// ─── 훅 반환 / 파라미터 ──────────────────────────────────────────────────────
 
 /**
  * useRoomSetup 훅 반환 타입
@@ -32,7 +36,15 @@ export interface UseRoomSetupReturn {
   setIsSidebarCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-// 룸 헤더 관련 타입
+// ─── 파일 / 에디터 ──────────────────────────────────────────────────────────
+
+export interface SelectedFile {
+  id: number;
+  name: string;
+  content: string;
+}
+
+// ─── 헤더 / UI ───────────────────────────────────────────────────────────────
 
 export type Theme = "dark" | "light" | "light2";
 
@@ -42,9 +54,6 @@ export interface GitAction {
 }
 
 export interface HeaderProps {
-  isJoined: boolean;
-  onJoin: () => void;
-  onLeave: () => void;
   selectedFileId: number | null;
   editorContent: string;
 }
@@ -58,4 +67,38 @@ export interface UseRoomActionsParams {
   roomChat: UseRoomChatReturn;
   roomVoice: UseRoomVoiceReturn;
   navigate: NavigateFunction;
+}
+
+// ─── Context ─────────────────────────────────────────────────────────────────
+
+/**
+ * RoomContext 공유 값
+ * RoomProvider 내부에서 생성되며 useRoomContext()로 접근합니다.
+ */
+export interface RoomContextValue {
+  // 사용자 정보
+  userId: string;
+  userName: string;
+  userImageUrl?: string;
+  currentRoomId: string;
+
+  // 방 상태
+  isJoined: boolean;
+  participants: Participant[];
+  chatMessages: ChatMessage[];
+
+  // UI 상태
+  isSidebarCollapsed: boolean;
+  setIsSidebarCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
+
+  // 음성 채팅
+  isWebSocketConnected: boolean;
+  handleToggleMic: () => Promise<void>;
+  togglePeerMute: (peerId: string) => void;
+  isPeerMuted: (peerId: string) => boolean;
+
+  // 방 액션
+  handleJoin: () => Promise<void>;
+  handleLeave: () => void;
+  handleSendChat: (text: string) => void;
 }
