@@ -3,14 +3,15 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useRoom } from "@/hooks/room/chat/useRoomActions";
 import type { RoomContextValue } from "@/types/room/types";
 
-export const RoomContext = createContext<RoomContextValue | null>(null);
+const RoomContext = createContext<RoomContextValue | null>(null);
 
 export function RoomProvider({ children }: { children: ReactNode }) {
   const { roomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
+  const value = useRoom(roomId, navigate);
 
   return (
-    <RoomContext.Provider value={useRoom(roomId, navigate)}>
+    <RoomContext.Provider value={value}>
       {children}
     </RoomContext.Provider>
   );

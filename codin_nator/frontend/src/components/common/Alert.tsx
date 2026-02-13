@@ -17,14 +17,13 @@ export default function Alert({
           <div className="px-4 py-3 text-sm font-semibold text-[#d2d7db]">
             {title}
           </div>
-          {/* Content */}
           <div className="px-4 py-4 text-sm text-[#d2d7db]">{children}</div>
-          {/* Footer */}
           <div className="flex justify-end px-4 py-3">
             <button
               onClick={onConfirm}
               className="rounded px-4 py-1.5 text-sm font-semibold bg-[#d2d7db] text-[#2B2B2B] hover:bg-[#bfc6cc] active:scale-[0.98]"
-            >확인
+            >
+              확인
             </button>
           </div>
         </div>
