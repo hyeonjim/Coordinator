@@ -11,6 +11,7 @@ export interface ProfileSectionProps {
     name?: string;
     email?: string;
     imageUrl?: string;
+    gitId?: string;
   } | null;
   onLogout: () => void;
 }

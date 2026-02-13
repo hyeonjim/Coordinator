@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
-import { LogOut } from "lucide-react";
+import { LogOut, Github } from "lucide-react";
 import type { ProfileSectionProps } from "@/types/home/types";
 
-export default function ProfileSection({ user, onLogout }: ProfileSectionProps) {
+export default function ProfileSection({
+  user,
+  onLogout,
+}: ProfileSectionProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -34,6 +37,12 @@ export default function ProfileSection({ user, onLogout }: ProfileSectionProps) 
             <p className="text-sm text-[#586069]">
               {user?.email || "No email provided"}
             </p>
+            {user?.gitId && (
+              <div className="flex items-center gap-1.5 text-sm mt-2 text-[#586069]">
+                <Github className="w-4 h-4" />
+                <span>{user.gitId}</span>
+              </div>
+            )}
           </div>
         </div>
 
