@@ -1,13 +1,10 @@
-import { useState, useCallback } from "react";
-
+import { RoomProvider, useRoomContext } from "@/components/room";
 import CodeEditor from "@/components/room/code-editor";
 import RoomTerminal from "@/components/room/room-terminal";
 import Header from "@/components/room/Header";
-import FileViewer from "@/components/room/file-viewer";
+import { FileViewer } from "@/components/room/file-viewer";
 import { VoiceChat } from "@/components/room/chat/VoiceChat";
 import { TextChat } from "@/components/room/chat/TextChat";
-import { RoomProvider, useRoomContext } from "@/components/room";
-import type { SelectedFile } from "@/types/room/types";
 
 export default function RoomPage() {
   return (
@@ -18,38 +15,19 @@ export default function RoomPage() {
 }
 
 function RoomLayout() {
-  const [currentEditorCode, setCurrentEditorCode] = useState("");
-  const [selectedFile, setSelectedFile] = useState<SelectedFile | null>(null);
-  const [terminalChunk, setTerminalChunk] = useState("");
-
-  const { userId, userName, userImageUrl, currentRoomId } = useRoomContext();
-
-  const appendTerminal = useCallback((title: string, text: string) => {
-    setTerminalChunk(`===== ${title} =====\n${text}\n`);
-  }, []);
+  const { selectedFile, currentRoomId, setEditorCode, appendTerminal, terminalOutput } =
+    useRoomContext();
 
   return (
     <div className="room-container">
-      <Header
-        selectedFileId={selectedFile?.id ?? null}
-        editorContent={currentEditorCode}
-      />
+      <Header />
 
       <div className="room-main">
         <div className="relative self-stretch">
           <aside className="room-sidebar-left transition-all duration-300 overflow-hidden h-full">
             <div className="flex-1 overflow-auto room-scrollbar">
-              <FileViewer
-                roomId={Number(currentRoomId)}
-                onFileSelect={(fileId, content, fileName) =>
-                  setSelectedFile({ id: fileId, content, name: fileName })
-                }
-                userId={userId}
-                userName={userName}
-                userImageUrl={userImageUrl}
-              />
+              <FileViewer />
             </div>
-
             <div className="h-1/3 flex flex-col">
               <div className="flex-1 overflow-hidden">
                 <VoiceChat />
@@ -67,7 +45,7 @@ function RoomLayout() {
                 roomId={Number(currentRoomId)}
                 fileContent={selectedFile.content}
                 fileName={selectedFile.name}
-                onChange={setCurrentEditorCode}
+                onChange={setEditorCode}
                 onAppendTerminal={appendTerminal}
               />
             ) : (
@@ -76,7 +54,7 @@ function RoomLayout() {
               </div>
             )}
           </div>
-          <RoomTerminal output={terminalChunk} />
+          <RoomTerminal output={terminalOutput} />
         </main>
 
         <TextChat />

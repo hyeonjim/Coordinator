@@ -15,11 +15,16 @@ export interface Participant {
   micOn: boolean;
 }
 
+// ─── 파일 / 에디터 ──────────────────────────────────────────────────────────
+
+export interface SelectedFile {
+  id: number;
+  name: string;
+  content: string;
+}
+
 // ─── 훅 반환 / 파라미터 ──────────────────────────────────────────────────────
 
-/**
- * useRoomSetup 훅 반환 타입
- */
 export interface UseRoomSetupReturn {
   userId: string;
   userName: string;
@@ -32,16 +37,14 @@ export interface UseRoomSetupReturn {
   setParticipants: React.Dispatch<React.SetStateAction<Participant[]>>;
   chatMessages: ChatMessage[];
   setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
+  selectedFile: SelectedFile | null;
+  setSelectedFile: React.Dispatch<React.SetStateAction<SelectedFile | null>>;
+  editorCode: string;
+  setEditorCode: React.Dispatch<React.SetStateAction<string>>;
+  terminalOutput: string;
+  setTerminalOutput: React.Dispatch<React.SetStateAction<string>>;
   isSidebarCollapsed: boolean;
   setIsSidebarCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-// ─── 파일 / 에디터 ──────────────────────────────────────────────────────────
-
-export interface SelectedFile {
-  id: number;
-  name: string;
-  content: string;
 }
 
 // ─── 헤더 / UI ───────────────────────────────────────────────────────────────
@@ -51,11 +54,6 @@ export type Theme = "dark" | "light" | "light2";
 export interface GitAction {
   id: string;
   label: string;
-}
-
-export interface HeaderProps {
-  selectedFileId: number | null;
-  editorContent: string;
 }
 
 /**
@@ -73,7 +71,6 @@ export interface UseRoomActionsParams {
 
 /**
  * RoomContext 공유 값
- * RoomProvider 내부에서 생성되며 useRoomContext()로 접근합니다.
  */
 export interface RoomContextValue {
   // 사용자 정보
@@ -86,6 +83,16 @@ export interface RoomContextValue {
   isJoined: boolean;
   participants: Participant[];
   chatMessages: ChatMessage[];
+
+  // 파일 선택 상태
+  selectedFile: SelectedFile | null;
+  setSelectedFile: React.Dispatch<React.SetStateAction<SelectedFile | null>>;
+
+  // 에디터 / 터미널 상태
+  editorCode: string;
+  setEditorCode: React.Dispatch<React.SetStateAction<string>>;
+  terminalOutput: string;
+  appendTerminal: (title: string, text: string) => void;
 
   // UI 상태
   isSidebarCollapsed: boolean;

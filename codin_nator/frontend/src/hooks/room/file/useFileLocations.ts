@@ -1,33 +1,36 @@
-/**
- * 파일 위치 추적 훅
- * - Yjs awareness를 사용하여 각 사용자가 보고 있는 파일을 실시간으로 추적합니다.
- * - 사용자가 파일을 선택하면 awareness에 현재 파일 정보를 업데이트합니다.
- */
 import { useEffect, useState, useCallback } from "react";
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
+import type { Awareness } from "y-protocols/awareness";
 import type {
   FileLocationState,
   FileViewerUser,
   FileAwarenessData,
 } from "@/types/room/file/types";
-import type { Awareness } from "y-protocols/awareness";
 
+const WS_BASE_URL =
+  import.meta.env.VITE_CODE_WS_URL ?? "wss://i14e205.p.ssafy.io/ws/code";
+
+interface UseFileLocationsResult {
+  fileLocations: FileLocationState[];
+  updateCurrentFile: (fileId: number | null) => void;
+}
+
+/**
+ * 파일 위치 추적 훅
+ * Yjs awareness를 사용하여 각 사용자가 보고 있는 파일을 실시간으로 추적
+ */
 export function useFileLocations(
   roomId: number,
   userId?: string,
   userName?: string,
   userImageUrl?: string,
-) {
+): UseFileLocationsResult {
   const [fileLocations, setFileLocations] = useState<FileLocationState[]>([]);
   const [awareness, setAwareness] = useState<Awareness | null>(null);
 
-  // Yjs provider 초기화
   useEffect(() => {
-    const WS_BASE_URL =
-      import.meta.env.VITE_CODE_WS_URL ?? "wss://i14e205.p.ssafy.io/ws/code";
     const roomName = `${roomId}/file-locations`;
-
     const yDocument = new Y.Doc();
     const wsProvider = new WebsocketProvider(WS_BASE_URL, roomName, yDocument, {
       connect: true,
@@ -35,7 +38,6 @@ export function useFileLocations(
 
     setAwareness(wsProvider.awareness);
 
-    // 로컬 사용자 정보 설정
     if (userId && userName) {
       wsProvider.awareness.setLocalStateField("user", {
         userId,
@@ -51,7 +53,6 @@ export function useFileLocations(
     };
   }, [roomId, userId, userName, userImageUrl]);
 
-  // Awareness 변경 감지 및 파일 위치 업데이트
   useEffect(() => {
     if (!awareness) return;
 
@@ -61,7 +62,7 @@ export function useFileLocations(
 
       states.forEach((state) => {
         const userData = state.user as FileAwarenessData | undefined;
-        if (!userData || !userData.currentFileId) return;
+        if (!userData?.currentFileId) return;
 
         const fileId = userData.currentFileId;
         const user: FileViewerUser = {
@@ -78,43 +79,34 @@ export function useFileLocations(
 
       const locations: FileLocationState[] = Array.from(
         locationMap.entries(),
-      ).map(([fileId, users]) => ({
-        fileId,
-        users,
-      }));
+      ).map(([fileId, users]) => ({ fileId, users }));
 
       setFileLocations(locations);
     };
 
     awareness.on("change", updateFileLocations);
-    updateFileLocations(); // 초기 로드
+    updateFileLocations();
 
     return () => {
       awareness.off("change", updateFileLocations);
     };
   }, [awareness]);
 
-  // 현재 파일 ID 업데이트 함수
   const updateCurrentFile = useCallback(
     (fileId: number | null) => {
       if (!awareness || !userId || !userName) return;
 
-      const userData: FileAwarenessData = {
+      awareness.setLocalStateField("user", {
         userId,
         userName,
         imageUrl: userImageUrl,
         currentFileId: fileId ?? undefined,
-      };
-
-      awareness.setLocalStateField("user", userData);
+      } as FileAwarenessData);
     },
     [awareness, userId, userName, userImageUrl],
   );
 
-  return {
-    fileLocations,
-    updateCurrentFile,
-  };
+  return { fileLocations, updateCurrentFile };
 }
 
 export default useFileLocations;

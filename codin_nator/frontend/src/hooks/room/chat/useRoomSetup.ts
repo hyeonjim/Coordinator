@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import type { UseRoomSetupReturn, Participant } from "@/types/room/types";
+import type { UseRoomSetupReturn, Participant, SelectedFile } from "@/types/room/types";
 import type { ChatMessage } from "@/types/room/chat/textchat/types";
 import { generateId } from "@/utils/room/idGenerator";
 import { useAuthStore } from "@/stores/authStore";
@@ -37,6 +37,11 @@ export function useRoomSetup(roomId: string | undefined): UseRoomSetupReturn {
   const [isJoined, setIsJoined] = useState(false);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [selectedFile, setSelectedFile] = useState<SelectedFile | null>(null);
+
+  // 에디터 / 터미널 상태
+  const [editorCode, setEditorCode] = useState("");
+  const [terminalOutput, setTerminalOutput] = useState("");
 
   // UI 상태 관리
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -60,6 +65,12 @@ export function useRoomSetup(roomId: string | undefined): UseRoomSetupReturn {
       setParticipants,
       chatMessages,
       setChatMessages,
+      selectedFile,
+      setSelectedFile,
+      editorCode,
+      setEditorCode,
+      terminalOutput,
+      setTerminalOutput,
       isSidebarCollapsed,
       setIsSidebarCollapsed,
     }),
@@ -70,13 +81,12 @@ export function useRoomSetup(roomId: string | undefined): UseRoomSetupReturn {
       webSocketUrl,
       currentRoomId,
       isJoined,
-      setIsJoined,
       participants,
-      setParticipants,
       chatMessages,
-      setChatMessages,
+      selectedFile,
+      editorCode,
+      terminalOutput,
       isSidebarCollapsed,
-      setIsSidebarCollapsed,
     ],
   );
 }
