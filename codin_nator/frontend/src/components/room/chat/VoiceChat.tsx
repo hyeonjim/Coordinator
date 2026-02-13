@@ -1,9 +1,9 @@
 import type {
-  VoiceChatProps,
   MicIconProps,
   AvatarProps,
   ParticipantRowProps,
 } from "@/types/room/chat/voicechat/types";
+import { useRoomContext } from "@/components/room";
 
 /**
  * 마이크 아이콘 컴포넌트
@@ -92,7 +92,6 @@ function ParticipantRow({
 }: ParticipantRowProps) {
   return (
     <div className="participant-row group">
-      {/* 왼쪽: 아바타 + 이름 */}
       <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
         {/* 말하는 중이면 아바타 테두리 강조 */}
         <div
@@ -107,15 +106,13 @@ function ParticipantRow({
         >
           <Avatar name={name} imageUrl={imageUrl} />
         </div>
-        <div className="flex flex-col min-w-0">
-          <span className="participant-name">{name}</span>
-        </div>
+        <span className="participant-name">{name}</span>
       </div>
 
       {/* 오른쪽: 마이크 상태 */}
       <button
-        onClick={(e) => {
-          e.stopPropagation();
+        onClick={(event) => {
+          event.stopPropagation();
           onToggle();
         }}
         className={`participant-mic-btn ${isRemoteMuted ? "opacity-50" : "opacity-100"}`}
@@ -150,13 +147,15 @@ function ParticipantRow({
 /**
  * 음성 채팅 컴포넌트
  */
-export function VoiceChat({
-  participants,
-  myUserId,
-  onToggleMic,
-  onTogglePeerMute,
-  isPeerMuted,
-}: VoiceChatProps) {
+export function VoiceChat() {
+  const {
+    participants,
+    userId,
+    handleToggleMic,
+    togglePeerMute,
+    isPeerMuted,
+  } = useRoomContext();
+
   return (
     <div className="voice-chat-container">
       <div className="voice-chat-header">
@@ -168,17 +167,19 @@ export function VoiceChat({
       </div>
 
       <div className="voice-chat-participants room-scrollbar">
-        {participants.map((p) => (
+        {participants.map((participant) => (
           <ParticipantRow
-            key={p.userId}
-            name={p.userName}
-            imageUrl={p.imageUrl}
-            micOn={p.micOn}
-            isSpeaking={p.isSpeaking}
-            isMe={p.userId === myUserId}
-            isRemoteMuted={p.userId !== myUserId && isPeerMuted(p.userId)}
+            key={participant.userId}
+            name={participant.userName}
+            imageUrl={participant.imageUrl}
+            micOn={participant.micOn}
+            isSpeaking={participant.isSpeaking}
+            isMe={participant.userId === userId}
+            isRemoteMuted={participant.userId !== userId && isPeerMuted(participant.userId)}
             onToggle={() =>
-              p.userId === myUserId ? onToggleMic() : onTogglePeerMute(p.userId)
+              participant.userId === userId
+                ? handleToggleMic()
+                : togglePeerMute(participant.userId)
             }
           />
         ))}

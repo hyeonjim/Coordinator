@@ -5,13 +5,15 @@ import logo2 from "@/assets/images/logo_nobg.png";
 
 import Alert from "@/components/common/Alert";
 import axiosInstance from "@/api/axios";
+import { useRoomContext } from "@/components/room";
 import type { Theme, GitAction, HeaderProps } from "@/types/room/types";
 
-const THEME_META: Record<Theme, { icon: string; label: string; next: Theme }> = {
-  dark: { icon: "🌸", label: "라이트1로 전환", next: "light" },
-  light: { icon: "☀️", label: "라이트2로 전환", next: "light2" },
-  light2: { icon: "🌙", label: "다크로 전환", next: "dark" },
-};
+const THEME_META: Record<Theme, { icon: string; label: string; next: Theme }> =
+  {
+    dark: { icon: "🌸", label: "라이트1로 전환", next: "light" },
+    light: { icon: "☀️", label: "라이트2로 전환", next: "light2" },
+    light2: { icon: "🌙", label: "다크로 전환", next: "dark" },
+  };
 
 const GIT_ACTIONS: GitAction[] = [
   { id: "add", label: "Add" },
@@ -19,7 +21,13 @@ const GIT_ACTIONS: GitAction[] = [
   { id: "push", label: "Push" },
 ];
 
-function ThemeToggle({ theme, onSetTheme }: { theme: Theme; onSetTheme: (theme: Theme) => void }) {
+function ThemeToggle({
+  theme,
+  onSetTheme,
+}: {
+  theme: Theme;
+  onSetTheme: (theme: Theme) => void;
+}) {
   const { icon, label, next } = THEME_META[theme];
 
   return (
@@ -33,13 +41,12 @@ function ThemeToggle({ theme, onSetTheme }: { theme: Theme; onSetTheme: (theme: 
   );
 }
 
-export default function Header({
-  isJoined,
-  onJoin,
-  onLeave,
-  selectedFileId,
-  editorContent,
-}: HeaderProps) {
+export default function Header({ selectedFileId, editorContent }: HeaderProps) {
+  const {
+    isJoined,
+    handleJoin: onJoin,
+    handleLeave: onLeave,
+  } = useRoomContext();
   const [theme, setTheme] = useState<Theme>("dark");
   const isLightMode = theme !== "dark";
   const [alertMsg, setAlertMsg] = useState<string | null>(null);
