@@ -1,4 +1,3 @@
-import { useRoomContext } from "@/hooks/room/useRoomContext";
 import * as Y from "yjs";
 import { createEditor, Editor, Node, Transforms, Text } from "slate";
 import type { Descendant, NodeEntry } from "slate";
@@ -7,7 +6,6 @@ import { WebsocketProvider } from "y-websocket";
 import { Slate, Editable, withReact, ReactEditor } from "slate-react";
 import type { RenderElementProps, RenderLeafProps } from "slate-react";
 import { withYjs, withYHistory, YjsEditor } from "@slate-yjs/core";
-
 import Prism from "prismjs";
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-java";
@@ -16,16 +14,19 @@ import "prismjs/themes/prism-tomorrow.css";
 import CodeEditorHeader from "./Header";
 import AutoCompletePopup from "./AutoCompletePopup";
 import RemoteCursorOverlay from "./CursorOverlay";
-
 import { useFontSize } from "@/hooks/room/code-editor/useFontSize";
 import { useAutoComplete } from "@/hooks/room/code-editor/useAutoComplete";
 import { useCursorAwareness } from "@/hooks/room/code-editor/useCursorAwareness";
 import { useAuthStore } from "@/stores/authStore";
+import { useRoomContext } from "@/hooks/room/useRoomContext";
 import axiosInstance from "@/api/axios";
 import type { CodeEditorProps } from "@/types/room/editor/types";
 
-const WS_BASE_URL =
+const WS_URL =
   import.meta.env.VITE_CODE_WS_URL ?? "wss://i14e205.p.ssafy.io/ws/code";
+const INITIAL_VALUE: Descendant[] = [
+  { type: "paragraph", children: [{ text: "" }] },
+];
 
 export default function CodeEditor({
   roomId,
@@ -35,33 +36,30 @@ export default function CodeEditor({
   onTestGenerated,
   onAppendTerminal,
 }: CodeEditorProps) {
-  const roomName = useMemo(() => `${roomId}/${fileId}`, [roomId, fileId]);
+  const [currentCode, setCurrentCode] = useState("");
 
+  // Yjs 협업 에디터 설정
   const yDocument = useMemo(() => new Y.Doc(), [fileId]);
-
-  const provider = useMemo(() => {
-    return new WebsocketProvider(WS_BASE_URL, roomName, yDocument, {
-      connect: true,
-    });
-  }, [roomName, yDocument]);
-
-  const yjsSharedXmlText = useMemo(
+  const sharedText = useMemo(
     () => yDocument.get("slate", Y.XmlText),
     [yDocument],
   );
+  const metaMap = useMemo(() => yDocument.getMap<boolean>("meta"), [yDocument]);
 
-  const editor = useMemo(() => {
-    return withYHistory(withYjs(withReact(createEditor()), yjsSharedXmlText));
-  }, [provider, yjsSharedXmlText]);
-
-  const initialValue: Descendant[] = useMemo(
-    () => [{ type: "paragraph", children: [{ text: "" }] }],
-    [],
+  const provider = useMemo(
+    () =>
+      new WebsocketProvider(WS_URL, `${roomId}/${fileId}`, yDocument, {
+        connect: true,
+      }),
+    [roomId, fileId, yDocument],
   );
 
-  const [currentCode, setCurrentCode] = useState("");
+  const editor = useMemo(
+    () => withYHistory(withYjs(withReact(createEditor()), sharedText)),
+    [sharedText],
+  );
 
-  // 폰트 크기 관련 상태와 핸들러
+  // 재사용 hooks
   const {
     fontSize,
     lineNumberWidth,
@@ -72,21 +70,6 @@ export default function CodeEditor({
     resetFontSize,
     handleFontSizeKeyDown,
   } = useFontSize(currentCode);
-
-  // 현재 사용자 정보
-  const authUser = useAuthStore((state) => state.user);
-  const cursorUser = useMemo(
-    () => (authUser ? { userId: authUser.gitId, name: authUser.name } : null),
-    [authUser],
-  );
-
-  // 원격 커서 동기화
-  const { remoteCursors, updateCursorPosition } = useCursorAwareness({
-    provider,
-    user: cursorUser,
-  });
-
-  // 자동완성 관련 상태와 핸들러
   const {
     autoCompleteItems,
     selectedIndex,
@@ -96,10 +79,19 @@ export default function CodeEditor({
     handleAutoCompleteKeyDown,
   } = useAutoComplete(editor);
 
-  /* Yjs 연결 및 해제 */
+  const authUser = useAuthStore((state) => state.user);
+  const cursorUser = useMemo(
+    () => (authUser ? { userId: authUser.gitId, name: authUser.name } : null),
+    [authUser],
+  );
+  const { remoteCursors, updateCursorPosition } = useCursorAwareness({
+    provider,
+    user: cursorUser,
+  });
+
+  // Yjs 연결 관리
   useEffect(() => {
     YjsEditor.connect(editor);
-
     return () => {
       YjsEditor.disconnect(editor);
       provider.disconnect();
@@ -107,60 +99,80 @@ export default function CodeEditor({
     };
   }, [editor, provider, yDocument]);
 
-  /* Prism 구문 강조 */
+  // 초기 콘텐츠 로딩
+  useEffect(() => {
+    const loadContent = async (synced: boolean) => {
+      if (!synced || metaMap.get("seeded")) return;
+
+      if (sharedText.length > 0 && sharedText.toString().trim()) {
+        metaMap.set("seeded", true);
+        return;
+      }
+
+      try {
+        const { data } = await axiosInstance.get(
+          `/v1/room/${roomId}/${fileId}`,
+          { responseType: "text" },
+        );
+        const lines = String(data ?? "").split(/\r?\n/);
+        const nodes = lines.map((line) => ({
+          type: "paragraph" as const,
+          children: [{ text: line }],
+        }));
+
+        Editor.withoutNormalizing(editor, () => {
+          for (let i = editor.children.length - 1; i >= 0; i--)
+            Transforms.removeNodes(editor, { at: [i] });
+          Transforms.insertNodes(editor, nodes, { at: [0] });
+        });
+      } catch {
+        // 로드 실패시 빈 에디터
+      }
+      metaMap.set("seeded", true);
+    };
+
+    provider.once("sync", loadContent);
+    return () => {
+      provider.off("sync", loadContent);
+    };
+  }, [provider, roomId, fileId, metaMap, sharedText, editor]);
+
+  // 구문 강조
   const decorate = useCallback(([node, path]: NodeEntry) => {
-    if (!node || !Text.isText(node)) return [];
-
-    const grammar = Prism.languages.java;
-    const tokens = Prism.tokenize(node.text ?? "", grammar);
-
-    let start = 0;
-    const ranges: any[] = [];
+    if (!Text.isText(node)) return [];
+    const tokens = Prism.tokenize(node.text, Prism.languages.java);
+    const ranges: {
+      anchor: { path: number[]; offset: number };
+      focus: { path: number[]; offset: number };
+      tokenType: string;
+    }[] = [];
+    let offset = 0;
 
     for (const token of tokens) {
       const length =
         typeof token === "string" ? token.length : String(token.content).length;
-
       if (typeof token !== "string") {
         ranges.push({
-          anchor: { path, offset: start },
-          focus: { path, offset: start + length },
+          anchor: { path, offset },
+          focus: { path, offset: offset + length },
           tokenType: token.type,
         });
       }
-      start += length;
+      offset += length;
     }
     return ranges;
   }, []);
 
-  const renderLeaf = useCallback((props: RenderLeafProps) => {
-    const { attributes, children, leaf } = props;
-    return (
-      <span
-        {...attributes}
-        className={leaf.tokenType ? `token ${leaf.tokenType}` : undefined}
-      >
-        {children}
-      </span>
-    );
-  }, []);
-
+  // 줄 렌더링
   const renderElement = useCallback(
-    (props: RenderElementProps) => {
-      const { attributes, children, element } = props;
-      const path = ReactEditor.findPath(editor, element);
-      const lineNumber = path[0] + 1;
+    ({ attributes, children, element }: RenderElementProps) => {
+      const lineNumber = ReactEditor.findPath(editor, element)[0] + 1;
       return (
         <div {...attributes} className="flex items-stretch code-line">
           <span
             contentEditable={false}
-            className="code-line-number shrink-0 text-right select-none text-[#858585] flex items-start justify-end"
-            style={{
-              width: `${lineNumberWidth}px`,
-              paddingRight: "8px",
-              userSelect: "none",
-              whiteSpace: "normal",
-            }}
+            className="code-line-number shrink-0 text-right select-none text-[#858585]"
+            style={{ width: lineNumberWidth, paddingRight: 8 }}
           >
             {lineNumber}
           </span>
@@ -170,73 +182,6 @@ export default function CodeEditor({
     },
     [editor, lineNumberWidth],
   );
-
-  // 키보드 이벤트: 폰트 크기 조정 → 자동완성 순서로 처리
-  const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent) => {
-      if (handleFontSizeKeyDown(event)) return;
-      handleAutoCompleteKeyDown(event);
-    },
-    [handleFontSizeKeyDown, handleAutoCompleteKeyDown],
-  );
-
-  /* 초기 콘텐츠 로딩 */
-  const seedFromText = useCallback(
-    (text: string) => {
-      const lines = String(text ?? "").split(/\r?\n/);
-      const nodes = (lines.length ? lines : [""]).map((line) => ({
-        type: "paragraph" as const,
-        children: [{ text: line }],
-      }));
-
-      Editor.withoutNormalizing(editor, () => {
-        for (let i = editor.children.length - 1; i >= 0; i--) {
-          Transforms.removeNodes(editor, { at: [i] });
-        }
-        Transforms.insertNodes(editor, nodes, { at: [0] });
-      });
-    },
-    [editor],
-  );
-
-  const metaMap = useMemo(() => yDocument.getMap<boolean>("meta"), [yDocument]);
-
-  useEffect(() => {
-    const handleSync = async (synced: boolean) => {
-      if (!synced) return;
-      if (metaMap.get("seeded")) return;
-
-      const hasContent =
-        yjsSharedXmlText.length > 0 &&
-        yjsSharedXmlText.toString().trim().length > 0;
-
-      if (hasContent) {
-        metaMap.set("seeded", true);
-        return;
-      }
-
-      try {
-        console.log("[CodeEditor] API seed 1회 실행", fileId);
-
-        const response = await axiosInstance.get(
-          `/v1/room/${roomId}/${fileId}`,
-          {
-            responseType: "text",
-          },
-        );
-
-        seedFromText(response.data ?? "");
-        metaMap.set("seeded", true);
-      } catch (error) {
-        console.error("[CodeEditor] seed 실패, 빈 에디터로 초기화", error);
-        seedFromText("");
-        metaMap.set("seeded", true);
-      }
-    };
-
-    provider.once("sync", handleSync);
-    return () => provider.off("sync", handleSync);
-  }, [provider, roomId, fileId, metaMap, seedFromText, yjsSharedXmlText]);
 
   return (
     <div className="code-editor-container h-full w-full flex flex-col">
@@ -261,47 +206,46 @@ export default function CodeEditor({
 
       <div
         className="flex-1 overflow-auto font-mono text-[#DCD8D8] relative"
-        style={{ fontSize: `${fontSize}px`, lineHeight: `${fontSize * 1.5}px` }}
+        style={{ fontSize, lineHeight: `${fontSize * 1.5}px` }}
       >
         <Slate
           editor={editor}
-          initialValue={initialValue}
+          initialValue={INITIAL_VALUE}
           onChange={(value) => {
             try {
-              const text = value.map((node) => Node.string(node)).join("\n");
+              const text = value.map((n) => Node.string(n)).join("\n");
               setCurrentCode(text);
               onChange?.(text);
-
-              // 원격 커서 위치 업데이트
               updateCursorPosition(editor.selection);
-
-              // 자동완성 트리거
               handleAutoComplete();
             } catch {
-              // 에디터 초기화 중 에러 무시
+              /* 에디터 초기화 중 에러 무시 */
             }
           }}
         >
           <Editable
             spellCheck={false}
             decorate={decorate}
-            renderLeaf={renderLeaf}
+            renderLeaf={({ attributes, children, leaf }: RenderLeafProps) => (
+              <span
+                {...attributes}
+                className={
+                  leaf.tokenType ? `token ${leaf.tokenType}` : undefined
+                }
+              >
+                {children}
+              </span>
+            )}
             renderElement={renderElement}
-            onKeyDown={handleKeyDown}
-            className="min-h-full px-2 py-4 focus:outline-none"
-            style={{
-              lineHeight: `${fontSize * 1.5}px`,
-              whiteSpace: "pre",
-              overflowWrap: "normal",
-              wordBreak: "normal",
+            onKeyDown={(e) => {
+              if (!handleFontSizeKeyDown(e)) handleAutoCompleteKeyDown(e);
             }}
+            className="min-h-full px-2 py-4 focus:outline-none"
+            style={{ lineHeight: `${fontSize * 1.5}px`, whiteSpace: "pre" }}
           />
         </Slate>
 
-        {/* 원격 커서 오버레이 */}
         <RemoteCursorOverlay cursors={remoteCursors} editor={editor} />
-
-        {/* 자동완성 팝업 */}
         <AutoCompletePopup
           items={autoCompleteItems}
           selectedIndex={selectedIndex}
@@ -313,6 +257,7 @@ export default function CodeEditor({
   );
 }
 
+// Context 래퍼
 export function CodeEditorPanel() {
   const { selectedFile, currentRoomId, setEditorCode, appendTerminal } =
     useRoomContext();
