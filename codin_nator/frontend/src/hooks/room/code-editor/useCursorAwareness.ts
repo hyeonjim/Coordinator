@@ -6,11 +6,8 @@
 import { useEffect, useState, useCallback } from "react";
 import type { WebsocketProvider } from "y-websocket";
 import type { Range } from "slate";
-import type {
-  RemoteCursor,
-  CursorUserData,
-} from "@/types/room/editor/cursor/types";
-import { getCursorColor } from "@/types/room/editor/cursor/types";
+import type { RemoteCursor, CursorUserData } from "@/types/room/editor/cursor";
+import { getCursorColor } from "@/types/room/editor/cursor";
 
 interface UseCursorAwarenessParams {
   provider: WebsocketProvider;

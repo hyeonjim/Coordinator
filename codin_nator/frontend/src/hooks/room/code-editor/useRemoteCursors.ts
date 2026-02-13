@@ -10,10 +10,7 @@ import {
   type RelativeRange,
 } from "@slate-yjs/core";
 import type { Node } from "slate";
-import type {
-  CursorUserData,
-  RemoteCursor,
-} from "@/types/room/editor/cursor/types";
+import type { CursorUserData, RemoteCursor } from "@/types/room/editor/cursor";
 
 interface CursorState {
   data?: CursorUserData;
