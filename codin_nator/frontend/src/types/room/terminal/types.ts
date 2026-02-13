@@ -36,7 +36,6 @@ export interface TerminalPromptInfo {
  * RoomTerminal 컴포넌트 Props
  */
 export interface RoomTerminalProps {
-  output?: string;
   testCode?: string | null;
   userName?: string;
   projectName?: string;

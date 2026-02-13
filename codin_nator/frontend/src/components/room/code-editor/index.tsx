@@ -39,7 +39,7 @@ export default function CodeEditor({
   const [currentCode, setCurrentCode] = useState("");
 
   // Yjs 협업 에디터 설정
-  const yDocument = useMemo(() => new Y.Doc(), [fileId]);
+  const yDocument = useMemo(() => new Y.Doc(), []);
   const sharedText = useMemo(
     () => yDocument.get("slate", Y.XmlText),
     [yDocument],

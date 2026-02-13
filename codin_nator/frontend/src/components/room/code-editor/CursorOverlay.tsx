@@ -76,6 +76,7 @@ function CursorCaret({ cursor, editor }: CursorCaretProps) {
     } catch {
       return null;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cursor.selection, editor, resizeKey]);
 
   if (!position) return null;
@@ -137,6 +138,7 @@ function SelectionHighlight({ cursor, editor }: CursorCaretProps) {
     } catch {
       return [];
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cursor.selection, editor, resizeKey]);
 
   return (

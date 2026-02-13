@@ -1,4 +1,4 @@
-import { RoomProvider, useRoomContext } from "@/hooks/room/useRoomContext";
+import { RoomProvider } from "@/hooks/room/useRoomContext";
 import { CodeEditorPanel } from "@/components/room/code-editor";
 import RoomTerminal from "@/components/room/room-terminal";
 import Header from "@/components/room/Header";
@@ -15,8 +15,6 @@ export default function RoomPage() {
 }
 
 function RoomLayout() {
-  const { terminalOutput } = useRoomContext();
-
   return (
     <div className="room-container">
       <Header />
@@ -37,7 +35,7 @@ function RoomLayout() {
           <div className="flex-1 min-h-0 overflow-hidden">
             <CodeEditorPanel />
           </div>
-          <RoomTerminal output={terminalOutput} />
+          <RoomTerminal />
         </main>
         <TextChat />
       </div>
