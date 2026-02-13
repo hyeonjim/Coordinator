@@ -2,7 +2,34 @@ import { useMemo, useState } from "react";
 import { VscBeaker, VscPlay, VscGraph } from "react-icons/vsc";
 import { aiService } from "@/services/ai/aiService";
 import Alert from "@/components/common/Alert";
-import type { AiActionsProps } from "@/types/room/editor/types";
+import type { AiActionsProps } from "@/types/ai/types";
+
+// 패키지명 추출 유틸리티
+function extractPackageName(testCode: string): string {
+  const match = testCode.match(/package\s+([a-zA-Z0-9_.]+)\s*;/);
+  return match ? match[1] : "";
+}
+
+// 테스트 성공 여부 판단
+function isSuccessOutput(output: string | null): boolean {
+  if (!output) return false;
+
+  const lowerCaseOutput = output.toLowerCase();
+
+  if (lowerCaseOutput.includes("build successful") || lowerCaseOutput.includes("no failure")) {
+    return true;
+  }
+
+  if (
+    lowerCaseOutput.includes("build failed") ||
+    lowerCaseOutput.includes("failure:") ||
+    lowerCaseOutput.includes("there were failing tests")
+  ) {
+    return false;
+  }
+
+  return false;
+}
 
 export default function AiActions({
   roomId,
@@ -18,31 +45,12 @@ export default function AiActions({
   const [latestTestCode, setLatestTestCode] = useState<string | null>(null);
   const [latestRunOutput, setLatestRunOutput] = useState<string | null>(null);
 
-  const extractPackageName = (testCode: string) => {
-    const match = testCode.match(/package\s+([a-zA-Z0-9_.]+)\s*;/);
-    return match ? match[1] : "";
-  };
-
-  // 성공 출력이면 분석 버튼 비활성화 (실패일 때만 오류 분석)
-  const isLikelySuccessOutput = (output: string | null) => {
-    if (!output) return false;
-    const lower = output.toLowerCase();
-    if (lower.includes("build successful") || lower.includes("no failure")) return true;
-    if (
-      lower.includes("build failed") ||
-      lower.includes("failure:") ||
-      lower.includes("there were failing tests")
-    )
-      return false;
-    return false;
-  };
-
   const canAnalyze = useMemo(
-    () => !!fileName && !!latestRunOutput && !isLikelySuccessOutput(latestRunOutput),
+    () => !!fileName && !!latestRunOutput && !isSuccessOutput(latestRunOutput),
     [fileName, latestRunOutput],
   );
 
-  const validateBeforeGenerate = () => {
+  const validateBeforeGenerate = (): boolean => {
     if (!fileName) {
       setAlertMessage("파일을 먼저 선택해주세요.");
       return false;
@@ -65,7 +73,9 @@ export default function AiActions({
       setIsGenerating(true);
       const response = await aiService.generateTestCode(roomId, fileName!, code);
 
-      if (!response?.testCode) throw new Error("테스트 코드가 생성되지 않았습니다.");
+      if (!response?.testCode) {
+        throw new Error("테스트 코드가 생성되지 않았습니다.");
+      }
 
       setLatestTestCode(response.testCode);
       setLatestRunOutput(null);
@@ -113,7 +123,7 @@ export default function AiActions({
       return;
     }
 
-    if (isLikelySuccessOutput(latestRunOutput)) {
+    if (isSuccessOutput(latestRunOutput)) {
       const message = "테스트가 성공했습니다! 저장/분석할 오류가 없습니다 🎉";
       onAppendTerminal?.("AI Analyze Result", message);
       setAlertMessage(message);
@@ -143,15 +153,29 @@ export default function AiActions({
     }
   };
 
-  const buttonClass = (disabled: boolean) =>
+  const getButtonClassName = (disabled: boolean): string =>
     `ai-action-btn ${disabled ? "ai-action-btn-disabled" : "ai-action-btn-enabled"}`;
+
+  const getAnalyzeButtonTitle = (): string => {
+    if (!latestRunOutput) {
+      return "테스트 실행 후 분석 가능";
+    }
+    if (isSuccessOutput(latestRunOutput)) {
+      return "테스트 성공: 분석할 오류가 없습니다";
+    }
+    return "AI 분석";
+  };
+
+  const isGenerateDisabled = isGenerating || !fileName || !code;
+  const isRunDisabled = isRunning || !latestTestCode;
+  const isAnalyzeDisabled = isAnalyzing || !canAnalyze;
 
   return (
     <div className="flex items-center gap-2">
       <button
         onClick={handleGenerateTest}
-        disabled={isGenerating || !fileName || !code}
-        className={buttonClass(isGenerating || !fileName || !code)}
+        disabled={isGenerateDisabled}
+        className={getButtonClassName(isGenerateDisabled)}
         title="현재 코드에서 테스트 코드 생성"
       >
         <VscBeaker className="text-[12px]" />
@@ -160,8 +184,8 @@ export default function AiActions({
 
       <button
         onClick={handleRunTest}
-        disabled={isRunning || !latestTestCode}
-        className={buttonClass(isRunning || !latestTestCode)}
+        disabled={isRunDisabled}
+        className={getButtonClassName(isRunDisabled)}
         title={!latestTestCode ? "테스트 생성 후 실행 가능" : "테스트 실행"}
       >
         <VscPlay className="text-[12px]" />
@@ -170,15 +194,9 @@ export default function AiActions({
 
       <button
         onClick={handleAnalyze}
-        disabled={isAnalyzing || !canAnalyze}
-        className={buttonClass(isAnalyzing || !canAnalyze)}
-        title={
-          !latestRunOutput
-            ? "테스트 실행 후 분석 가능"
-            : isLikelySuccessOutput(latestRunOutput)
-              ? "테스트 성공: 분석할 오류가 없습니다"
-              : "AI 분석"
-        }
+        disabled={isAnalyzeDisabled}
+        className={getButtonClassName(isAnalyzeDisabled)}
+        title={getAnalyzeButtonTitle()}
       >
         <VscGraph className="text-[12px]" />
         {isAnalyzing ? "분석 중..." : "AI 분석"}

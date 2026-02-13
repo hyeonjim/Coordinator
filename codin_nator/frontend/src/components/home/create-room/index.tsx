@@ -1,20 +1,17 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import type { CreateRoomModalProps } from "@/types/home/types";
-import axiosInstance from "@/api/axios";
+import { roomService } from "@/services/room/roomService";
 
 export default function CreateRoomModal({ onClose }: CreateRoomModalProps) {
   const navigate = useNavigate();
   const [roomTitle, setRoomTitle] = useState("");
   const [branchName, setBranchName] = useState("");
 
-  const roomCreate = async () => {
+  const handleCreateRoom = async () => {
     try {
-      const res = await axiosInstance.post("/v1/room", {
-        name: roomTitle,
-        branch: branchName,
-      });
-      navigate(`/room/${res.data}`);
+      const roomId = await roomService.createRoom({ name: roomTitle, branch: branchName });
+      navigate(`/room/${roomId}`);
     } catch {
       //
     }
@@ -58,7 +55,7 @@ export default function CreateRoomModal({ onClose }: CreateRoomModalProps) {
           </div>
 
           <button
-            onClick={roomCreate}
+            onClick={handleCreateRoom}
             className="w-full h-11 mt-2 bg-white text-gray-900 font-medium border border-gray-200 rounded-xl hover:bg-[#e9ddec] transition-colors shadow-sm"
           >
             방 생성하기

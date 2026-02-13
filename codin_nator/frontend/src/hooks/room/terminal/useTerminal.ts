@@ -4,6 +4,7 @@ import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import "xterm/css/xterm.css";
 
+import { useRoomContext } from "@/hooks/room/useRoomContext";
 import type {
   RoomTerminalProps,
   TerminalConfig,
@@ -40,7 +41,6 @@ function generateUserId(): string {
 
 export function useTerminal(options: RoomTerminalProps = {}) {
   const {
-    output: outputProperty,
     testCode,
     userName: userNameProperty,
     projectName: projectNameProperty,
@@ -49,6 +49,8 @@ export function useTerminal(options: RoomTerminalProps = {}) {
     initialHeight = TERMINAL_DEFAULT_HEIGHT,
     initialIsOpen = true,
   } = options;
+
+  const { terminalOutput } = useRoomContext();
 
   const generatedUserId = useMemo(() => generateUserId(), []);
   const generatedUserName = useMemo(
@@ -72,7 +74,7 @@ export function useTerminal(options: RoomTerminalProps = {}) {
     ],
   );
 
-  const output = testCode ?? outputProperty ?? "";
+  const output = testCode ?? terminalOutput ?? "";
 
   const [isOpen, setIsOpen] = useState(initialIsOpen);
   const [height, setHeight] = useState<number>(initialHeight);

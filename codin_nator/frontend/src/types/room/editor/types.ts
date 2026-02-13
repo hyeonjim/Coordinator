@@ -1,3 +1,5 @@
+import type { AiActionsProps } from "@/types/ai/types";
+
 // 자동완성 항목
 export interface AutoCompleteItem {
   label: string;
@@ -40,18 +42,11 @@ export interface FontSizeControlProps {
   onReset: () => void;
 }
 
-// AI 테스트 기능 props
-export interface AiActionsProps {
-  roomId: number;
-  fileName?: string;
-  code: string;
-  onTestGenerated?: (testCode: string) => void;
-  onAppendTerminal?: (title: string, text: string) => void;
-}
-
 // 코드 에디터 헤더 props
 export interface CodeEditorHeaderProps {
   fileName?: string;
   fontSizeProps: FontSizeControlProps;
   aiActionsProps: AiActionsProps;
 }
+
+export type { AiActionsProps };
