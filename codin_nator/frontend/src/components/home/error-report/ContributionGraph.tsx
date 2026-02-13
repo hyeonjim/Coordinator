@@ -8,7 +8,20 @@ import type {
 } from "@/types/home/contribution";
 
 // 월 이름
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 // 기여도 레벨별 배경색 (0: 없음 ~ 4: 많음)
 const LEVEL_CLASSES = [
@@ -26,7 +39,10 @@ const formatDate = (date: Date) =>
 function addHoursToTime(time: string, hours: number): string {
   const match = /^(\d{1,2}):(\d{2})$/.exec(time.trim());
   if (!match) return time;
-  const totalMinutes = ((Number(match[1]) * 60 + Number(match[2]) + hours * 60) % (24 * 60) + 24 * 60) % (24 * 60);
+  const totalMinutes =
+    (((Number(match[1]) * 60 + Number(match[2]) + hours * 60) % (24 * 60)) +
+      24 * 60) %
+    (24 * 60);
   return `${String(Math.floor(totalMinutes / 60)).padStart(2, "0")}:${String(totalMinutes % 60).padStart(2, "0")}`;
 }
 
@@ -48,7 +64,10 @@ function parseResolution(rawText: string): string[] {
   }
 
   if (parts.length === 1) {
-    const periodSplitParts = parts[0].split(/(?<=[가-힣)\]])\.\s+/g).map((part) => part.trim()).filter(Boolean);
+    const periodSplitParts = parts[0]
+      .split(/(?<=[가-힣)\]])\.\s+/g)
+      .map((part) => part.trim())
+      .filter(Boolean);
     if (periodSplitParts.length > 1) parts = periodSplitParts;
   }
 
@@ -59,9 +78,16 @@ function parseResolution(rawText: string): string[] {
     .filter(Boolean);
 }
 
-export function ContributionGraph({ data, roomOptions }: ContributionGraphProps) {
+export function ContributionGraph({
+  data,
+  roomOptions,
+}: ContributionGraphProps) {
   const today = useMemo(() => new Date(), []);
-  const years = [today.getFullYear(), today.getFullYear() - 1, today.getFullYear() - 2];
+  const years = [
+    today.getFullYear(),
+    today.getFullYear() - 1,
+    today.getFullYear() - 2,
+  ];
 
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
   const [selectedRoomId, setSelectedRoomId] = useState("all");
@@ -72,10 +98,13 @@ export function ContributionGraph({ data, roomOptions }: ContributionGraphProps)
   const [showRawLogId, setShowRawLogId] = useState<string | null>(null);
 
   const isShowingRaw = showRawLogId === activeLog?.id;
-  const setShowRaw = (visible: boolean) => setShowRawLogId(visible ? (activeLog?.id ?? null) : null);
+  const setShowRaw = (visible: boolean) =>
+    setShowRawLogId(visible ? (activeLog?.id ?? null) : null);
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") setActiveLog(null); };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setActiveLog(null);
+    };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
@@ -86,14 +115,24 @@ export function ContributionGraph({ data, roomOptions }: ContributionGraphProps)
     const startDate = new Date(selectedYear, 0, 1);
     const endDate = new Date(selectedYear, 11, 31);
 
-    for (let currentDate = new Date(startDate); currentDate <= endDate; currentDate.setDate(currentDate.getDate() + 1)) {
+    for (
+      let currentDate = new Date(startDate);
+      currentDate <= endDate;
+      currentDate.setDate(currentDate.getDate() + 1)
+    ) {
       const dateKey = formatDate(currentDate);
       if (selectedYear === today.getFullYear() && currentDate > today) {
         dataByDate[dateKey] = { count: 0, logs: [] };
       } else {
         const allLogs = data?.[dateKey]?.logs ?? [];
-        const filteredLogs = selectedRoomId === "all" ? allLogs : allLogs.filter((log) => log.roomId === selectedRoomId);
-        dataByDate[dateKey] = { count: filteredLogs.length, logs: filteredLogs };
+        const filteredLogs =
+          selectedRoomId === "all"
+            ? allLogs
+            : allLogs.filter((log) => log.roomId === selectedRoomId);
+        dataByDate[dateKey] = {
+          count: filteredLogs.length,
+          logs: filteredLogs,
+        };
       }
     }
     return dataByDate;
@@ -105,12 +144,19 @@ export function ContributionGraph({ data, roomOptions }: ContributionGraphProps)
     const sortedDates = Object.keys(contributionData).sort();
     let currentWeek: { date: string; count: number }[] = [];
 
-    for (let emptyDayIndex = 0; emptyDayIndex < new Date(sortedDates[0]).getDay(); emptyDayIndex++) {
+    for (
+      let emptyDayIndex = 0;
+      emptyDayIndex < new Date(sortedDates[0]).getDay();
+      emptyDayIndex++
+    ) {
       currentWeek.push({ date: "", count: -1 });
     }
 
     for (const date of sortedDates) {
-      if (new Date(date).getDay() === 0 && currentWeek.length) { weekGrid.push(currentWeek); currentWeek = []; }
+      if (new Date(date).getDay() === 0 && currentWeek.length) {
+        weekGrid.push(currentWeek);
+        currentWeek = [];
+      }
       currentWeek.push({ date, count: contributionData[date].count });
     }
     if (currentWeek.length) weekGrid.push(currentWeek);
@@ -140,7 +186,11 @@ export function ContributionGraph({ data, roomOptions }: ContributionGraphProps)
     }
     return Object.entries(roomBuckets)
       .sort(([roomIdA], [roomIdB]) =>
-        roomIdA === "unknown" ? 1 : roomIdB === "unknown" ? -1 : Number(roomIdA) - Number(roomIdB)
+        roomIdA === "unknown"
+          ? 1
+          : roomIdB === "unknown"
+            ? -1
+            : Number(roomIdA) - Number(roomIdB),
       )
       .map(([roomId, logs]) => ({
         roomId,
@@ -158,7 +208,10 @@ export function ContributionGraph({ data, roomOptions }: ContributionGraphProps)
   };
 
   const rawStacktraceText = activeLog?.stacktrace ?? "";
-  const stacktracePreview = rawStacktraceText.length > 2000 ? rawStacktraceText.slice(0, 2000) + "\n... (더보기로 전체 확인)" : rawStacktraceText;
+  const stacktracePreview =
+    rawStacktraceText.length > 2000
+      ? rawStacktraceText.slice(0, 2000) + "\n... (더보기로 전체 확인)"
+      : rawStacktraceText;
   const resolutionBullets = parseResolution(activeLog?.resolution ?? "");
 
   return (
@@ -205,7 +258,9 @@ export function ContributionGraph({ data, roomOptions }: ContributionGraphProps)
           >
             <option value="all">All Rooms</option>
             {roomOptions.map((roomId) => (
-              <option key={roomId} value={roomId}>Room #{roomId}</option>
+              <option key={roomId} value={roomId}>
+                Room #{roomId}
+              </option>
             ))}
           </select>
         )}
@@ -214,29 +269,34 @@ export function ContributionGraph({ data, roomOptions }: ContributionGraphProps)
       {/* 잔디 그래프 */}
       <div className="w-full overflow-x-auto pb-3">
         <div className="table mx-auto">
-          <div className="inline-flex flex-col px-[15px]">
-            <div className="flex gap-[3px] mb-4">
+          <div className="inline-flex flex-col px-4">
+            <div className="flex gap-1 mb-4">
               {weeks.map((_, weekIndex) => (
-                <div key={weekIndex} className="w-[12px] text-[12px] font-medium text-[#586069] overflow-visible whitespace-nowrap">
+                <div
+                  key={weekIndex}
+                  className="w-3 text-[12px] font-medium text-[#586069] overflow-visible whitespace-nowrap"
+                >
                   {monthLabels[weekIndex] ?? ""}
                 </div>
               ))}
             </div>
-            <div className="flex gap-[4px]">
+            <div className="flex gap-1">
               {weeks.map((week, weekIndex) => (
-                <div key={weekIndex} className="flex flex-col gap-[3px]">
+                <div key={weekIndex} className="flex flex-col gap-1">
                   {week.map((day, dayIndex) => (
                     <button
                       key={dayIndex}
-                      title={day.date ? `${day.date} · ${day.count} errors` : ""}
-                      className={`w-[11px] h-[15px] rounded-sm ${getLevelClass(day.count)} hover:ring-1 hover:ring-offset-1 ${day.count > 0 ? "hover:ring-[#24292E]/40" : "hover:ring-[#9297A2]/40"} hover:scale-125 transition-all duration-200`}
+                      title={
+                        day.date ? `${day.date} · ${day.count} errors` : ""
+                      }
+                      className={`w-3 h-4 rounded-sm ${getLevelClass(day.count)} hover:ring-1 hover:ring-offset-1 ${day.count > 0 ? "hover:ring-[#24292E]/40" : "hover:ring-[#9297A2]/40"} hover:scale-125 transition-all duration-200`}
                       onClick={() => {
                         if (!day.date) return;
                         setSelectedDate(day.date);
                         setSelectedLogs(
-                          [...(contributionData[day.date]?.logs ?? [])].sort((logA, logB) =>
-                            logB.time.localeCompare(logA.time)
-                          )
+                          [...(contributionData[day.date]?.logs ?? [])].sort(
+                            (logA, logB) => logB.time.localeCompare(logA.time),
+                          ),
                         );
                         setIsLogOpen(true);
                         setActiveLog(null);
@@ -256,7 +316,10 @@ export function ContributionGraph({ data, roomOptions }: ContributionGraphProps)
           <span>Less</span>
           <div className="flex gap-1">
             {LEVEL_CLASSES.map((levelClass, levelIndex) => (
-              <div key={levelIndex} className={`w-3 h-3 rounded-sm ${levelClass}`} />
+              <div
+                key={levelIndex}
+                className={`w-3 h-3 rounded-sm ${levelClass}`}
+              />
             ))}
           </div>
           <span>More</span>
@@ -277,20 +340,26 @@ export function ContributionGraph({ data, roomOptions }: ContributionGraphProps)
                 {selectedLogs.length}건
               </span>
             </div>
-            <ChevronDown className={`h-5 w-5 transition-transform group-hover:scale-110 text-white ${isLogOpen ? "rotate-180" : ""}`} />
+            <ChevronDown
+              className={`h-5 w-5 transition-transform group-hover:scale-110 text-white ${isLogOpen ? "rotate-180" : ""}`}
+            />
           </button>
 
           {isLogOpen && (
             <div className="mt-4">
               {selectedLogs.length === 0 ? (
-                <p className="text-sm py-8 text-center text-white">해당 날짜에는 발생한 오류가 없습니다.</p>
+                <p className="text-sm py-8 text-center text-white">
+                  해당 날짜에는 발생한 오류가 없습니다.
+                </p>
               ) : (
                 <div className="space-y-4">
                   {roomGroupedLogs.map(({ roomId, logs }) => (
                     <div key={roomId}>
                       <div className="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium mb-2 bg-[#8c949f] text-white">
                         <span>Room #{roomId === "unknown" ? "?" : roomId}</span>
-                        <span className="px-2 py-0.5 rounded-full text-xs bg-[#7F838D] text-white">{logs.length}건</span>
+                        <span className="px-2 py-0.5 rounded-full text-xs bg-[#7F838D] text-white">
+                          {logs.length}건
+                        </span>
                       </div>
                       <ul className="space-y-2.5">
                         {logs.map((log) => (
@@ -323,13 +392,17 @@ export function ContributionGraph({ data, roomOptions }: ContributionGraphProps)
       {activeLog && (
         <div
           className="fixed inset-0 z-50 p-4 overflow-y-auto backdrop-blur-md animate-in fade-in duration-300 bg-[rgba(70,82,96,0.8)]"
-          onMouseDown={(event) => { if (event.target === event.currentTarget) setActiveLog(null); }}
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setActiveLog(null);
+          }}
         >
           <div className="mx-auto w-full max-w-3xl rounded-xl shadow-2xl flex flex-col h-[95vh] animate-in slide-in-from-bottom-8 duration-500 bg-[#e2e4ea] border border-[#9297A2]">
             {/* 모달 헤더 */}
             <div className="flex items-start justify-between gap-3 p-5 rounded-t-xl bg-[#91a7c0] border-b border-[#a0aab6]">
               <div>
-                <h3 className="text-xl font-semibold mb-2 text-white">{activeLog.display_name}</h3>
+                <h3 className="text-xl font-semibold mb-2 text-white">
+                  {activeLog.display_name}
+                </h3>
                 <div className="flex items-center gap-2 text-xs font-medium text-white">
                   <span>{selectedDate}</span>
                   <span>·</span>
@@ -337,7 +410,9 @@ export function ContributionGraph({ data, roomOptions }: ContributionGraphProps)
                   {activeLog.roomId && (
                     <>
                       <span>·</span>
-                      <span className="px-2 py-1 rounded-lg bg-[#778097]">Room #{activeLog.roomId}</span>
+                      <span className="px-2 py-1 rounded-lg bg-[#778097]">
+                        Room #{activeLog.roomId}
+                      </span>
                     </>
                   )}
                 </div>
@@ -356,7 +431,8 @@ export function ContributionGraph({ data, roomOptions }: ContributionGraphProps)
               {/* 오류 내용 */}
               <div>
                 <div className="text-sm font-semibold mb-3 flex items-center gap-2.5 text-[#41454a]">
-                  <div className="w-1.5 h-5 rounded-full bg-[#d87a7a]" />오류 내용
+                  <div className="w-1.5 h-5 rounded-full bg-[#d87a7a]" />
+                  오류 내용
                 </div>
                 <div className="p-5 rounded-lg text-sm whitespace-pre-wrap leading-relaxed bg-white border border-[#d87a7a] text-[#24292E]">
                   {activeLog.error}
@@ -367,7 +443,8 @@ export function ContributionGraph({ data, roomOptions }: ContributionGraphProps)
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <div className="text-sm font-semibold flex items-center gap-2.5 text-[#41454a]">
-                    <div className="w-1.5 h-5 rounded-full bg-[#7F838D]" />원본 출력/Stacktrace
+                    <div className="w-1.5 h-5 rounded-full bg-[#7F838D]" />
+                    원본 출력/Stacktrace
                   </div>
                   <button
                     onClick={() => setShowRaw(!isShowingRaw)}
@@ -376,7 +453,9 @@ export function ContributionGraph({ data, roomOptions }: ContributionGraphProps)
                     {isShowingRaw ? "접기" : "펼치기"}
                   </button>
                 </div>
-                <pre className={`p-4 text-xs rounded-lg overflow-auto whitespace-pre bg-white border border-[#a3a3a5] text-[#24292E] ${isShowingRaw ? "max-h-[60vh]" : "max-h-[30vh]"}`}>
+                <pre
+                  className={`p-4 text-xs rounded-lg overflow-auto whitespace-pre bg-white border border-[#a3a3a5] text-[#24292E] ${isShowingRaw ? "max-h-[60vh]" : "max-h-[30vh]"}`}
+                >
                   {isShowingRaw ? rawStacktraceText : stacktracePreview}
                 </pre>
               </div>
@@ -384,13 +463,19 @@ export function ContributionGraph({ data, roomOptions }: ContributionGraphProps)
               {/* 해결 방법 */}
               <div>
                 <div className="text-sm font-semibold mb-3 flex items-center gap-2.5 text-[#41454a]">
-                  <div className="w-1.5 h-5 rounded-full bg-[#7ba87b]" />해결 방법
+                  <div className="w-1.5 h-5 rounded-full bg-[#7ba87b]" />
+                  해결 방법
                 </div>
                 {resolutionBullets.length > 0 ? (
                   <ul className="space-y-2.5">
                     {resolutionBullets.map((bullet, bulletIndex) => (
-                      <li key={bulletIndex} className="flex gap-3 p-4 rounded-lg text-sm whitespace-pre-wrap leading-relaxed bg-white border border-[#7ba87b] text-[#24292E]">
-                        <span className="text-[#7ba87b] font-bold text-[1.1rem]">•</span>
+                      <li
+                        key={bulletIndex}
+                        className="flex gap-3 p-4 rounded-lg text-sm whitespace-pre-wrap leading-relaxed bg-white border border-[#7ba87b] text-[#24292E]"
+                      >
+                        <span className="text-[#7ba87b] font-bold text-[1.1rem]">
+                          •
+                        </span>
                         <span>{bullet}</span>
                       </li>
                     ))}
