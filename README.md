@@ -32,7 +32,7 @@ Yjs을 활용하여 실시간 코드 작성 협업 플랫폼을 제공합니다.
 | ----------------------- | --------------------- |
 | Language                | TypeScript            |
 | Runtime Environment     | Node.js               |
-| Framework               | React 18, Vite        |
+| Framework               | React 19, Vite        |
 | State Management        | Zustand               |
 | Styling                 | Tailwind CSS          |
 | Code Editor             | Slate.js, Y.js (CRDT) |
@@ -173,7 +173,6 @@ frontend/
 **원인:** STOMP 클라이언트의 기본 재연결 로직은 구독을 복원하지만, 연결이 끊어진 시간 동안 서버에 전송된 메시지를 별도로 요청하지 않았습니다.
 
 **해결:** 재연결 시 마지막으로 수신한 메시지의 타임스탬프를 서버에 전달하고, 해당 시점 이후의 누락된 메시지를 REST API로 조회하여 보충하는 방식을 구현했습니다. 또한 STOMP 클라이언트에 heartbeat 설정을 추가하여 연결 상태를 주기적으로 확인하도록 했습니다.
-
 
 ### 라이선스
 
