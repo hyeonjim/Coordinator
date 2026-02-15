@@ -41,3 +41,6 @@ application-local.properties
 
 # 업로드파일(로컬 테스트용)
 uploads/
+
+# 환경 변수 파일 (API 키 등 민감 정보)
+.env
