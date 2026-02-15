@@ -106,9 +106,9 @@ app.add_middleware(
 # =========================================
 
 llm = LLMClient(
-    base_url=os.getenv("LLM_BASE_URL", "http://127.0.0.1:11434"),
-    api_key=os.getenv("LLM_API_KEY", "local-token"),
-    model=os.getenv("LLM_MODEL", "qwen2.5-coder:3b"),
+    base_url=os.getenv("LLM_BASE_URL", "https://api.openai.com"),
+    api_key=os.getenv("LLM_API_KEY", ""),
+    model=os.getenv("LLM_MODEL", "gpt-4o-mini"),
     auth_header=os.getenv("LLM_AUTH_HEADER", "Authorization"),
     auth_scheme=os.getenv("LLM_AUTH_SCHEME", "Bearer"),
 )
