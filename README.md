@@ -36,7 +36,7 @@ Yjs을 활용하여 실시간 코드 작성 협업 플랫폼을 제공합니다.
 | State Management        | Zustand               |
 | Styling                 | Tailwind CSS          |
 | Code Editor             | Slate.js, Y.js (CRDT) |
-| Real-time Communication | SockJS, STOMP         |
+| Connect                 | SockJS, STOMP         |
 | Voice Chat              | WebRTC                |
 | Text Chat               | WebSocket             |
 | HTTP Client             | Axios                 |
@@ -134,13 +134,6 @@ frontend/
 ### 시스템 아키텍처
 
 ![image.png](imgs/image%201.png)
-
-### 기능 구성
-
-|     |     |
-| --- | --- |
-|     |     |
-|     |     |
 
 ### 프로젝트 산출물
 
