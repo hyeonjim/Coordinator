@@ -18,71 +18,71 @@ WebSocket을 활용하여 누구나 쉽게 참여할 수 있는 실시간 코드
 (Frontend & JiraOps) | 김내현
 (Frontend & Infra) |
 | --- | --- | --- |
-| | | |
+|  |  |  |
 
 | 이규성
 (Frontend & AI) | 김수미
 (Frontend) | 장하은
 (Backend & Infra) |
 | --- | --- | --- |
-| | | |
+|  |  |  |
 
 ### 기술 스택
 
 ### Frontend
 
-| Category                | Stack                 |
-| ----------------------- | --------------------- |
-| Language                | TypeScript            |
-| Runtime Environment     | Node.js               |
-| Framework               | React 18, Vite        |
-| State Management        | Zustand               |
-| Styling                 | Tailwind CSS          |
-| Code Editor             | Slate.js, Y.js (CRDT) |
-| Real-time Communication | SockJS, STOMP         |
-| Voice Chat              | WebRTC                |
-| Text Chat               | WebSocket             |
-| HTTP Client             | Axios                 |
-| Routing                 | React Router v6       |
-| Package Manager         | npm                   |
-| IDE                     | Visual Studio Code    |
+| Category | Stack |
+| --- | --- |
+| Language | TypeScript |
+| Runtime Environment | Node.js |
+| Framework | React 18, Vite |
+| State Management | Zustand |
+| Styling | Tailwind CSS |
+| Code Editor | Slate.js, Y.js (CRDT) |
+| Real-time Communication | SockJS, STOMP |
+| Voice Chat | WebRTC |
+| Text Chat | WebSocket |
+| HTTP Client | Axios |
+| Routing | React Router v6 |
+| Package Manager | npm |
+| IDE | Visual Studio Code |
 
 ### Backend
 
-| Category          | Stack                                               |
-| ----------------- | --------------------------------------------------- |
-| Language          | Java 17                                             |
-| Framework         | Spring Boot 4.0.1, Spring Data JPA, Spring Security |
-| Authentication    | OAuth2 Client, JJWT (JSON Web Token)                |
-| Database          | MySQL                                               |
-| API Documentation | Swagger UI (Springdoc OpenAPI)                      |
-| Real-time         | Spring WebSocket                                    |
-| Library           | JGit (Git Repository Control), Lombok               |
-| IDE               | IntelliJ IDEA 2023.3.8 (Ultimate Edition)           |
-| Build Tool        | Gradle 9.2.1                                        |
+| Category | Stack |
+| --- | --- |
+| Language | Java 17 |
+| Framework | Spring Boot 4.0.1, Spring Data JPA, Spring Security |
+| Authentication | OAuth2 Client, JJWT (JSON Web Token) |
+| Database | MySQL |
+| API Documentation | Swagger UI (Springdoc OpenAPI) |
+| Real-time | Spring WebSocket |
+| Library | JGit (Git Repository Control), Lombok |
+| IDE | IntelliJ IDEA 2023.3.8 (Ultimate Edition) |
+| Build Tool | Gradle 9.2.1 |
 
 ### AI
 
-| Category            | Stack |
-| ------------------- | ----- |
-| Language            |       |
-| Runtime Environment |       |
-| Framework           |       |
-| Library             |       |
-| IDE                 |       |
+| Category | Stack |
+| --- | --- |
+| Language |  |
+| Runtime Environment |  |
+| Framework |  |
+| Library |  |
+| IDE |  |
 
 ### Infra
 
-| Category       | Spec |
-| -------------- | ---- |
-| Instance Type  |      |
-| CPU            |      |
-| RAM            |      |
-| Storage (Disk) |      |
-| Docker         |      |
-| Docker Compose |      |
-| Jenkins        |      |
-| Nginx          |      |
+| Category | Spec |
+| --- | --- |
+| Instance Type |  |
+| CPU |  |
+| RAM |  |
+| Storage (Disk) |  |
+| Docker |  |
+| Docker Compose |  |
+| Jenkins |  |
+| Nginx |  |
 
 ### 프로젝트 구조 (Frontend)
 
@@ -140,10 +140,10 @@ frontend/
 
 ### 기능 구성
 
-|     |     |
+|  |  |
 | --- | --- |
-|     |     |
-|     |     |
+|  |  |
+|  |  |
 
 ### 프로젝트 산출물
 
@@ -190,3 +190,5 @@ frontend/
 이 프로젝트는 **삼성 청년 SW·AI 아카데미(SSAFY) 14기** 교육 과정의 일환으로 제작되었습니다.
 
 본 프로젝트의 소스 코드 및 산출물에 대한 저작권은 팀원 전원과 SSAFY에 귀속되며, 무단 복제 및 배포를 금지합니다.
+
+ⓒ 2026 Codin'nator Team. All rights reserved.
