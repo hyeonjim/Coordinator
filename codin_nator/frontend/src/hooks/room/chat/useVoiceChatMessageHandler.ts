@@ -1,3 +1,27 @@
+/**
+ * useVoiceChatMessageHandler.ts - WebRTC 시그널링 메시지 처리 훅
+ *
+ * [이 훅의 역할]
+ * STOMP WebSocket으로 수신되는 음성 채팅 시그널링 메시지를 처리합니다.
+ * 각 메시지 타입에 따라 WebRTC 연결 과정의 적절한 단계를 실행합니다.
+ *
+ * [메시지 타입별 처리 흐름]
+ * - JOIN: 새 참여자 입장 → 기존 참여자가 Offer 생성하여 전송
+ * - IDENTITY: 참여자 정보(이름, 이미지) 수신 → 참여자 목록 갱신
+ * - PEER_LIST: 현재 방 참여자 목록 수신 → 참여자 초기화
+ * - OFFER: WebRTC 연결 제안 수신 → Answer 생성하여 응답
+ * - ANSWER: WebRTC 연결 응답 수신 → P2P 연결 완료
+ * - ICE: ICE Candidate 수신 → 네트워크 경로 추가
+ * - MIC: 마이크 상태 변경 알림 → UI 갱신
+ * - LEAVE: 참여자 퇴장 → WebRTC 연결 정리
+ *
+ * [useRef를 활용한 의존성 관리 패턴]
+ * - useEffect 내부에서 사용하는 값들을 ref로 관리하면
+ *   의존성 배열에 넣지 않아도 항상 최신 값을 참조할 수 있음
+ * - 이를 통해 useEffect의 불필요한 재실행(무한 루프)을 방지
+ *
+ * @param params - 훅 파라미터 (WebSocket, WebRTC, 사용자 정보, 참여자 관리 함수 등)
+ */
 import { useEffect, useRef } from "react";
 import type {
   VoiceChatMessageReceived,
@@ -8,14 +32,7 @@ import type {
   IceCandidatePayload,
   MicrophoneStatusPayload,
   ParticipantList,
-} from "@/types/room/chat/voicechat/types";
-
-/**
- * VoiceChat STOMP 메시지 수신 및 처리 훅
- * 백엔드 SignallingController에서 전송하는 메시지를 처리합니다:
- *
- * @param params - 훅 파라미터
- */
+} from "@/types/voice";
 export function useVoiceChatMessageHandler({
   voiceChatWebSocket,
   webRTC,
@@ -28,7 +45,20 @@ export function useVoiceChatMessageHandler({
   removeParticipant,
   updateParticipantMicStatus,
 }: UseVoiceChatMessageHandlerParams) {
-  // 의존성들을 ref로 관리하여 useEffect 재실행 방지 (무한 루프 해결)
+  /**
+   * [Ref를 활용한 최신 의존성 참조 패턴]
+   *
+   * 문제: useEffect의 의존성 배열에 webRTC, addParticipant 등을 넣으면
+   *       이 값들이 바뀔 때마다 구독/해제가 반복되어 무한 루프 발생
+   *
+   * 해결: useRef에 최신 값을 저장하고, useEffect 내부에서는 ref.current로 접근
+   *       → 의존성 배열에 넣지 않아도 됨 → 불필요한 재실행 방지
+   *
+   * [useRef란?]
+   * - 렌더링 사이에도 값이 유지되는 "상자" 같은 객체
+   * - .current 속성으로 값에 접근/수정
+   * - 값을 바꿔도 리렌더링이 발생하지 않음 (useState와의 차이점)
+   */
   const depsRef = useRef({
     voiceChatWebSocket,
     webRTC,
@@ -66,9 +96,22 @@ export function useVoiceChatMessageHandler({
     updateParticipantMicStatus,
   ]);
 
-  // JOIN 메시지 중복 전송 방지용 Ref
+  /**
+   * JOIN 메시지 중복 전송 방지용 Ref
+   * - useEffect가 의존성 변경으로 재실행될 수 있으므로,
+   *   이미 JOIN을 보냈는지 추적하여 중복 전송을 방지합니다.
+   */
   const hasJoinedSentRef = useRef(false);
 
+  /**
+   * [메인 useEffect - STOMP 구독 및 메시지 처리]
+   *
+   * 이 useEffect는 음성 채팅의 핵심 흐름을 담당합니다:
+   * 1. 방 구독 시작 (STOMP subscribe)
+   * 2. JOIN 메시지 전송 (다른 참여자에게 입장 알림)
+   * 3. 수신 메시지를 handleMessage로 처리
+   * 4. 컴포넌트 언마운트 시 구독 해제 (cleanup)
+   */
   useEffect(() => {
     // 퇴장하면 Ref 초기화
     if (!isJoined) {

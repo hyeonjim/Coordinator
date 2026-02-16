@@ -1,20 +1,40 @@
 /**
- * 텍스트 채팅 컴포넌트
- * - 내 메시지는 오른쪽, 상대 메시지는 왼쪽에 표시
- * - 입장/퇴장 메시지는 중앙에 표시
- * - 스크롤 자동 이동 (useRef + scrollIntoView)
+ * TextChat - 텍스트 채팅 UI (메시지 목록 + 입력폼)
+ *
+ * [React 기초 - useRef]
+ * - useRef로 DOM 요소 참조를 만들어 scrollIntoView()로 자동 스크롤
+ * - 새 메시지가 오면 항상 최하단으로 스크롤됨
+ *
+ * [React 기초 - 폼 이벤트 핸들링]
+ * - onSubmit: form 제출 이벤트 (Enter 키 또는 버튼 클릭)
+ * - event.preventDefault(): 폼의 기본 동작(페이지 새로고침)을 막음
+ * - onChange: input 값이 바뀔 때마다 호출되어 상태를 업데이트
+ *
+ * [React 기초 - 조건부 렌더링]
+ * - message.type에 따라 시스템 메시지와 일반 메시지를 다르게 표시
+ * - message.isMe로 내 메시지(오른쪽)와 상대 메시지(왼쪽) 구분
+ *
+ * [사용된 기술]
+ * - useRoomContext: 채팅 메시지, 전송 함수, 참여 상태 등 전역 상태 접근
+ * - 사이드바 토글: isSidebarCollapsed 상태로 채팅 패널 열기/닫기
  */
 
 import { useEffect, useRef, useState } from "react";
-import type { ChatMessage } from "@/types/room/chat/textchat/types";
+import type { ChatMessage } from "@/types/chat";
 import { useRoomContext } from "@/hooks/room/useRoomContext";
 
+/**
+ * MessageBubble - 개별 메시지 말풍선 (하위 컴포넌트)
+ * - 입장/퇴장 메시지는 중앙 정렬
+ * - 일반 메시지는 내 것(오른쪽) / 상대방(왼쪽) 정렬
+ */
 function MessageBubble({ message }: { message: ChatMessage }) {
   const time = new Date(message.timestamp).toLocaleTimeString("ko-KR", {
     hour: "2-digit",
     minute: "2-digit",
   });
 
+  // 조건부 렌더링: 메시지 타입에 따라 다른 UI를 반환 (early return 패턴)
   if (message.type === "ENTER" || message.type === "LEAVE") {
     return (
       <div className="flex flex-col items-center gap-1 py-2 px-2">
@@ -77,23 +97,26 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 
 export function TextChat() {
   const {
-    chatMessages,
-    handleSendChat,
-    isJoined,
-    isSidebarCollapsed,
-    setIsSidebarCollapsed,
+    chatMessages, // 채팅 메시지 배열
+    handleSendChat, // 메시지 전송 함수
+    isJoined, // 방 참여 여부 (미참여 시 입력 비활성화)
+    isSidebarCollapsed, // 사이드바 접힘 상태
+    setIsSidebarCollapsed, // 사이드바 토글 함수
   } = useRoomContext();
 
+  // useState: 입력창의 텍스트를 관리하는 상태
   const [inputText, setInputText] = useState("");
-  // 새 메시지 시 자동 스크롤용
+  // useRef: 스크롤 타겟 div를 참조하여 새 메시지 시 자동 스크롤
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // useEffect: chatMessages가 바뀔 때마다 (새 메시지 도착) 자동으로 맨 아래로 스크롤
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
 
+  // 폼 제출 핸들러: React.FormEvent 타입으로 폼 이벤트를 처리
   const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
+    event.preventDefault(); // 폼 기본 동작(페이지 새로고침) 방지
     const text = inputText.trim();
     if (!text) return;
     try {
@@ -113,6 +136,8 @@ export function TextChat() {
           <div className="flex-1 overflow-hidden flex flex-col relative">
             <div className="absolute inset-0 flex flex-col">
               <div className="flex-1 overflow-y-auto p-4 space-y-3 room-scrollbar bg-(--rc-tc-messages-bg)">
+                {/* map으로 리스트 렌더링: 각 메시지를 MessageBubble로 변환
+                    key={message.id}: React가 효율적으로 DOM을 업데이트하기 위한 고유 식별자 */}
                 {chatMessages.map((message) => (
                   <MessageBubble key={message.id} message={message} />
                 ))}

@@ -1,12 +1,32 @@
+/**
+ * ErrorReportSection - 에러 통계 대시보드 (통계 카드 + 기여 그래프 + 방 생성)
+ *
+ * [React 기초 - useMemo로 데이터 가공]
+ * - reports 배열을 useMemo로 가공: 방 목록, 기여 데이터, 통계 등
+ * - 원본 데이터(reports)가 바뀔 때만 재계산 → 성능 최적화
+ *
+ * [React 기초 - useEffect로 데이터 페칭]
+ * - 컴포넌트 마운트 시 API로 리포트 목록을 가져옴
+ * - mounted 플래그: 비동기 응답이 왔을 때 컴포넌트가 이미 언마운트되었으면 상태 업데이트 방지
+ * - 이 패턴은 메모리 누수를 방지하는 중요한 패턴
+ *
+ * [React 기초 - 이벤트 리스너]
+ * - window "focus" 이벤트: 탭에 다시 포커스가 올 때 데이터 새로고침
+ * - 커스텀 이벤트 "codinnator:reports-updated": AI 분석 완료 시 자동 새로고침
+ *
+ * [사용된 기술]
+ * - framer-motion: 카드별 시차 애니메이션 (delay 속성)
+ * - Intl.DateTimeFormat: 타임존을 고려한 날짜/시간 포맷팅
+ */
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, Bug, Calendar, Activity, TrendingUp } from "lucide-react";
 import { ContributionGraph } from "./ContributionGraph";
 import CreateRoomModal from "@/components/home/create-room";
 import { aiService } from "@/services/ai/aiService";
-import type { TestReportResponse } from "@/types/ai/types";
-import type { Stats } from "@/types/home/types";
-import type { ContributionData } from "@/types/home/contribution";
+import type { TestReportResponse } from "@/types/ai";
+import type { Stats } from "@/types/home";
+import type { ContributionData } from "@/types/home";
 
 const KST_TIMEZONE = "Asia/Seoul";
 
@@ -36,10 +56,12 @@ function toKstDateTime(timestamp?: string | null) {
 }
 
 export default function ErrorReportSection() {
-  const [reports, setReports] = useState<TestReportResponse[]>([]);
-  const [refreshTick, setRefreshTick] = useState(0);
-  const [isCreateRoomOpen, setIsCreateRoomOpen] = useState(false);
+  const [reports, setReports] = useState<TestReportResponse[]>([]); // API에서 받은 리포트 목록
+  const [refreshTick, setRefreshTick] = useState(0); // 새로고침 트리거 (값이 바뀌면 useEffect 재실행)
+  const [isCreateRoomOpen, setIsCreateRoomOpen] = useState(false); // 방 생성 모달 열림 상태
 
+  // useEffect: 리포트 데이터 페칭
+  // mounted 플래그: 비동기 응답이 왔을 때 컴포넌트가 아직 존재하는지 확인 (메모리 누수 방지)
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -53,6 +75,7 @@ export default function ErrorReportSection() {
     return () => { mounted = false; };
   }, [refreshTick]);
 
+  // 이벤트 리스너 등록: 탭 포커스 또는 커스텀 이벤트 시 데이터 새로고침
   useEffect(() => {
     const refresh = () => setRefreshTick((previous) => previous + 1);
     window.addEventListener("focus", refresh);
@@ -69,6 +92,7 @@ export default function ErrorReportSection() {
     return ids;
   }, [reports]);
 
+  // useMemo: reports 배열을 날짜별 기여 데이터로 가공 (reports가 바뀔 때만 재계산)
   const contributionData = useMemo<ContributionData>(() => {
     const dataMap: ContributionData = {};
 
@@ -134,6 +158,7 @@ export default function ErrorReportSection() {
         </button>
       </div>
 
+      {/* map으로 통계 카드 렌더링: 배열의 각 항목을 motion.div로 변환 */}
       <div className="grid grid-cols-3 gap-12 my-10 mx-20">
         {statCards.map(({ key, icon, bg, label, value, delay }) => (
           <motion.div

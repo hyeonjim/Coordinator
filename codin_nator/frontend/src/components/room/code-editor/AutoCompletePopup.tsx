@@ -1,8 +1,27 @@
+/**
+ * AutoCompletePopup - 코드 자동완성 팝업 + 필터링 유틸리티
+ *
+ * [React 기초 - useRef]
+ * - useRef는 DOM 요소에 직접 접근할 때 사용하는 훅
+ * - listRef로 ul 요소에 접근, selectedRef로 선택된 li 요소에 접근
+ * - scrollIntoView()로 선택 항목이 보이도록 스크롤 자동 이동
+ *
+ * [React 기초 - 조건부 렌더링]
+ * - if (items.length === 0) return null → 항목이 없으면 팝업을 렌더링하지 않음
+ *
+ * [React 기초 - 이벤트 핸들링]
+ * - onClick={() => onSelect(item)}: 항목 클릭 시 자동완성 삽입
+ * - onMouseDown={(e) => e.preventDefault()}: 클릭 시 에디터가 포커스를 잃지 않도록 방지
+ *
+ * [사용된 기술]
+ * - TypeScript Record 타입: 자동완성 항목 타입별 아이콘/색상 매핑
+ * - 정렬 로직: 완전 일치 우선 → 타입별 정렬 → 알파벳 순
+ */
 import { useEffect, useRef } from "react";
-import type { AutoCompletePopupProps, AutoCompleteItem } from "@/types/room/editor/types";
+import type { AutoCompletePopupProps, AutoCompleteItem } from "@/types/editor";
 import { ALL_JAVA_ITEMS } from "./javaAutoCompleteData";
 
-// 타입별 스타일
+// 타입별 스타일 (keyword, class, method, snippet 각각의 아이콘과 색상)
 const TYPE_STYLES: Record<AutoCompleteItem["type"], { icon: string; color: string }> = {
   keyword: { icon: "K", color: "#C586C0" },
   class: { icon: "C", color: "#4EC9B0" },
@@ -57,14 +76,16 @@ export function getCurrentWord(text: string, cursorOffset: number): { word: stri
 
 // 자동완성 팝업 컴포넌트
 export default function AutoCompletePopup({
-  items,
-  selectedIndex,
-  position,
-  onSelect,
+  items, // 필터링된 자동완성 항목 배열
+  selectedIndex, // 현재 키보드로 선택된 항목 인덱스
+  position, // 팝업 표시 위치 { top, left }
+  onSelect, // 항목 선택 시 실행될 콜백 함수
 }: AutoCompletePopupProps) {
+  // useRef: DOM 요소에 직접 접근하기 위한 참조 생성
   const listRef = useRef<HTMLUListElement>(null);
   const selectedRef = useRef<HTMLLIElement>(null);
 
+  // useEffect: selectedIndex가 바뀔 때마다 선택된 항목이 보이도록 스크롤
   useEffect(() => {
     selectedRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [selectedIndex]);

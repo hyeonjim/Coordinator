@@ -1,12 +1,33 @@
+/**
+ * VoiceChat - 음성 채팅 참여자 목록 UI
+ *
+ * [React 기초 - 컴포넌트 분리]
+ * - MicIcon, Avatar, ParticipantRow, VoiceChat 4개의 컴포넌트로 분리
+ * - 각 컴포넌트는 하나의 역할만 담당 (단일 책임 원칙)
+ * - 작은 컴포넌트를 조합하여 복잡한 UI를 구성
+ *
+ * [React 기초 - 조건부 렌더링]
+ * - MicIcon: on, isPeerMuted 조건에 따라 3가지 다른 SVG 아이콘 반환
+ * - Avatar: imageUrl 유무에 따라 이미지 또는 이름 첫 글자 표시
+ *
+ * [React 기초 - 이벤트 핸들링]
+ * - event.stopPropagation(): 이벤트 버블링 방지 (부모의 클릭 이벤트가 실행되지 않게)
+ * - onToggle: 마이크 토글 함수를 콜백으로 전달
+ *
+ * [사용된 기술]
+ * - SVG 아이콘: JSX 안에서 직접 SVG를 렌더링
+ * - useRoomContext: 참여자 목록, 마이크 상태 등 전역 상태 접근
+ */
 import type {
   MicIconProps,
   AvatarProps,
   ParticipantRowProps,
-} from "@/types/room/chat/voicechat/types";
+} from "@/types/voice";
 import { useRoomContext } from "@/hooks/room/useRoomContext";
 
 /**
- * 마이크 아이콘 컴포넌트
+ * MicIcon - 마이크 상태에 따라 다른 SVG 아이콘을 반환
+ * 조건부 렌더링의 전형적인 예: isPeerMuted → 음소거 아이콘, on → 마이크 켜짐, else → 마이크 꺼짐
  */
 function MicIcon({ on, isPeerMuted }: MicIconProps) {
   if (isPeerMuted) {
@@ -63,7 +84,8 @@ function MicIcon({ on, isPeerMuted }: MicIconProps) {
 }
 
 /**
- * 사용자 아바타 (이미지 우선, 없을 경우 이름 첫 글자)
+ * Avatar - 사용자 아바타 (이미지 우선, 없을 경우 이름 첫 글자)
+ * 옵셔널 체이닝(?.)과 널 병합(??)을 활용한 안전한 값 접근 패턴
  */
 function Avatar({ name, imageUrl }: AvatarProps) {
   const initial = (name?.trim()?.[0] ?? "?").toUpperCase();
@@ -80,15 +102,16 @@ function Avatar({ name, imageUrl }: AvatarProps) {
 }
 
 /**
- * 개별 참여자 표시 행
+ * ParticipantRow - 개별 참여자 표시 행
+ * 여러 props를 구조분해할당으로 받아 아바타, 이름, 마이크 상태를 표시
  */
 function ParticipantRow({
-  name,
-  imageUrl,
-  micOn,
-  isSpeaking,
-  isRemoteMuted,
-  onToggle,
+  name, // 참여자 이름
+  imageUrl, // 프로필 이미지 URL
+  micOn, // 마이크 on/off 상태
+  isSpeaking, // 현재 말하는 중인지 여부
+  isRemoteMuted, // 원격에서 음소거되었는지 여부
+  onToggle, // 마이크 토글 콜백 함수
 }: ParticipantRowProps) {
   return (
     <div className="flex items-center justify-between px-2 py-1 transition-colors duration-150 hover:bg-(--rc-vc-row-hover) hover:rounded-[15px] group">
@@ -145,15 +168,16 @@ function ParticipantRow({
 }
 
 /**
- * 음성 채팅 컴포넌트
+ * VoiceChat - 음성 채팅 메인 컴포넌트
+ * participants 배열을 map()으로 순회하며 각 참여자를 ParticipantRow로 렌더링
  */
 export function VoiceChat() {
   const {
-    participants,
-    userId,
-    handleToggleMic,
-    togglePeerMute,
-    isPeerMuted,
+    participants, // 현재 참여자 배열
+    userId, // 현재 사용자 ID (내 마이크 vs 상대 마이크 구분용)
+    handleToggleMic, // 내 마이크 토글 함수
+    togglePeerMute, // 상대방 음소거 토글 함수
+    isPeerMuted, // 특정 사용자가 음소거인지 확인하는 함수
   } = useRoomContext();
 
   return (
@@ -167,6 +191,7 @@ export function VoiceChat() {
       </div>
 
       <div className="space-y-1 overflow-y-auto flex-1 p-1 pt-2 room-scrollbar bg-(--rc-vc-participants-bg)">
+        {/* map으로 리스트 렌더링: key={participant.userId}로 고유 식별 */}
         {participants.map((participant) => (
           <ParticipantRow
             key={participant.userId}

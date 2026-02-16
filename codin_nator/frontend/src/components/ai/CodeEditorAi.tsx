@@ -1,10 +1,32 @@
+/**
+ * CodeEditorAi - AI 테스트 생성, 실행, 분석 버튼 컴포넌트
+ *
+ * [React 기초 - 비동기 이벤트 핸들링]
+ * - handleGenerateTest, handleRunTest, handleAnalyze 모두 async 함수
+ * - try/catch/finally 패턴: 요청 시작(loading) → 성공/실패 처리 → 로딩 해제
+ * - 이 패턴을 통해 사용자에게 진행 상태를 피드백
+ *
+ * [React 기초 - useMemo]
+ * - canAnalyze: 분석 가능 여부를 계산하는 파생 상태
+ * - fileName과 latestRunOutput이 바뀔 때만 재계산
+ *
+ * [React 기초 - 상태 흐름]
+ * - 테스트 생성 → latestTestCode 저장
+ * - 테스트 실행 → latestRunOutput 저장
+ * - AI 분석 → latestRunOutput을 사용하여 분석
+ * - 각 단계의 결과가 다음 단계의 입력이 되는 순차적 흐름
+ *
+ * [사용된 기술]
+ * - aiService: AI 관련 API 호출 서비스
+ * - window.dispatchEvent: 커스텀 이벤트로 다른 컴포넌트에 알림
+ */
 import { useMemo, useState } from "react";
 import { VscBeaker, VscPlay, VscGraph } from "react-icons/vsc";
 import { aiService } from "@/services/ai/aiService";
 import Alert from "@/components/common/Alert";
-import type { AiActionsProps } from "@/types/ai/types";
+import type { AiActionsProps } from "@/types/ai";
 
-// 패키지명 추출 유틸리티
+// 유틸리티 함수: 테스트 코드에서 Java 패키지명을 정규식으로 추출
 function extractPackageName(testCode: string): string {
   const match = testCode.match(/package\s+([a-zA-Z0-9_.]+)\s*;/);
   return match ? match[1] : "";
@@ -32,19 +54,21 @@ function isSuccessOutput(output: string | null): boolean {
 }
 
 export default function AiActions({
-  roomId,
-  fileName,
-  code,
-  onTestGenerated,
-  onAppendTerminal,
+  roomId, // 현재 룸 ID
+  fileName, // 현재 파일 이름
+  code, // 현재 에디터 코드
+  onTestGenerated, // 테스트 코드 생성 완료 콜백
+  onAppendTerminal, // 터미널에 출력 추가 콜백
 }: AiActionsProps) {
+  // 여러 개의 독립적인 상태: 알림, 각 단계별 로딩 상태, 결과 저장
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [isRunning, setIsRunning] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [latestTestCode, setLatestTestCode] = useState<string | null>(null);
-  const [latestRunOutput, setLatestRunOutput] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false); // 테스트 생성 중
+  const [isRunning, setIsRunning] = useState(false); // 테스트 실행 중
+  const [isAnalyzing, setIsAnalyzing] = useState(false); // AI 분석 중
+  const [latestTestCode, setLatestTestCode] = useState<string | null>(null); // 생성된 테스트 코드
+  const [latestRunOutput, setLatestRunOutput] = useState<string | null>(null); // 실행 결과
 
+  // useMemo: 분석 가능 여부를 의존성이 바뀔 때만 재계산
   const canAnalyze = useMemo(
     () => !!fileName && !!latestRunOutput && !isSuccessOutput(latestRunOutput),
     [fileName, latestRunOutput],
@@ -66,11 +90,13 @@ export default function AiActions({
     return true;
   };
 
+  // async 이벤트 핸들러: try/catch/finally 패턴
+  // try: 정상 처리, catch: 에러 처리, finally: 항상 실행 (로딩 해제)
   const handleGenerateTest = async () => {
     if (!validateBeforeGenerate()) return;
 
     try {
-      setIsGenerating(true);
+      setIsGenerating(true); // 로딩 시작
       const response = await aiService.generateTestCode(roomId, fileName!, code);
 
       if (!response?.testCode) {

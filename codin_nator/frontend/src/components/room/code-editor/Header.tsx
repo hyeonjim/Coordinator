@@ -1,18 +1,33 @@
-import type { CodeEditorHeaderProps } from "@/types/room/editor/types";
+/**
+ * CodeEditorHeader - 에디터 상단 헤더 (파일명, 폰트 크기 조절, AI 액션)
+ *
+ * [React 기초 - Props 구조분해]
+ * - 중첩된 객체 props도 구조분해할당으로 꺼내 쓸 수 있다
+ * - fontSizeProps 안에서 다시 { fontSize, onIncrease, ... }를 꺼냄
+ *
+ * [React 기초 - 이벤트 핸들링]
+ * - onClick={onDecrease}: 버튼 클릭 시 부모에서 전달받은 함수 호출
+ * - disabled={fontSize <= minFontSize}: 조건에 따라 버튼 비활성화
+ *
+ * [사용된 기술]
+ * - 스프레드 연산자: {...aiActionsProps}로 props를 한번에 전달
+ */
+import type { CodeEditorHeaderProps } from "@/types/editor";
 import AiActions from "@/components/ai/CodeEditorAi";
 
 export default function CodeEditorHeader({
-  fileName,
-  fontSizeProps,
-  aiActionsProps,
+  fileName, // 현재 열린 파일 이름
+  fontSizeProps, // 폰트 크기 관련 props 묶음
+  aiActionsProps, // AI 기능 관련 props 묶음
 }: CodeEditorHeaderProps) {
+  // 중첩된 props 객체에서 필요한 값을 구조분해할당으로 추출
   const {
-    fontSize,
-    minFontSize,
-    maxFontSize,
-    onIncrease,
-    onDecrease,
-    onReset,
+    fontSize, // 현재 폰트 크기 (px)
+    minFontSize, // 최소 폰트 크기
+    maxFontSize, // 최대 폰트 크기
+    onIncrease, // 폰트 크기 증가 함수
+    onDecrease, // 폰트 크기 감소 함수
+    onReset, // 기본 크기로 리셋 함수
   } = fontSizeProps;
 
   return (

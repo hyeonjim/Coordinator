@@ -1,3 +1,19 @@
+/**
+ * LandingPage - 서비스 소개 + GitHub 로그인 페이지
+ *
+ * [React 기초 - 정적 컴포넌트]
+ * - state나 effect 없이 props도 받지 않는 순수 표시용 컴포넌트
+ * - 데이터를 상수(PREVIEW_GIFS)로 정의하고 map()으로 렌더링
+ *
+ * [React 기초 - 라우팅]
+ * - <Link to="/">: React Router의 클라이언트 사이드 네비게이션 (페이지 새로고침 없음)
+ * - window.location.href: 전체 페이지 이동 (OAuth는 서버 리다이렉트 필요)
+ *
+ * [사용된 기술]
+ * - framer-motion: <motion.h1>, <motion.p>로 텍스트 등장 애니메이션
+ * - GitHub OAuth: 서버 측 OAuth 인증 URL로 리다이렉트
+ * - 이미지 import: Vite가 빌드 시 이미지 경로를 해시된 URL로 변환
+ */
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import logo from "@/assets/images/logo_wh.png";
@@ -5,8 +21,10 @@ import editorGif from "@/assets/images/landing/editor.gif";
 import gitGif from "@/assets/images/landing/git.gif";
 import errorGif from "@/assets/images/landing/error.gif";
 
+// GitHub OAuth 인증 URL (서버 측에서 처리)
 const GITHUB_OAUTH_URL = "/oauth2/authorization/github";
 
+// 미리보기 GIF 데이터: 배열로 정의하여 map()으로 반복 렌더링
 const PREVIEW_GIFS = [
   { src: editorGif, alt: "collaborative editor preview" },
   { src: gitGif, alt: "git preview" },
@@ -51,6 +69,8 @@ export default function LandingPage() {
         </motion.p>
       </section>
 
+      {/* map으로 리스트 렌더링: PREVIEW_GIFS 배열의 각 항목을 section으로 변환
+          key={alt}: 각 항목의 고유한 값을 key로 사용 */}
       {PREVIEW_GIFS.map(({ src, alt }) => (
         <section key={alt} className="mt-10 flex justify-center px-6">
           <div className="w-full max-w-5xl rounded-2xl bg-neutral-800/60 border border-neutral-700 shadow-xl p-6">

@@ -1,3 +1,25 @@
+/**
+ * FileViewer - 파일 탐색기 (파일 트리 + 생성/삭제 + 드래그&드롭 업로드)
+ *
+ * [React 기초 - useCallback]
+ * - useCallback: 함수를 메모이제이션하여 불필요한 재생성 방지
+ * - 특히 자식 컴포넌트에 콜백을 전달할 때 유용 (불필요한 리렌더링 방지)
+ *
+ * [React 기초 - useEffect]
+ * - fetchFileTree를 컴포넌트 마운트 시 호출하여 파일 목록 로드
+ * - 의존성 배열 [fetchFileTree]로 roomId가 바뀔 때 자동 재호출
+ *
+ * [React 기초 - 이벤트 핸들링]
+ * - onDragOver, onDrop: HTML5 드래그&드롭 API 이벤트
+ * - event.preventDefault(): 기본 동작(파일 열기) 방지
+ * - event.stopPropagation(): 이벤트 버블링 방지
+ *
+ * [사용된 기술]
+ * - react-icons/vsc: VS Code 스타일 아이콘
+ * - DataTransferItemList: 드래그된 파일/폴더 접근
+ * - webkitGetAsEntry: 파일 시스템 엔트리 API (폴더 구조 읽기)
+ * - axiosInstance: 서버 API 호출 (파일 목록, 생성, 삭제, 업로드)
+ */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { DragEvent } from "react";
 import {
@@ -15,12 +37,16 @@ import { FileTreeItem } from "./FileTreeItem";
 import { getFileTree } from "./utils";
 import { useFileLocations } from "@/hooks/room/file/useFileLocations";
 import { useRoomContext } from "@/hooks/room/useRoomContext";
-import type { FileNode, RawNode, LocalFileSystemFileEntry } from "@/types/room/file/types";
+import type { FileNode, RawNode, LocalFileSystemFileEntry } from "@/types/file";
 import Alert from "@/components/common/Alert";
-import axiosInstance from "@/api/axios";
+import axiosInstance from "@/services/api/axios";
+import { ROOM_ENDPOINTS, EDITOR_ENDPOINTS } from "@/services/api/endpoints";
 
+// 모듈 레벨 변수: 임시 ID 생성용 시퀀스 (서버 ID가 없는 노드에 부여)
 let tempIdSequence = 1;
 
+// sanitizeTree: 서버에서 받은 원시 데이터를 앱 내부 FileNode 형태로 정규화
+// 재귀 함수: 폴더의 children도 동일한 변환을 적용 (트리 구조 탐색)
 function sanitizeTree(rawList: RawNode[]): FileNode[] {
   const sanitizeNode = (rawNode: RawNode): FileNode => {
     const rawType = String(rawNode.type ?? rawNode.nodeType ?? rawNode.kind ?? "").toUpperCase();
@@ -50,13 +76,16 @@ function normalizeFileTree(data: unknown): RawNode[] {
 }
 
 export function FileViewer() {
+  // useRoomContext에서 필요한 상태와 함수를 구조분해할당으로 추출
   const { currentRoomId, userId, userName, userImageUrl, setSelectedFile } = useRoomContext();
 
-  const [alertMessage, setAlertMessage] = useState<string | null>(null);
-  const [files, setFiles] = useState<FileNode[]>([]);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isDeleteMode, setIsDeleteMode] = useState(false);
+  // 여러 개의 useState: 각각 독립적인 상태를 관리
+  const [alertMessage, setAlertMessage] = useState<string | null>(null); // 알림 메시지
+  const [files, setFiles] = useState<FileNode[]>([]); // 파일 트리 데이터
+  const [selectedId, setSelectedId] = useState<number | null>(null); // 선택된 파일 ID
+  const [isLoading, setIsLoading] = useState(false); // 로딩 상태
+  const [isDeleteMode, setIsDeleteMode] = useState(false); // 삭제 모드 활성화 여부
+  // Set<number>: 삭제 대상 파일 ID 집합 (중복 없는 자료구조)
   const [deleteTargetIds, setDeleteTargetIds] = useState<Set<number>>(new Set());
 
   const roomId = useMemo(() => {
@@ -79,7 +108,7 @@ export function FileViewer() {
 
     try {
       setIsLoading(true);
-      const response = await axiosInstance.get(`/v1/room/${roomId}/files`);
+      const response = await axiosInstance.get(ROOM_ENDPOINTS.FILES(roomId));
       setFiles(sanitizeTree(normalizeFileTree(response.data)));
     } catch (error) {
       console.error("파일 목록 로드 실패:", error);
@@ -100,7 +129,7 @@ export function FileViewer() {
     updateCurrentFile(node.fileId);
 
     try {
-      const response = await axiosInstance.get(`/v1/room/${roomId}/${node.fileId}`, {
+      const response = await axiosInstance.get(ROOM_ENDPOINTS.FILE_CONTENT(roomId, node.fileId), {
         responseType: "text",
       });
 
@@ -123,7 +152,7 @@ export function FileViewer() {
     if (!fileName) return;
 
     try {
-      await axiosInstance.post(`/v1/room/editor/${roomId}/new-file`, {
+      await axiosInstance.post(EDITOR_ENDPOINTS.NEW_FILE(roomId), {
         fileName,
         type: "FILE",
         parentId: null,
@@ -144,7 +173,7 @@ export function FileViewer() {
     if (!folderName) return;
 
     try {
-      await axiosInstance.post(`/v1/room/editor/${roomId}/new-file`, {
+      await axiosInstance.post(EDITOR_ENDPOINTS.NEW_FILE(roomId), {
         fileName: folderName,
         type: "DIR",
         parentId: null,
@@ -188,7 +217,7 @@ export function FileViewer() {
 
     try {
       for (const fileId of deleteTargetIds) {
-        await axiosInstance.delete(`/v1/room/editor/${roomId}/delete-file/${fileId}`);
+        await axiosInstance.delete(EDITOR_ENDPOINTS.DELETE_FILE(roomId, fileId));
       }
 
       setDeleteTargetIds(new Set());
@@ -221,7 +250,7 @@ export function FileViewer() {
 
         try {
           if (!roomId) throw new Error("유효하지 않은 방 ID입니다.");
-          await axiosInstance.post(`/v1/room/${roomId}/uploads`, formData);
+          await axiosInstance.post(ROOM_ENDPOINTS.UPLOAD(roomId), formData);
           resolve();
         } catch (error) {
           console.error("업로드 실패:", error);
@@ -242,11 +271,14 @@ export function FileViewer() {
     }
   };
 
+  // 드래그&드롭 이벤트 핸들러
+  // DragEvent<HTMLDivElement>: React의 제네릭 이벤트 타입
   const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
+    event.preventDefault(); // 기본 동작(파일 열기) 방지 → 드롭 가능하게 만듦
     event.stopPropagation();
   };
 
+  // 파일 드롭 시: 파일 트리 파싱 → 업로드 → 새로고침
   const handleDrop = async (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();

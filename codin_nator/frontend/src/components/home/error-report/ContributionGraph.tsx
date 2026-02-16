@@ -1,3 +1,27 @@
+/**
+ * ContributionGraph - GitHub 스타일 기여(잔디) 그래프 + 에러 상세 모달
+ *
+ * [React 기초 - 복합 상태 관리]
+ * - 여러 useState로 연도, 방 필터, 선택 날짜, 로그, 모달 상태를 각각 관리
+ * - 각 상태가 독립적이므로 useState를 분리하는 것이 적절
+ *
+ * [React 기초 - useMemo로 복잡한 데이터 가공]
+ * - contributionData: 선택된 연도/방에 맞는 날짜별 기여 데이터 계산
+ * - weeks: 날짜를 주 단위 2차원 배열로 변환 (잔디 그래프 렌더링용)
+ * - monthLabels: 주 배열에서 월 레이블 추출
+ * - roomGroupedLogs: 선택된 날짜의 로그를 방별로 그룹화
+ *
+ * [React 기초 - 이벤트 핸들링]
+ * - 잔디 셀 클릭: 해당 날짜의 에러 로그 표시
+ * - 로그 항목 클릭: 상세 모달 열기
+ * - ESC 키: 모달 닫기 (useEffect로 keydown 이벤트 리스너 등록)
+ * - 모달 배경 클릭: 모달 닫기 (event.target === event.currentTarget 체크)
+ *
+ * [사용된 기술]
+ * - CSS Grid: 잔디 그래프 레이아웃
+ * - framer-motion: 등장 애니메이션
+ * - oklch 색상: 기여도 레벨별 색상 (CSS Color Level 4)
+ */
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, X } from "lucide-react";
@@ -5,7 +29,7 @@ import type {
   ErrorLog,
   ContributionData,
   ContributionGraphProps,
-} from "@/types/home/contribution";
+} from "@/types/home";
 
 // 월 이름
 const MONTHS = [
@@ -79,8 +103,8 @@ function parseResolution(rawText: string): string[] {
 }
 
 export function ContributionGraph({
-  data,
-  roomOptions,
+  data, // 전체 기여 데이터 (날짜 → 에러 로그 매핑)
+  roomOptions, // 필터링 가능한 방 ID 목록
 }: ContributionGraphProps) {
   const today = useMemo(() => new Date(), []);
   const years = [
@@ -89,18 +113,21 @@ export function ContributionGraph({
     today.getFullYear() - 2,
   ];
 
-  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
-  const [selectedRoomId, setSelectedRoomId] = useState("all");
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [selectedLogs, setSelectedLogs] = useState<ErrorLog[]>([]);
-  const [isLogOpen, setIsLogOpen] = useState(false);
-  const [activeLog, setActiveLog] = useState<ErrorLog | null>(null);
-  const [showRawLogId, setShowRawLogId] = useState<string | null>(null);
+  // 여러 개의 독립적인 상태를 각각의 useState로 관리
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear()); // 선택된 연도
+  const [selectedRoomId, setSelectedRoomId] = useState("all"); // 방 필터
+  const [selectedDate, setSelectedDate] = useState<string | null>(null); // 클릭한 날짜
+  const [selectedLogs, setSelectedLogs] = useState<ErrorLog[]>([]); // 선택 날짜의 로그
+  const [isLogOpen, setIsLogOpen] = useState(false); // 로그 목록 펼침 상태
+  const [activeLog, setActiveLog] = useState<ErrorLog | null>(null); // 상세 모달에 표시할 로그
+  const [showRawLogId, setShowRawLogId] = useState<string | null>(null); // 원본 출력 펼침 상태
 
   const isShowingRaw = showRawLogId === activeLog?.id;
   const setShowRaw = (visible: boolean) =>
     setShowRawLogId(visible ? (activeLog?.id ?? null) : null);
 
+  // useEffect: ESC 키로 모달 닫기 위한 키보드 이벤트 리스너
+  // 빈 의존성 배열 []: 컴포넌트 마운트 시 1번만 등록, 언마운트 시 제거
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setActiveLog(null);

@@ -1,3 +1,29 @@
+/**
+ * useRoomVoice.ts - 음성 채팅 통합 훅
+ *
+ * [이 훅의 역할]
+ * 음성 채팅에 필요한 모든 하위 훅을 조합합니다:
+ * 1. useVoiceChatWebSocket: STOMP WebSocket (WebRTC 시그널링 채널)
+ * 2. useWebRTC: P2P 오디오 연결 관리
+ * 3. useVoiceChatMessageHandler: 시그널링 메시지 처리
+ * + 참여자 목록 관리 및 실시간 상태 동기화
+ *
+ * [음성 채팅 전체 아키텍처]
+ * ┌──────────────────────────────────────────────────┐
+ * │ useRoomVoice (이 훅 - 통합 관리)                   │
+ * │   ├─ useVoiceChatWebSocket (STOMP 시그널링)        │
+ * │   ├─ useWebRTC (P2P 오디오)                        │
+ * │   ├─ useVoiceChatMessageHandler (메시지 처리)      │
+ * │   └─ 참여자 관리 (addParticipant, removeParticipant)│
+ * └──────────────────────────────────────────────────┘
+ *
+ * [참여자 상태 동기화]
+ * - 100ms 간격의 setInterval로 참여자들의 음성 감지/마이크 상태를 갱신
+ * - ref를 사용하여 interval 재등록 없이 최신 webRTC 상태를 참조
+ *
+ * @param params - 훅 파라미터
+ * @returns 음성 채팅 관련 상태 및 함수들
+ */
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useVoiceChatWebSocket } from "./useVoiceChatWebSocket";
 import { useWebRTC } from "./useWebRTC";
@@ -5,21 +31,8 @@ import { useVoiceChatMessageHandler } from "./useVoiceChatMessageHandler";
 import type {
   UseRoomVoiceParams,
   UseRoomVoiceReturn,
-} from "@/types/room/chat/voicechat/types";
+} from "@/types/voice";
 import { getSocketBaseUrl } from "@/utils/socketUtils";
-
-/**
- * 음성 채팅 통합 훅
- *
- * 음성 채팅과 관련된 모든 로직을 통합하여 제공합니다:
- * - STOMP WebSocket 연결 관리 (시그널링용)
- * - WebRTC P2P 연결 관리
- * - 참여자 관리 및 실시간 동기화
- * - 마이크 토글
- *
- * @param params - 훅 파라미터
- * @returns 음성 채팅 관련 상태 및 함수들
- */
 export function useRoomVoice({
   currentRoomId,
   userId,

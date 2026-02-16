@@ -1,8 +1,25 @@
+/**
+ * CursorOverlay - 원격 사용자의 커서와 선택 영역을 표시하는 오버레이
+ *
+ * [React 기초 - 커스텀 훅]
+ * - useEditorResizeKey: 에디터 크기/스크롤 변화를 감지하는 커스텀 훅
+ * - 커스텀 훅은 "use"로 시작하는 함수로, 다른 훅을 조합하여 재사용 가능한 로직을 만듦
+ *
+ * [React 기초 - useMemo]
+ * - 커서 위치 계산이 비용이 크므로, 의존성이 바뀔 때만 재계산
+ * - resizeKey가 바뀔 때(스크롤/리사이즈) 위치를 다시 계산
+ *
+ * [사용된 기술]
+ * - ResizeObserver: 브라우저 API로 요소 크기 변화 감지
+ * - ReactEditor.toDOMNode/toDOMRange: Slate의 가상 노드를 실제 DOM으로 변환
+ * - pointer-events-none: 오버레이가 클릭을 가로채지 않도록 설정
+ */
 import { useMemo, useState, useEffect } from "react";
 import { ReactEditor } from "slate-react";
-import type { RemoteCursorOverlayProps, CursorCaretProps, Range } from "@/types/room/editor/cursor";
+import type { RemoteCursorOverlayProps, CursorCaretProps, Range } from "@/types/editor";
 
-// 에디터 크기/스크롤 변경 감지 훅
+// 에디터 크기/스크롤 변경 감지 커스텀 훅
+// resizeKey가 바뀌면 useMemo의 의존성이 바뀌어 커서 위치가 재계산됨
 function useEditorResizeKey(editor: CursorCaretProps["editor"]) {
   const [resizeKey, setResizeKey] = useState(0);
 
@@ -36,10 +53,12 @@ function useEditorResizeKey(editor: CursorCaretProps["editor"]) {
   return resizeKey;
 }
 
-// 원격 커서 오버레이
+// 원격 커서 오버레이: 다른 사용자들의 커서를 모두 표시
+// map()으로 cursors 배열을 순회하며 각 커서에 대해 하이라이트 + 캐럿을 렌더링
 export default function RemoteCursorOverlay({ cursors, editor }: RemoteCursorOverlayProps) {
   return (
     <div className="absolute inset-0 pointer-events-none z-20">
+      {/* map으로 리스트 렌더링: key={cursor.clientId}로 각 커서를 고유 식별 */}
       {cursors.map((cursor) => (
         <div key={cursor.clientId}>
           <SelectionHighlight cursor={cursor} editor={editor} />

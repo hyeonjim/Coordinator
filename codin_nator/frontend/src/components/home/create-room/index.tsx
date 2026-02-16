@@ -1,13 +1,32 @@
+/**
+ * CreateRoomModal - 방 생성 모달 (제목 + 브랜치 입력)
+ *
+ * [React 기초 - 모달 패턴]
+ * - 배경(overlay) 클릭 시 onClose → 모달 닫기
+ * - event.stopPropagation(): 모달 내부 클릭이 배경 클릭으로 전파되지 않게 방지
+ * - 이 패턴으로 "배경 클릭 = 닫기, 내용 클릭 = 유지" 동작 구현
+ *
+ * [React 기초 - 제어 컴포넌트 (Controlled Component)]
+ * - input의 value를 state로 관리하고, onChange로 state를 업데이트
+ * - React가 input의 값을 완전히 제어 → "제어 컴포넌트"
+ * - 장점: 입력값 검증, 포맷팅, 실시간 반영이 쉬움
+ *
+ * [사용된 기술]
+ * - useNavigate: 방 생성 후 해당 방으로 자동 이동
+ * - roomService: 방 생성 API 호출 서비스
+ */
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import type { CreateRoomModalProps } from "@/types/home/types";
+import type { CreateRoomModalProps } from "@/types/home";
 import { roomService } from "@/services/room/roomService";
 
 export default function CreateRoomModal({ onClose }: CreateRoomModalProps) {
   const navigate = useNavigate();
+  // 제어 컴포넌트: input 값을 useState로 관리
   const [roomTitle, setRoomTitle] = useState("");
   const [branchName, setBranchName] = useState("");
 
+  // 방 생성 핸들러: API 호출 후 생성된 방으로 이동
   const handleCreateRoom = async () => {
     try {
       const roomId = await roomService.createRoom({ name: roomTitle, branch: branchName });
@@ -18,10 +37,12 @@ export default function CreateRoomModal({ onClose }: CreateRoomModalProps) {
   };
 
   return (
+    // 오버레이: 배경 클릭 시 onClose 호출하여 모달 닫기
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm"
       onClick={onClose}
     >
+      {/* stopPropagation: 모달 내부 클릭이 배경의 onClick으로 전파되지 않게 방지 */}
       <div
         className="relative w-full max-w-xl bg-[#d8e4f1] rounded-2xl p-8 shadow-xl"
         onClick={(event) => event.stopPropagation()}

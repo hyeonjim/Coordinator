@@ -1,18 +1,32 @@
-import { useCallback, useMemo } from "react";
-import type { NavigateFunction } from "react-router-dom";
-import type { UseRoomActionsParams, RoomContextValue } from "@/types/room/types";
-import { generateId } from "@/utils/room/idGenerator";
-import { useRoomSetup } from "./useRoomSetup";
-import { useRoomChat } from "./useRoomChat";
-import { useRoomVoice } from "./useRoomVoice";
-
 /**
- * 방 입장/퇴장 및 채팅 전송 훅
- * 방과 관련된 주요 액션들을 관리합니다.
+ * useRoomActions.ts - 방 입장/퇴장 및 채팅 전송 통합 훅
+ *
+ * [이 훅의 역할]
+ * 방(Room)에서의 주요 사용자 액션을 제공합니다:
+ * - handleJoin: 방 입장 (마이크 시작 + WebSocket 연결 + 입장 메시지)
+ * - handleLeave: 방 퇴장 (메시지 전송 + 리소스 정리 + 화면 이동)
+ * - handleSendChat: 텍스트 채팅 메시지 전송
+ *
+ * [훅 조합(Composition) 패턴]
+ * - useRoomSetup, useRoomChat, useRoomVoice 세 훅의 결과를 조합하여
+ *   상위 레벨의 액션 함수를 만드는 "조합(Composition)" 패턴
+ * - 각 훅은 독립적인 관심사를 담당하고, 이 훅이 통합 인터페이스를 제공
+ *
+ * [useRoom 함수]
+ * - 이 파일 하단의 useRoom()은 모든 방 관련 훅을 통합하여
+ *   RoomContextValue를 반환하는 최상위 훅입니다.
+ * - RoomProvider(Context)에서 사용되어 모든 하위 컴포넌트에 방 상태를 제공합니다.
  *
  * @param params - 훅 파라미터 (roomSetup, roomChat, roomVoice, navigate)
  * @returns 방 액션 함수들 (handleJoin, handleLeave, handleSendChat)
  */
+import { useCallback, useMemo } from "react";
+import type { NavigateFunction } from "react-router-dom";
+import type { UseRoomActionsParams, RoomContextValue } from "@/types/room";
+import { generateId } from "@/utils/room/idGenerator";
+import { useRoomSetup } from "./useRoomSetup";
+import { useRoomChat } from "./useRoomChat";
+import { useRoomVoice } from "./useRoomVoice";
 export function useRoomActions({
   roomSetup,
   roomChat,

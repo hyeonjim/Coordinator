@@ -1,3 +1,24 @@
+/**
+ * FileTreeItem - 파일 트리의 개별 노드 (파일 또는 폴더)
+ *
+ * [React 기초 - 재귀 컴포넌트]
+ * - FileTreeItem이 자기 자신을 children에 대해 다시 렌더링
+ * - 트리 구조를 표현하는 전형적인 재귀 패턴
+ * - depth prop으로 들여쓰기 레벨을 계산
+ *
+ * [React 기초 - 조건부 렌더링]
+ * - node.type === "DIR"이면 폴더 아이콘과 접기/펼치기 화살표 표시
+ * - node.type === "FILE"이면 파일 아이콘과 사용자 아바타 표시
+ * - isDeleteMode에 따라 삭제용 체크박스 표시
+ *
+ * [React 기초 - 이벤트 핸들링]
+ * - handleClick: 클릭 시 폴더 열기/닫기 또는 파일 선택
+ * - event.stopPropagation(): 부모 요소의 클릭 이벤트 전파 방지
+ *
+ * [사용된 기술]
+ * - CSS 동적 스타일: style={{ paddingLeft }} 로 depth에 따라 들여쓰기
+ * - 배열 join(" "): 조건부 클래스명을 배열로 관리 후 하나로 합침
+ */
 import { useState } from "react";
 import type { MouseEvent } from "react";
 import { FaJava } from "react-icons/fa";
@@ -9,7 +30,7 @@ import {
   VscFolderOpened,
   VscCheck,
 } from "react-icons/vsc";
-import type { FileNode, FileTreeItemProps } from "@/types/room/file/types";
+import type { FileNode, FileTreeItemProps } from "@/types/file";
 
 function getFileIcon(filename: string) {
   if (filename.toLowerCase().endsWith(".java")) {
@@ -19,15 +40,16 @@ function getFileIcon(filename: string) {
 }
 
 export function FileTreeItem({
-  node,
-  depth,
-  selectedId,
-  onSelect,
-  fileLocations,
-  isDeleteMode = false,
-  deleteTargetIds,
-  onToggleDeleteTarget,
+  node, // 현재 파일/폴더 노드 데이터
+  depth, // 트리 깊이 (들여쓰기 계산용)
+  selectedId, // 현재 선택된 파일 ID
+  onSelect, // 파일 선택 콜백
+  fileLocations, // 각 파일에 접속 중인 사용자 정보
+  isDeleteMode = false, // 삭제 모드 여부 (기본값: false)
+  deleteTargetIds, // 삭제 대상 ID 집합
+  onToggleDeleteTarget, // 삭제 대상 토글 콜백
 }: FileTreeItemProps) {
+  // useState: 폴더 열림/닫힘 상태 관리
   const [isOpen, setIsOpen] = useState(false);
 
   const isDeleteTarget = deleteTargetIds?.has(node.fileId) ?? false;
@@ -133,6 +155,8 @@ export function FileTreeItem({
         </span>
       </div>
 
+      {/* 재귀 렌더링: 폴더가 열려있고 자식이 있으면 자기 자신을 다시 렌더링
+          depth + 1로 한 단계 더 깊은 들여쓰기 적용 */}
       {node.type === "DIR" && isOpen && node.children && (
         <div>
           {node.children.map((child: FileNode) => (

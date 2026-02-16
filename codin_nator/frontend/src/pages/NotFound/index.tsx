@@ -1,6 +1,22 @@
+/**
+ * NotFound - 404 페이지 (존재하지 않는 경로 접근 시 표시)
+ *
+ * [React 기초 - 라우팅과 404 처리]
+ * - React Router에서 어떤 경로에도 매칭되지 않을 때 이 컴포넌트를 렌더링
+ * - path="*"로 설정하여 모든 미매칭 경로를 캐치
+ *
+ * [React 기초 - 프로그래밍 방식 네비게이션]
+ * - useNavigate: 버튼 클릭 시 navigate("/")로 홈으로 이동
+ * - <Link>와 달리, 조건부 로직이나 이벤트 핸들러 안에서 사용
+ *
+ * [사용된 기술]
+ * - 코드 에디터 스타일 UI: 404 에러를 코드 형태로 표현 (사용자 경험)
+ * - <pre> 태그: 코드 블록을 있는 그대로 표시 (공백, 줄바꿈 보존)
+ */
 import { useNavigate } from "react-router-dom";
 
 export default function NotFound() {
+  // useNavigate: 프로그래밍 방식으로 페이지 이동하는 React Router 훅
   const navigate = useNavigate();
 
   return (
@@ -32,6 +48,7 @@ export default function NotFound() {
         </p>
 
         <div className="flex gap-3">
+          {/* onClick: 버튼 클릭 시 navigate("/")로 홈페이지 이동 */}
           <button
             onClick={() => navigate("/")}
             className="rounded-md bg-blue-600 px-5 py-2 text-sm font-medium transition hover:bg-blue-700"
