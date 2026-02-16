@@ -118,11 +118,11 @@ export default function ErrorReportSection() {
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-4">
           <div className="p-3 rounded-lg bg-[#cc9999]">
-            <Activity className="w-5 h-5 text-[#24292E]" />
+            <Activity className="w-5 h-5 text-gh-dark" />
           </div>
           <div>
-            <h3 className="text-xl font-semibold mb-1 tracking-tight text-[#24292E]">Error Report Diary</h3>
-            <p className="text-sm text-[#586069]">Track your debugging journey & growth</p>
+            <h3 className="text-xl font-semibold mb-1 tracking-tight text-gh-dark">Error Report Diary</h3>
+            <p className="text-sm text-gh-muted">Track your debugging journey & growth</p>
           </div>
         </div>
         <button
@@ -145,9 +145,9 @@ export default function ErrorReportSection() {
           >
             <div className="flex items-center gap-2 mb-3 min-w-0">
               <div className={`p-1.5 rounded-lg shrink-0 ${bg}`}>{icon}</div>
-              <span className="text-[10px] font-medium uppercase tracking-wider truncate text-[#586069]">{label}</span>
+              <span className="text-[10px] font-medium uppercase tracking-wider truncate text-gh-muted">{label}</span>
             </div>
-            <p className="text-2xl font-semibold tracking-tight text-[#24292E]">{value}</p>
+            <p className="text-2xl font-semibold tracking-tight text-gh-dark">{value}</p>
           </motion.div>
         ))}
       </div>

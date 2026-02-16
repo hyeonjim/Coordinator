@@ -54,13 +54,17 @@ export function FileTreeItem({
     <div>
       <div
         onClick={handleClick}
-        className={`file-tree-item group ${isSelected ? "file-tree-item-selected" : ""} ${
-          isDeleteMode ? "delete-mode-item" : ""
-        } ${isDeleteTarget ? "delete-target-item" : ""}`}
+        className={[
+          "flex items-center py-1 cursor-pointer select-none text-[13px] h-6.5 transition-colors duration-100",
+          "text-(--rc-tree-text) hover:bg-(--rc-tree-hover)",
+          isSelected ? "bg-(--rc-tree-selected-bg)! text-(--rc-tree-selected-text)!" : "",
+          isDeleteMode ? "hover:bg-(--rc-del-item-hover)!" : "",
+          isDeleteTarget ? "bg-(--rc-del-target-bg)! border-l-[3px] border-(--rc-del-target-border) hover:bg-(--rc-del-target-hover)!" : "",
+        ].join(" ")}
         style={{ paddingLeft: `${paddingLeft}px` }}
       >
         {isDeleteMode && (
-          <span className="delete-checkbox mr-2">
+          <span className="flex items-center justify-center min-w-4 mr-2">
             {isDeleteTarget ? (
               <VscCheck className="text-red-500" />
             ) : (

@@ -154,7 +154,9 @@ export default function AiActions({
   };
 
   const getButtonClassName = (disabled: boolean): string =>
-    `ai-action-btn ${disabled ? "ai-action-btn-disabled" : "ai-action-btn-enabled"}`;
+    disabled
+      ? "flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold rounded-full border border-(--rc-ai-border) transition-all duration-150 active:scale-[0.98] focus:outline-none bg-(--rc-ai-dis-bg) text-(--rc-ai-dis-text) cursor-not-allowed"
+      : "flex items-center gap-2 px-3 py-1.5 text-[11px] font-semibold rounded-full border border-(--rc-ai-border) transition-all duration-150 active:scale-[0.98] focus:outline-none bg-(--rc-ai-bg) text-(--rc-ai-text) hover:bg-(--rc-ai-hover) hover:text-(--rc-ai-hover-text)";
 
   const getAnalyzeButtonTitle = (): string => {
     if (!latestRunOutput) {

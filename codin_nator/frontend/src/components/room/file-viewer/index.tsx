@@ -268,18 +268,22 @@ export function FileViewer() {
   };
 
   return (
-    <div className="file-viewer-container" onDragOver={handleDragOver} onDrop={handleDrop}>
-      <div className="file-viewer-header group border-b border-gray-600">
-        <div className="file-viewer-title">
+    <div
+      className="w-full h-full flex flex-col font-sans select-none bg-(--rc-fv-bg) text-(--rc-fv-text)"
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
+      <div className="flex items-center justify-between px-3 h-8 bg-(--rc-fv-header-bg) border-b border-(--rc-fv-header-border) hover:bg-(--rc-fv-header-hover) group">
+        <div className="flex items-center text-[11px] font-semibold tracking-widest uppercase cursor-pointer text-(--rc-fv-title)">
           <span className="mr-1">
             <VscChevronDown />
           </span>
           <span>PROJECT-EXPLORER</span>
         </div>
 
-        <div className="file-viewer-actions">
+        <div className="flex items-center gap-2 text-[16px] text-(--rc-fv-actions)">
           <VscNewFile
-            className="cursor-pointer transition-colors"
+            className="cursor-pointer transition-colors hover:text-(--rc-fv-actions-hover)"
             title="새 파일"
             onClick={(event) => {
               event.stopPropagation();
@@ -287,7 +291,7 @@ export function FileViewer() {
             }}
           />
           <VscNewFolder
-            className="cursor-pointer transition-colors"
+            className="cursor-pointer transition-colors hover:text-(--rc-fv-actions-hover)"
             title="새 폴더"
             onClick={(event) => {
               event.stopPropagation();
@@ -295,7 +299,7 @@ export function FileViewer() {
             }}
           />
           <VscRefresh
-            className="cursor-pointer transition-colors"
+            className="cursor-pointer transition-colors hover:text-(--rc-fv-actions-hover)"
             title="새로고침"
             onClick={(event) => {
               event.stopPropagation();
@@ -306,19 +310,19 @@ export function FileViewer() {
       </div>
 
       {isDeleteMode && (
-        <div className="delete-mode-banner">
+        <div className="px-3 py-2 text-xs font-semibold text-center bg-(--rc-del-banner-bg) text-(--rc-del-banner-text)">
           <span>삭제할 파일/폴더를 선택하세요 ({deleteTargetIds.size}개 선택됨)</span>
         </div>
       )}
 
       <div className="flex-1 overflow-auto room-scrollbar relative">
         {isLoading ? (
-          <div className="flex justify-center items-center h-20 text-[#7F838D]">
+          <div className="flex justify-center items-center h-20 text-(--rc-text-muted)">
             <VscLoading className="animate-spin text-2xl" />
           </div>
         ) : files.length === 0 ? (
-          <div className="file-viewer-empty">
-            <VscFolderOpened className="text-4xl text-[#7F838D]" />
+          <div className="h-full min-h-37.5 flex flex-col items-center justify-center space-y-2 text-(--rc-text-muted) opacity-70">
+            <VscFolderOpened className="text-4xl" />
             <span className="text-sm">파일이 없습니다.</span>
             <span className="text-xs">(.zip 파일을 이곳에 드래그하세요)</span>
           </div>
@@ -341,7 +345,7 @@ export function FileViewer() {
         )}
       </div>
 
-      <div className="file-viewer-statusbar flex items-center justify-between">
+      <div className="h-5.25 flex items-center px-2 gap-2 justify-between bg-(--rc-statusbar-bg) text-(--rc-statusbar-text)">
         <div className="flex items-center gap-2 text-[11px]">
           <span>master*</span>
           {roomId && <span>Room: {roomId}</span>}

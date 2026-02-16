@@ -37,14 +37,14 @@ export default function ProfileSection() {
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-2xl font-semibold tracking-tight text-[#24292E]">
+            <h2 className="text-2xl font-semibold tracking-tight text-gh-dark">
               {user?.name || "Unknown User"}
             </h2>
-            <p className="text-sm text-[#586069]">
+            <p className="text-sm text-gh-muted">
               {user?.email || "No email provided"}
             </p>
             {user?.gitId && (
-              <div className="flex items-center gap-1.5 text-sm mt-2 text-[#586069]">
+              <div className="flex items-center gap-1.5 text-sm mt-2 text-gh-muted">
                 <Github className="w-4 h-4" />
                 <span>{user.gitId}</span>
               </div>
@@ -60,7 +60,7 @@ export default function ProfileSection() {
             shadow-sm
             transition-all duration-200
             bg-[#c4c9ce] hover:bg-[#d87a7a]
-            text-[#24292E] hover:text-white
+            text-gh-dark hover:text-white
             border border-[#b4b9be] hover:border-[#d87a7a]
           "
         >
