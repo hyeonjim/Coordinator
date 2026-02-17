@@ -169,19 +169,19 @@ class LLMClient:
     async def chat(self, system: str, user: str) -> str:
         """
         LLM에 채팅 요청을 보내고 응답 텍스트를 받음
-        
+
         매개변수:
         - system: 시스템 프롬프트 (역할, 규칙, 출력 형식 지정)
         - user: 사용자 입력 (실제 작업 내용)
-        
+
         반환값:
         - LLM이 생성한 텍스트 응답 (문자열)
-        
+
         예외:
         - httpx.HTTPStatusError: HTTP 오류 (401, 500 등)
         - httpx.TimeoutException: 타임아웃
         - ValueError: 응답 파싱 실패
-        
+
         사용 예시:
             client = LLMClient(...)
             response = await client.chat(
@@ -192,19 +192,8 @@ class LLMClient:
         """
         # 비동기 HTTP 클라이언트 생성 (컨텍스트 매니저로 자동 종료)
         async with httpx.AsyncClient(timeout=self.timeout_s) as client:
-            
-            # 1차 시도: OpenAI Responses API
-            try:
-                return await self._call_responses(client, system, user)
-            
-            except httpx.HTTPStatusError as e:
-                # Responses API를 지원하지 않는 서버는 404/405 반환
-                if e.response.status_code in (404, 405):
-                    # 2차 시도: Chat Completions API로 Fallback
-                    return await self._call_chat_completions(client, system, user)
-                
-                # 그 외 HTTP 오류는 재시도 안 함 (401 인증 실패, 500 서버 오류 등)
-                raise
+            # gpt-4o-mini는 Chat Completions API만 지원하므로 바로 사용
+            return await self._call_chat_completions(client, system, user)
 
 
     # =========================================

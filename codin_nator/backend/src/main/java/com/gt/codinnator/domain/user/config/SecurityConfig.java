@@ -75,9 +75,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:5173",
                 "http://127.0.0.1:5173",
-                "http://i14e205.p.ssafy.io:5173",
-                "http://i14e205.p.ssafy.io",
-                "https://i14e205.p.ssafy.io" // HTTPS도 혹시 모르니 추가
+                "https://dolefully-nativistic-claudia.ngrok-free.dev" // ngrok 프론트엔드
         ));
 
         // 2. 허용할 메서드

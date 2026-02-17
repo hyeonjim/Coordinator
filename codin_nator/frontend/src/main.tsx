@@ -9,7 +9,7 @@
  *   → useEffect가 2번 실행되는 것도 StrictMode 때문 (의도적 동작)
  */
 
-import { StrictMode } from "react";
+// import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "@/style/index.css";
 import App from "@/App";
@@ -20,7 +20,7 @@ import App from "@/App";
  * - '!'는 TypeScript의 Non-null Assertion → "이 값은 null이 아니다"라고 단언
  */
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+  // <StrictMode>
     <App />
-  </StrictMode>,
+  // </StrictMode>,
 );

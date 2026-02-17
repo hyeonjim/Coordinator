@@ -79,7 +79,12 @@ function CursorCaret({ cursor, editor }: CursorCaretProps) {
       const editorElement = ReactEditor.toDOMNode(editor, editor);
       if (!editorElement) return null;
 
-      const domRange = ReactEditor.toDOMRange(editor, cursor.selection as Range);
+      // 선택 영역이 있어도 커서 캐럿은 focus(끝점) 위치에만 표시
+      // 전체 selection 범위를 사용하면 여러 줄 선택 시 height가 커져서
+      // 커서 막대와 이름 라벨이 비정상적으로 커지는 버그 발생
+      const selection = cursor.selection as Range;
+      const focusPoint = { anchor: selection.focus, focus: selection.focus };
+      const domRange = ReactEditor.toDOMRange(editor, focusPoint);
       const rect = domRange.getBoundingClientRect();
 
       const scrollContainer = editorElement.closest(".overflow-auto") as HTMLElement;

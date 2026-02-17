@@ -15,7 +15,7 @@
  * - TypeScript의 type import로 Props 타입 정의
  * - 오버레이(bg-black/40) + 모달 카드 레이아웃
  */
-import type { AlertProps } from "@/types/common";
+import type { AlertProps } from "@/types/home";
 
 export default function Alert({
   open, // 모달 표시 여부 (true면 보이고, false면 숨김)

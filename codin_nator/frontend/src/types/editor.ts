@@ -19,10 +19,6 @@ import type { RelativeRange } from "@slate-yjs/core";
 import type { WebsocketProvider } from "y-websocket";
 import type { AiActionsProps } from "@/types/ai";
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 자동완성 (AutoComplete)
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 /**
  * 자동완성 항목 하나의 구조
  *
@@ -71,10 +67,6 @@ export interface AutoCompletePopupProps {
   /** 항목 클릭 시 호출되는 콜백 */
   onSelect: (item: AutoCompleteItem) => void;
 }
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 코드 에디터 컴포넌트
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 /**
  * CodeEditor 컴포넌트 Props
@@ -151,10 +143,6 @@ export interface CodeEditorHeaderProps {
  * ai/types를 직접 import하지 않아도 사용할 수 있게 합니다.
  */
 export type { AiActionsProps };
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 실시간 커서 (Remote Cursor)
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 /**
  * 커서 색상 팔레트

@@ -22,7 +22,7 @@ import gitGif from "@/assets/images/landing/git.gif";
 import errorGif from "@/assets/images/landing/error.gif";
 
 // GitHub OAuth 인증 URL (서버 측에서 처리)
-const GITHUB_OAUTH_URL = "/oauth2/authorization/github";
+const GITHUB_OAUTH_URL = `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/github`;
 
 // 미리보기 GIF 데이터: 배열로 정의하여 map()으로 반복 렌더링
 const PREVIEW_GIFS = [

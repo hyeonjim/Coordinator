@@ -19,8 +19,8 @@ public class WebSocketConfig implements WebSocketConfigurer, WebSocketMessageBro
         registry.addHandler(yjsWebSocketHandler, "/ws/code/**")
                 .setAllowedOrigins("http://localhost:5173",
                         "http://127.0.0.1:5173",
-                        "http://i14e205.p.ssafy.io",
-                        "https://i14e205.p.ssafy.io");
+                        "https://dolefully-nativistic-claudia.ngrok-free.dev" // ngrok 프론트엔드
+                        );
     }
 
     @Override

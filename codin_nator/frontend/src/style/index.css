@@ -550,3 +550,113 @@
   --rc-term-resize-hover: #bdbdbd;
   --rc-term-resize-icon: #616161;
 }
+
+/* ============================================
+   Prism 구문 강조 - 라이트1 오버라이드
+   다크 전용 prism-tomorrow 색상을 밝은 배경에 맞게 변경
+   ============================================ */
+.room-container.room-light .token.comment,
+.room-container.room-light .token.prolog,
+.room-container.room-light .token.doctype,
+.room-container.room-light .token.cdata {
+  color: #6a737d;
+}
+
+.room-container.room-light .token.punctuation {
+  color: #3a4663;
+}
+
+.room-container.room-light .token.property,
+.room-container.room-light .token.tag,
+.room-container.room-light .token.boolean,
+.room-container.room-light .token.number,
+.room-container.room-light .token.constant,
+.room-container.room-light .token.symbol {
+  color: #c44e11;
+}
+
+.room-container.room-light .token.selector,
+.room-container.room-light .token.attr-name,
+.room-container.room-light .token.string,
+.room-container.room-light .token.char,
+.room-container.room-light .token.builtin {
+  color: #22773c;
+}
+
+.room-container.room-light .token.operator,
+.room-container.room-light .token.entity,
+.room-container.room-light .token.url {
+  color: #527099;
+}
+
+.room-container.room-light .token.atrule,
+.room-container.room-light .token.attr-value,
+.room-container.room-light .token.keyword {
+  color: #7b2c8b;
+}
+
+.room-container.room-light .token.function,
+.room-container.room-light .token.class-name {
+  color: #6639ba;
+}
+
+.room-container.room-light .token.regex,
+.room-container.room-light .token.important,
+.room-container.room-light .token.variable {
+  color: #c44e11;
+}
+
+/* ============================================
+   Prism 구문 강조 - 라이트2 오버라이드
+   흰색/그레이 배경에 맞는 부드러운 색상
+   ============================================ */
+.room-container.room-light2 .token.comment,
+.room-container.room-light2 .token.prolog,
+.room-container.room-light2 .token.doctype,
+.room-container.room-light2 .token.cdata {
+  color: #8c8c8c;
+}
+
+.room-container.room-light2 .token.punctuation {
+  color: #555555;
+}
+
+.room-container.room-light2 .token.property,
+.room-container.room-light2 .token.tag,
+.room-container.room-light2 .token.boolean,
+.room-container.room-light2 .token.number,
+.room-container.room-light2 .token.constant,
+.room-container.room-light2 .token.symbol {
+  color: #b35e14;
+}
+
+.room-container.room-light2 .token.selector,
+.room-container.room-light2 .token.attr-name,
+.room-container.room-light2 .token.string,
+.room-container.room-light2 .token.char,
+.room-container.room-light2 .token.builtin {
+  color: #1a7a3a;
+}
+
+.room-container.room-light2 .token.operator,
+.room-container.room-light2 .token.entity,
+.room-container.room-light2 .token.url {
+  color: #616161;
+}
+
+.room-container.room-light2 .token.atrule,
+.room-container.room-light2 .token.attr-value,
+.room-container.room-light2 .token.keyword {
+  color: #7928a1;
+}
+
+.room-container.room-light2 .token.function,
+.room-container.room-light2 .token.class-name {
+  color: #5b21b6;
+}
+
+.room-container.room-light2 .token.regex,
+.room-container.room-light2 .token.important,
+.room-container.room-light2 .token.variable {
+  color: #b35e14;
+}

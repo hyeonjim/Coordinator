@@ -32,7 +32,7 @@ import { createEditor, Editor, Node, Transforms, Text } from "slate";
 import type { Descendant, NodeEntry, BaseRange } from "slate";
 import React, { useEffect, useMemo, useCallback, useState } from "react";
 import { WebsocketProvider } from "y-websocket";
-import { Slate, Editable, withReact, ReactEditor } from "slate-react";
+import { Slate, Editable, withReact } from "slate-react";
 import type { RenderElementProps, RenderLeafProps } from "slate-react";
 import { withYjs, withYHistory, YjsEditor } from "@slate-yjs/core";
 import Prism from "prismjs";
@@ -218,24 +218,21 @@ export default function CodeEditor({
   );
 
   // 줄(Element) 렌더링: 각 문단(paragraph)을 줄 번호 + 코드 내용으로 표시
-  // ReactEditor.findPath로 현재 요소의 인덱스를 구해 줄 번호를 계산
+  // CSS counter(line-number)로 줄 번호를 자동 생성
   const renderElement = useCallback(
-    ({ attributes, children, element }: RenderElementProps) => {
-      const lineNumber = ReactEditor.findPath(editor, element)[0] + 1;
+    ({ attributes, children }: RenderElementProps) => {
       return (
         <div {...attributes} className="flex items-stretch code-line">
           <span
             contentEditable={false}
-            className="code-line-number shrink-0 text-right select-none text-[#858585]"
-            style={{ width: lineNumberWidth, paddingRight: 8 }}
-          >
-            {lineNumber}
-          </span>
+            className="line-number-gutter shrink-0 text-right select-none"
+            style={{ width: lineNumberWidth, paddingRight: 8, color: "var(--rc-code-line-num)" }}
+          />
           <span className="flex-1 min-w-0">{children}</span>
         </div>
       );
     },
-    [editor, lineNumberWidth],
+    [lineNumberWidth],
   );
 
   const handleEditorChange = useCallback(
@@ -282,8 +279,8 @@ export default function CodeEditor({
       />
 
       <div
-        className="flex-1 overflow-auto font-mono text-[#DCD8D8] relative"
-        style={{ fontSize, lineHeight: `${fontSize * 1.5}px` }}
+        className="flex-1 overflow-auto font-mono relative"
+        style={{ fontSize, lineHeight: `${fontSize * 1.5}px`, color: "var(--rc-code-text)" }}
       >
         <Slate
           editor={editor}

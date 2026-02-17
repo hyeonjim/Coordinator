@@ -72,7 +72,7 @@ public class FileService {
         // 기존 폴더 삭제
         fileRepository.deleteByRoomId(roomId);
 
-        Path root = Paths.get(filePath, String.valueOf(roomId));
+        Path root = Paths.get(filePath, String.valueOf(roomId)).toAbsolutePath().normalize();
 
         if (Files.exists(root)) {
             // root 하위 파일/폴더 전부 삭제
@@ -104,7 +104,7 @@ public class FileService {
             }
 
             Path target = root.resolve(rel).normalize();
-            if (!target.startsWith(root)) {
+            if (!target.startsWith(root.normalize())) {
                 throw new IOException("Security Error: Invalid path " + rel);
             }
 

@@ -22,8 +22,17 @@
  */
 import { useCallback, useMemo } from "react";
 import type { NavigateFunction } from "react-router-dom";
-import type { UseRoomActionsParams, RoomContextValue } from "@/types/room";
+import type { UseRoomSetupReturn, RoomContextValue } from "@/types/room";
+import type { UseRoomChatReturn } from "@/types/chat";
+import type { UseRoomVoiceReturn } from "@/types/voice";
 import { generateId } from "@/utils/room/idGenerator";
+
+interface UseRoomActionsParams {
+  roomSetup: UseRoomSetupReturn;
+  roomChat: UseRoomChatReturn;
+  roomVoice: UseRoomVoiceReturn;
+  navigate: NavigateFunction;
+}
 import { useRoomSetup } from "./useRoomSetup";
 import { useRoomChat } from "./useRoomChat";
 import { useRoomVoice } from "./useRoomVoice";

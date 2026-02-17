@@ -22,7 +22,7 @@ import axios from "axios";
 import { setupInterceptors } from "./interceptors";
 
 const axiosInstance = axios.create({
-  baseURL: "/api",
+  baseURL: `${import.meta.env.VITE_API_BASE_URL || ""}/api`,
   withCredentials: true,
 });
 

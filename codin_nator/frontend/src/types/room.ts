@@ -14,14 +14,7 @@
  * - types/room/types.ts (그대로 이동, 주석 보강)
  */
 
-import type { NavigateFunction } from "react-router-dom";
-import type {
-  ChatMessage,
-  UseRoomChatReturn,
-} from "@/types/chat";
-import type { UseRoomVoiceReturn } from "@/types/voice";
-
-// ─── 참여자 ──────────────────────────────────────────────────────────────────
+import type { ChatMessage } from "@/types/chat";
 
 /**
  * 방 참여자 기본 정보
@@ -46,8 +39,6 @@ export interface Participant {
   micOn: boolean;
 }
 
-// ─── 파일 / 에디터 ───────────────────────────────────────────────────────────
-
 /**
  * 현재 에디터에서 선택(열림)된 파일 정보
  *
@@ -64,8 +55,6 @@ export interface SelectedFile {
   /** 파일 내용 (에디터에 표시될 코드) */
   content: string;
 }
-
-// ─── 훅 반환 / 파라미터 ─────────────────────────────────────────────────────
 
 /**
  * useRoomSetup 훅의 반환 타입
@@ -118,8 +107,6 @@ export interface UseRoomSetupReturn {
   setIsSidebarCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-// ─── 테마 ────────────────────────────────────────────────────────────────────
-
 /**
  * 에디터/UI 테마 타입
  *
@@ -131,8 +118,6 @@ export interface UseRoomSetupReturn {
  * Header.tsx에서 room-container에 클래스를 추가하여 테마를 전환합니다.
  */
 export type Theme = "dark" | "light" | "light2";
-
-// ─── Git 액션 ────────────────────────────────────────────────────────────────
 
 /**
  * Git 관련 액션 버튼 정의
@@ -146,31 +131,6 @@ export interface GitAction {
   /** UI에 표시될 라벨 (예: "커밋", "푸시") */
   label: string;
 }
-
-// ─── 방 액션 훅 ──────────────────────────────────────────────────────────────
-
-/**
- * useRoomActions 훅 파라미터
- *
- * 방의 주요 액션(입장, 퇴장, 채팅 전송 등)을 처리하는 훅에
- * 필요한 의존성을 주입받습니다.
- * 각 통합 훅의 반환 타입을 직접 전달받는 구조입니다.
- */
-export interface UseRoomActionsParams {
-  /** 방 기본 설정 및 상태 */
-  roomSetup: UseRoomSetupReturn;
-
-  /** 텍스트 채팅 훅 인스턴스 */
-  roomChat: UseRoomChatReturn;
-
-  /** 음성 채팅 훅 인스턴스 */
-  roomVoice: UseRoomVoiceReturn;
-
-  /** React Router 네비게이션 함수 */
-  navigate: NavigateFunction;
-}
-
-// ─── Room Context ────────────────────────────────────────────────────────────
 
 /**
  * RoomContext 공유 값 타입

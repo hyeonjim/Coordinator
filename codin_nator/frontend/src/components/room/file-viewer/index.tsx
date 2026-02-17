@@ -42,6 +42,30 @@ import Alert from "@/components/common/Alert";
 import axiosInstance from "@/services/api/axios";
 import { ROOM_ENDPOINTS, EDITOR_ENDPOINTS } from "@/services/api/endpoints";
 
+// 트리를 순회하며 모든 파일의 { fileEntry, 상대경로 } 목록을 수집
+function collectFileEntries(
+  nodes: FileNode[],
+  basePath = "",
+): { entry: LocalFileSystemFileEntry; path: string }[] {
+  const result: { entry: LocalFileSystemFileEntry; path: string }[] = [];
+  for (const node of nodes) {
+    const currentPath = basePath ? `${basePath}/${node.name}` : node.name;
+    if (node.type === "FILE" && node.fileEntry) {
+      result.push({ entry: node.fileEntry, path: currentPath });
+    } else if (node.type === "DIR" && node.children) {
+      result.push(...collectFileEntries(node.children, currentPath));
+    }
+  }
+  return result;
+}
+
+// fileEntry → File 객체 변환 (콜백 기반 API를 Promise로 래핑)
+function getFileFromEntry(entry: LocalFileSystemFileEntry): Promise<File> {
+  return new Promise((resolve, reject) => {
+    entry.file(resolve, reject);
+  });
+}
+
 // 모듈 레벨 변수: 임시 ID 생성용 시퀀스 (서버 ID가 없는 노드에 부여)
 let tempIdSequence = 1;
 
@@ -236,39 +260,23 @@ export function FileViewer() {
     setIsDeleteMode(false);
   };
 
-  const uploadFileToServer = async (fileEntry: LocalFileSystemFileEntry) => {
-    return new Promise<void>((resolve, reject) => {
-      fileEntry.file(async (file: File) => {
-        if (!file.name.toLowerCase().endsWith(".zip")) {
-          setAlertMessage("현재 .zip 파일 업로드만 지원합니다.");
-          reject("Not a zip file");
-          return;
-        }
+  const uploadAllFiles = async (tree: FileNode[]) => {
+    if (!roomId) throw new Error("유효하지 않은 방 ID입니다.");
 
-        const formData = new FormData();
-        formData.append("file", file);
-
-        try {
-          if (!roomId) throw new Error("유효하지 않은 방 ID입니다.");
-          await axiosInstance.post(ROOM_ENDPOINTS.UPLOAD(roomId), formData);
-          resolve();
-        } catch (error) {
-          console.error("업로드 실패:", error);
-          setAlertMessage("업로드에 실패했습니다.");
-          reject(error);
-        }
-      });
-    });
-  };
-
-  const processUploadLoop = async (nodes: FileNode[]) => {
-    for (const node of nodes) {
-      if (node.type === "FILE" && node.fileEntry) {
-        await uploadFileToServer(node.fileEntry);
-      } else if (node.type === "DIR" && node.children) {
-        await processUploadLoop(node.children);
-      }
+    const entries = collectFileEntries(tree);
+    if (entries.length === 0) {
+      setAlertMessage("업로드할 파일이 없습니다.");
+      return;
     }
+
+    const formData = new FormData();
+    for (const { entry, path } of entries) {
+      const file = await getFileFromEntry(entry);
+      // 3번째 인자(filename)로 상대경로를 전달 → 백엔드 getOriginalFilename()이 경로를 인식
+      formData.append("file", file, path);
+    }
+
+    await axiosInstance.post(ROOM_ENDPOINTS.UPLOAD(roomId), formData);
   };
 
   // 드래그&드롭 이벤트 핸들러
@@ -289,11 +297,12 @@ export function FileViewer() {
     try {
       const parsedTree = await getFileTree(event.dataTransfer.items);
       const sanitizedTree = sanitizeTree(parsedTree as unknown as RawNode[]);
-      await processUploadLoop(sanitizedTree);
+      await uploadAllFiles(sanitizedTree);
       await fetchFileTree();
       setAlertMessage("파일 업로드가 완료되었습니다.");
     } catch (error) {
       console.error(error);
+      setAlertMessage("업로드에 실패했습니다.");
     } finally {
       setIsLoading(false);
     }
@@ -356,7 +365,7 @@ export function FileViewer() {
           <div className="h-full min-h-37.5 flex flex-col items-center justify-center space-y-2 text-(--rc-text-muted) opacity-70">
             <VscFolderOpened className="text-4xl" />
             <span className="text-sm">파일이 없습니다.</span>
-            <span className="text-xs">(.zip 파일을 이곳에 드래그하세요)</span>
+            <span className="text-xs">(파일 또는 폴더를 이곳에 드래그하세요)</span>
           </div>
         ) : (
           <div className="py-1 inline-block min-w-full">

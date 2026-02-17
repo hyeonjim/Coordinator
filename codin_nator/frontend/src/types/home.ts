@@ -3,6 +3,7 @@
  *
  * 로그인 후 표시되는 홈(대시보드) 페이지의 타입을 정의합니다.
  * 방 생성 모달, 에러 통계, 에러 잔디(Contribution Graph) 등에 사용됩니다.
+ * Alert 공통 컴포넌트 Props도 포함합니다.
  *
  * 중복 제거:
  * - ErrorLog, ContributionData는 기존에 user/types.ts와 home/contribution.ts에
@@ -13,6 +14,28 @@
  * - types/home/contribution.ts (ErrorLog, ContributionData, ContributionGraphProps)
  * - types/user/types.ts에서 중복된 ErrorLog, ContributionData 제거
  */
+
+import type { ReactNode } from "react";
+
+/**
+ * Alert 다이얼로그 컴포넌트 Props
+ *
+ * 사용자에게 확인/경고 메시지를 보여주는 모달 다이얼로그입니다.
+ * open 상태를 부모 컴포넌트에서 제어하는 "제어 컴포넌트(Controlled Component)" 패턴을 사용합니다.
+ */
+export interface AlertProps {
+  /** 다이얼로그 표시 여부 (true이면 표시) */
+  open: boolean;
+
+  /** 다이얼로그 제목 (선택적) */
+  title?: string;
+
+  /** 다이얼로그 본문 내용 (React children) */
+  children: ReactNode;
+
+  /** 확인 버튼 클릭 시 실행되는 콜백 */
+  onConfirm: () => void;
+}
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // 방 생성

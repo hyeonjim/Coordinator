@@ -15,15 +15,21 @@ export default defineConfig({
     global: "globalThis", // ← 이 줄 추가!
   },
   server: {
-    proxy: {
-      "/api": {
-        target: "http://localhost:8080",
-        changeOrigin: true,
-      },
-      "/oauth2": {
-        target: "http://localhost:8080",
-        changeOrigin: true,
-      },
-    },
+    host: true, // 모든 호스트 허용 (ngrok 접속 가능)
+    allowedHosts: [
+      "dolefully-nativistic-claudia.ngrok-free.dev",
+      ".ngrok-free.dev", // 모든 ngrok 도메인 허용
+    ],
+    // ngrok 사용 시 프록시 비활성화 (프론트엔드에서 직접 백엔드 ngrok URL로 요청)
+    // proxy: {
+    //   "/api": {
+    //     target: "http://localhost:8080",
+    //     changeOrigin: true,
+    //   },
+    //   "/oauth2": {
+    //     target: "http://localhost:8080",
+    //     changeOrigin: true,
+    //   },
+    // },
   },
 });

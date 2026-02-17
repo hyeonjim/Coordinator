@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(source:*)",
+      "Bash(pip install:*)",
+      "Bash(python -m pip install:*)",
+      "Bash(uvicorn app.main:app:*)",
+      "Bash(python -c:*)",
+      "Bash(curl:*)",
+      "Bash(taskkill:*)",
+      "Bash(python:*)",
+      "Bash(find:*)"
+    ]
+  }
+}
