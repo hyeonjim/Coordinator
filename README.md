@@ -9,8 +9,8 @@ Yjs을 활용하여 실시간 코드 작성 협업 플랫폼을 제공합니다.
 - **개발 인원:** 6명
 - **기관:** 삼성 청년 SW·AI 아카데미 14기
 
-<img src="imgs/image.png" width="40%" />
-<img src="imgs/editor.gif" width="70%" />
+<img src="imgs/image.png" width="50%" />
+<img src="imgs/editor.gif" width="80%" />
 
 ### 팀원 구성
 
@@ -206,13 +206,13 @@ ai-service/
 
 ### 시스템 아키텍처
 
-<img src="imgs/image 1.png" width="40%" />
+<img src="imgs/image 1.png" width="50%" />
 
 ### 프로젝트 산출물
 
 ### ERD
 
-<img src="imgs/codinnator.png" width="70%" />
+<img src="imgs/codinnator.png" width="90%" />
 
 ### 트러블슈팅
 
