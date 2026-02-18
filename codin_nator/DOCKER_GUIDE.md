@@ -323,19 +323,3 @@ docker-compose --env-file .env.production up
 ```
 
 ---
-
-## 🎓 학습 다음 단계
-
-1. **Docker 네트워크 이해하기**: 컨테이너 간 통신 방식
-2. **Docker 볼륨 심화**: 데이터 영속성과 백업
-3. **Docker 멀티 스테이지 빌드 최적화**: 이미지 크기 더 줄이기
-4. **Kubernetes**: 대규모 컨테이너 오케스트레이션
-5. **CI/CD 파이프라인**: Jenkins, GitHub Actions와 Docker 통합
-
----
-
-## 📞 도움이 필요할 때
-
-- Docker 공식 문서: https://docs.docker.com
-- Docker Compose 레퍼런스: https://docs.docker.com/compose
-- Spring Boot + Docker: https://spring.io/guides/gs/spring-boot-docker
