@@ -62,7 +62,7 @@ Yjs을 활용하여 실시간 코드 작성 협업 플랫폼을 제공합니다.
 
 | Category            | Stack                                                                 |
 | ------------------- | --------------------------------------------------------------------- |
-| Language            | Python                                                                |
+| Language            | Python 3.11                                                             |
 | Runtime Environment | uvicorn 0.34.0 (ASGI)                                                 |
 | Framework           | FastAPI 0.115.8                                                       |
 | Library             | OpenAI SDK 1.59.5, httpx 0.27.2, Pydantic 2.10.6, python-dotenv 1.0.1 |
