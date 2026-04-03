@@ -1,4 +1,4 @@
-## <center>Codin’nator</center>
+## <center>Coordin’nator</center>
 
 팀원과 함께 **실시간으로 동시에 코드를 편집**할 수 있는 협업 툴
 
