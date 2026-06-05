@@ -9,14 +9,13 @@ Yjs을 활용하여 실시간 코드 작성 협업 플랫폼을 제공합니다.
 - **개발 인원:** 6명
 - **기관:** 삼성 청년 SW·AI 아카데미 14기
 
-<img src="imgs/image.png" width="50%" />
 <img src="imgs/editor.gif" width="80%" />
 
 ### 팀원 구성
 
 | 공윤정
 (Backend & Leader) | 문현지
-(Frontend & JiraOps) | 김내현
+(Frontend & JiraOps & Design) | 김내현
 (Frontend & Infra) |
 
 | 이규성
@@ -320,8 +319,3 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
 
-### 라이선스
-
-이 프로젝트는 **삼성 청년 SW·AI 아카데미(SSAFY) 14기** 교육 과정의 일환으로 제작되었습니다.
-
-본 프로젝트의 소스 코드 및 산출물에 대한 저작권은 팀원 전원과 SSAFY에 귀속되며, 무단 복제 및 배포를 금지합니다.
