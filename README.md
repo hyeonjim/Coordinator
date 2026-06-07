@@ -6,8 +6,9 @@
 
 <br/>
 
-<img src="imgs/editor.gif" width="85%" />
+<img src="imgs/editor.gif" width="100%" />
 
+<br/>
 <br/>
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
