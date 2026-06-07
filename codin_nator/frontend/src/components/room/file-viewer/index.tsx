@@ -268,13 +268,9 @@ export function FileViewer() {
   };
 
   return (
-    <div
-      className="w-full h-full flex flex-col font-sans select-none bg-(--rc-fv-bg) text-(--rc-fv-text)"
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
-    >
-      <div className="flex items-center justify-between px-3 h-8 bg-(--rc-fv-header-bg) border-b border-(--rc-fv-header-border) hover:bg-(--rc-fv-header-hover) group">
-        <div className="flex items-center text-[11px] font-semibold tracking-widest uppercase cursor-pointer text-(--rc-fv-title)">
+    <div className="file-viewer-container" onDragOver={handleDragOver} onDrop={handleDrop}>
+      <div className="file-viewer-header group border-b border-gray-600">
+        <div className="file-viewer-title">
           <span className="mr-1">
             <VscChevronDown />
           </span>
@@ -310,14 +306,14 @@ export function FileViewer() {
       </div>
 
       {isDeleteMode && (
-        <div className="px-3 py-2 text-xs font-semibold text-center bg-(--rc-del-banner-bg) text-(--rc-del-banner-text)">
+        <div className="delete-mode-banner">
           <span>삭제할 파일/폴더를 선택하세요 ({deleteTargetIds.size}개 선택됨)</span>
         </div>
       )}
 
       <div className="flex-1 overflow-auto room-scrollbar relative">
         {isLoading ? (
-          <div className="flex justify-center items-center h-20 text-(--rc-text-muted)">
+          <div className="flex justify-center items-center h-20 text-[#7F838D]">
             <VscLoading className="animate-spin text-2xl" />
           </div>
         ) : files.length === 0 ? (
@@ -345,7 +341,7 @@ export function FileViewer() {
         )}
       </div>
 
-      <div className="h-5.25 flex items-center px-2 gap-2 justify-between bg-(--rc-statusbar-bg) text-(--rc-statusbar-text)">
+      <div className="file-viewer-statusbar flex items-center justify-between">
         <div className="flex items-center gap-2 text-[11px]">
           <span>master*</span>
           {roomId && <span>Room: {roomId}</span>}

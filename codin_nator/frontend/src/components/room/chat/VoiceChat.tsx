@@ -91,7 +91,7 @@ function ParticipantRow({
   onToggle,
 }: ParticipantRowProps) {
   return (
-    <div className="flex items-center justify-between px-2 py-1 transition-colors duration-150 hover:bg-(--rc-vc-row-hover) hover:rounded-[15px] group">
+    <div className="participant-row group">
       <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
         {/* 말하는 중이면 아바타 테두리 강조 */}
         <div
@@ -106,7 +106,7 @@ function ParticipantRow({
         >
           <Avatar name={name} imageUrl={imageUrl} />
         </div>
-        <span className="truncate text-[16px] font-medium leading-tight text-(--rc-vc-name)">{name}</span>
+        <span className="participant-name">{name}</span>
       </div>
 
       {/* 오른쪽: 마이크 상태 */}
@@ -166,7 +166,7 @@ export function VoiceChat() {
         </div>
       </div>
 
-      <div className="space-y-1 overflow-y-auto flex-1 p-1 pt-2 room-scrollbar bg-(--rc-vc-participants-bg)">
+      <div className="voice-chat-participants room-scrollbar">
         {participants.map((participant) => (
           <ParticipantRow
             key={participant.userId}

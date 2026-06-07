@@ -16,11 +16,11 @@ export default function RoomPage() {
 
 function RoomLayout() {
   return (
-    <div className="room-container h-screen flex flex-col bg-(--rc-bg)">
+    <div className="room-container">
       <Header />
-      <div className="flex-1 flex overflow-hidden">
+      <div className="room-main">
         <div className="relative self-stretch">
-          <aside className="w-64 flex flex-col bg-(--rc-sidebar-bg) transition-all duration-300 overflow-hidden h-full">
+          <aside className="room-sidebar-left transition-all duration-300 overflow-hidden h-full">
             <div className="flex-1 overflow-auto room-scrollbar">
               <FileViewer />
             </div>
@@ -31,7 +31,7 @@ function RoomLayout() {
             </div>
           </aside>
         </div>
-        <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative bg-(--rc-editor-bg)">
+        <main className="room-content">
           <div className="flex-1 min-h-0 overflow-hidden">
             <CodeEditorPanel />
           </div>

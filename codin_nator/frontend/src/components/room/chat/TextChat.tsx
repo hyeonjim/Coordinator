@@ -50,7 +50,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
         </div>
       )}
 
-      <div className="max-w-[70%]">
+      <div className="message-content">
         <div
           className={`rounded-2xl px-4 py-2 text-sm break-words ${
             message.isMe
@@ -105,25 +105,25 @@ export function TextChat() {
   };
 
   return (
-    <div className="relative h-full flex">
+    <div className="text-chat-container">
       <div
         className={`h-full transition-all duration-300 ease-in-out overflow-hidden ${isSidebarCollapsed ? "w-0" : "w-80"}`}
       >
-        <aside className="h-full flex flex-col w-80 bg-(--rc-tc-panel-bg) border-l border-(--rc-tc-panel-border)">
+        <aside className="text-chat-panel">
           <div className="flex-1 overflow-hidden flex flex-col relative">
             <div className="absolute inset-0 flex flex-col">
-              <div className="flex-1 overflow-y-auto p-4 space-y-3 room-scrollbar bg-(--rc-tc-messages-bg)">
+              <div className="text-chat-messages room-scrollbar">
                 {chatMessages.map((message) => (
                   <MessageBubble key={message.id} message={message} />
                 ))}
                 {chatMessages.length === 0 && (
-                  <p className="text-center py-8 text-(--rc-text-muted)">메시지가 없습니다</p>
+                  <p className="text-chat-empty">메시지가 없습니다</p>
                 )}
                 {/* 스크롤 타겟 (항상 맨 아래에 위치) */}
                 <div ref={scrollRef} />
               </div>
 
-              <form onSubmit={handleSubmit} className="p-3 bg-(--rc-tc-input-form-bg)">
+              <form onSubmit={handleSubmit} className="text-chat-input-form">
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -133,7 +133,7 @@ export function TextChat() {
                       isJoined ? "메시지를 입력하세요..." : "방에 먼저 참여해주세요"
                     }
                     disabled={!isJoined}
-                    className="flex-1 rounded-lg px-3 py-1 text-sm bg-(--rc-tc-input-bg) text-(--rc-tc-input-text) placeholder:text-(--rc-tc-input-placeholder) focus:outline-none focus:border-(--rc-text-muted) disabled:bg-(--rc-tc-input-dis-bg) disabled:cursor-not-allowed disabled:opacity-50"
+                    className="text-chat-input"
                   />
                   <button
                     type="submit"
