@@ -237,7 +237,7 @@ export function ContributionGraph({
               className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 border shadow-md ${
                 year === selectedYear
                   ? "bg-[#7F838D] text-white border-[#7F838D]"
-                  : "bg-white text-[#24292E] border-[#9297A2] hover:bg-[#DCD8D8] hover:border-[#7F838D]"
+                  : "bg-white text-gh-dark border-[#9297A2] hover:bg-[#DCD8D8] hover:border-[#7F838D]"
               }`}
             >
               {year}
@@ -254,7 +254,7 @@ export function ContributionGraph({
               setIsLogOpen(false);
               setActiveLog(null);
             }}
-            className="h-10 px-3 rounded-lg text-sm font-medium shadow-sm cursor-pointer bg-[#fafafa] text-[#24292E] outline-none"
+            className="h-10 px-3 rounded-lg text-sm font-medium shadow-sm cursor-pointer bg-[#fafafa] text-gh-dark outline-none"
           >
             <option value="all">All Rooms</option>
             {roomOptions.map((roomId) => (
@@ -274,7 +274,7 @@ export function ContributionGraph({
               {weeks.map((_, weekIndex) => (
                 <div
                   key={weekIndex}
-                  className="w-3 text-[12px] font-medium text-[#586069] overflow-visible whitespace-nowrap"
+                  className="w-3 text-[12px] font-medium text-gh-muted overflow-visible whitespace-nowrap"
                 >
                   {monthLabels[weekIndex] ?? ""}
                 </div>
@@ -312,7 +312,7 @@ export function ContributionGraph({
 
       {/* 범례 */}
       <div className="flex justify-center mb-12">
-        <div className="flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-lg text-[#24292E] border border-[#afb4be] shadow-md">
+        <div className="flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-lg text-gh-dark border border-[#afb4be] shadow-md">
           <span>Less</span>
           <div className="flex gap-1">
             {LEVEL_CLASSES.map((levelClass, levelIndex) => (
@@ -369,10 +369,10 @@ export function ContributionGraph({
                             className="cursor-pointer rounded-lg p-4 transition-all duration-300 hover:scale-[1.01] hover:-translate-y-0.5 bg-white shadow-md hover:bg-[#a8b6c7] hover:shadow-lg group"
                           >
                             <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium text-[#24292E] group-hover:text-white transition-colors">
+                              <span className="text-sm font-medium text-gh-dark group-hover:text-white transition-colors">
                                 {log.display_name}
                               </span>
-                              <span className="text-xs font-medium px-2 py-1 rounded-lg bg-[#d8dde8] group-hover:bg-[#94a2b0] text-[#24292E] group-hover:text-white transition-colors">
+                              <span className="text-xs font-medium px-2 py-1 rounded-lg bg-[#d8dde8] group-hover:bg-[#94a2b0] text-gh-dark group-hover:text-white transition-colors">
                                 {addHoursToTime(log.time, 9)}
                               </span>
                             </div>
@@ -434,7 +434,7 @@ export function ContributionGraph({
                   <div className="w-1.5 h-5 rounded-full bg-[#d87a7a]" />
                   오류 내용
                 </div>
-                <div className="p-5 rounded-lg text-sm whitespace-pre-wrap leading-relaxed bg-white border border-[#d87a7a] text-[#24292E]">
+                <div className="p-5 rounded-lg text-sm whitespace-pre-wrap leading-relaxed bg-white border border-[#d87a7a] text-gh-dark">
                   {activeLog.error}
                 </div>
               </div>
@@ -454,7 +454,7 @@ export function ContributionGraph({
                   </button>
                 </div>
                 <pre
-                  className={`p-4 text-xs rounded-lg overflow-auto whitespace-pre bg-white border border-[#a3a3a5] text-[#24292E] ${isShowingRaw ? "max-h-[60vh]" : "max-h-[30vh]"}`}
+                  className={`p-4 text-xs rounded-lg overflow-auto whitespace-pre bg-white border border-[#a3a3a5] text-gh-dark ${isShowingRaw ? "max-h-[60vh]" : "max-h-[30vh]"}`}
                 >
                   {isShowingRaw ? rawStacktraceText : stacktracePreview}
                 </pre>
@@ -471,7 +471,7 @@ export function ContributionGraph({
                     {resolutionBullets.map((bullet, bulletIndex) => (
                       <li
                         key={bulletIndex}
-                        className="flex gap-3 p-4 rounded-lg text-sm whitespace-pre-wrap leading-relaxed bg-white border border-[#7ba87b] text-[#24292E]"
+                        className="flex gap-3 p-4 rounded-lg text-sm whitespace-pre-wrap leading-relaxed bg-white border border-[#7ba87b] text-gh-dark"
                       >
                         <span className="text-[#7ba87b] font-bold text-[1.1rem]">
                           •
@@ -481,7 +481,7 @@ export function ContributionGraph({
                     ))}
                   </ul>
                 ) : (
-                  <div className="p-5 rounded-lg text-sm whitespace-pre-wrap leading-relaxed bg-white border border-[#7ba87b] text-[#24292E]">
+                  <div className="p-5 rounded-lg text-sm whitespace-pre-wrap leading-relaxed bg-white border border-[#7ba87b] text-gh-dark">
                     {activeLog.resolution}
                   </div>
                 )}

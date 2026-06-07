@@ -34,7 +34,7 @@ function ThemeToggle({
     <button
       onClick={() => onSetTheme(next)}
       title={label}
-      className="room-theme-toggle-btn"
+      className="inline-flex items-center justify-center rounded-full px-3 py-1.5 mt-4 mb-4 text-xs font-semibold border border-(--rc-border) bg-(--rc-toggle-bg) text-(--rc-toggle-text) hover:bg-(--rc-toggle-hover) transition-all duration-150"
     >
       {icon}
     </button>
@@ -150,9 +150,9 @@ export default function Header() {
   };
 
   return (
-    <header className="room-header relative">
+    <header className="h-10 flex items-center justify-between p-3 shrink-0 relative bg-(--rc-header-bg)">
       <div className="flex items-center">
-        <div className="room-header-logo">
+        <div className="h-7 flex items-center justify-center">
           <img
             src={theme === "light2" ? logo2 : logo}
             alt="CODIN'NATOR"
@@ -177,17 +177,17 @@ export default function Header() {
           </button>
 
           {showShare && (
-            <div className="room-dropdown">
-              <p className="text-xs text-[#7F838D] mb-2">공유 링크</p>
+            <div className="absolute h-18 right-0 top-13 w-80 rounded-lg shadow-xl p-2 z-50 bg-(--rc-dropdown-bg) border border-(--rc-border) text-(--rc-text)">
+              <p className="text-xs text-(--rc-text-muted) mb-2">공유 링크</p>
               <div className="flex gap-3">
                 <input
                   value={shareLink}
                   readOnly
-                  className="room-dropdown-input text-xs"
+                  className="flex-1 px-2 py-1.5 rounded text-xs bg-(--rc-dropdown-input-bg) text-(--rc-text) border border-(--rc-border) focus:outline-none focus:border-(--rc-dropdown-input-focus-border)"
                 />
                 <button
                   onClick={handleCopy}
-                  className={`border border-[#7F838D] rounded-lg text-[12px] px-3 h-7 text-[#b7bac0] hover:bg-[#7F838D] hover:text-white`}
+                  className="border border-(--rc-border) rounded-lg text-[12px] px-3 h-7 text-(--rc-text-muted) hover:bg-(--rc-border) hover:text-white"
                 >
                   {copied ? "✔" : "Copy"}
                 </button>
@@ -205,12 +205,12 @@ export default function Header() {
               </button>
 
               {id === "commit" && showCommit && (
-                <div className="room-dropdown">
+                <div className="absolute h-18 right-0 top-13 w-80 rounded-lg shadow-xl p-2 z-50 bg-(--rc-dropdown-bg) border border-(--rc-border) text-(--rc-text)">
                   <input
                     value={commitMsg}
                     onChange={(e) => setCommitMsg(e.target.value)}
                     placeholder="커밋 메시지를 입력하세요"
-                    className="room-dropdown-input text-xs"
+                    className="flex-1 px-2 py-1.5 rounded text-xs bg-(--rc-dropdown-input-bg) text-(--rc-text) border border-(--rc-border) focus:outline-none focus:border-(--rc-dropdown-input-focus-border) w-full mb-2"
                   />
                   <button
                     onClick={handleCommitSend}

@@ -277,9 +277,9 @@ export function FileViewer() {
           <span>PROJECT-EXPLORER</span>
         </div>
 
-        <div className="file-viewer-actions">
+        <div className="flex items-center gap-2 text-[16px] text-(--rc-fv-actions)">
           <VscNewFile
-            className="cursor-pointer transition-colors"
+            className="cursor-pointer transition-colors hover:text-(--rc-fv-actions-hover)"
             title="새 파일"
             onClick={(event) => {
               event.stopPropagation();
@@ -287,7 +287,7 @@ export function FileViewer() {
             }}
           />
           <VscNewFolder
-            className="cursor-pointer transition-colors"
+            className="cursor-pointer transition-colors hover:text-(--rc-fv-actions-hover)"
             title="새 폴더"
             onClick={(event) => {
               event.stopPropagation();
@@ -295,7 +295,7 @@ export function FileViewer() {
             }}
           />
           <VscRefresh
-            className="cursor-pointer transition-colors"
+            className="cursor-pointer transition-colors hover:text-(--rc-fv-actions-hover)"
             title="새로고침"
             onClick={(event) => {
               event.stopPropagation();
@@ -317,8 +317,8 @@ export function FileViewer() {
             <VscLoading className="animate-spin text-2xl" />
           </div>
         ) : files.length === 0 ? (
-          <div className="file-viewer-empty">
-            <VscFolderOpened className="text-4xl text-[#7F838D]" />
+          <div className="h-full min-h-37.5 flex flex-col items-center justify-center space-y-2 text-(--rc-text-muted) opacity-70">
+            <VscFolderOpened className="text-4xl" />
             <span className="text-sm">파일이 없습니다.</span>
             <span className="text-xs">(.zip 파일을 이곳에 드래그하세요)</span>
           </div>
