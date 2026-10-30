@@ -61,7 +61,7 @@
 
 | 공윤정 | 문현지 | 김내현 |
 | :---: | :---: | :---: |
-| **Backend & Leader** | **Frontend & JiraOps & Design** | **Frontend & Infra** |
+| **Backend & Leader** | **Frontend & JiraOps** | **Frontend & Infra** |
 
 | 이규성 | 김수미 | 장하은 |
 | :---: | :---: | :---: |
